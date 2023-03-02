@@ -7,23 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		48BA038A644C2862DB0E9708 /* Pods_VideoChat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05C4EB91BE85C1D8D4B38FFE /* Pods_VideoChat.framework */; };
 		4F680C5729B0CD4600081B51 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F680C5629B0CD4600081B51 /* AppDelegate.swift */; };
 		4F680C5929B0CD4600081B51 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F680C5829B0CD4600081B51 /* SceneDelegate.swift */; };
 		4F680C5B29B0CD4600081B51 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F680C5A29B0CD4600081B51 /* ViewController.swift */; };
-		4F680C5E29B0CD4600081B51 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C5C29B0CD4600081B51 /* Main.storyboard */; };
 		4F680C6029B0CD4800081B51 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C5F29B0CD4800081B51 /* Assets.xcassets */; };
 		4F680C6329B0CD4800081B51 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C6129B0CD4800081B51 /* LaunchScreen.storyboard */; };
+		4F680C6C29B0CF5600081B51 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C6B29B0CF5500081B51 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		05C4EB91BE85C1D8D4B38FFE /* Pods_VideoChat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VideoChat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		47E83595787715E0B70923CD /* Pods-VideoChat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoChat.release.xcconfig"; path = "Target Support Files/Pods-VideoChat/Pods-VideoChat.release.xcconfig"; sourceTree = "<group>"; };
 		4F680C5329B0CD4600081B51 /* VideoChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F680C5629B0CD4600081B51 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4F680C5829B0CD4600081B51 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		4F680C5A29B0CD4600081B51 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		4F680C5D29B0CD4600081B51 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		4F680C5F29B0CD4800081B51 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4F680C6229B0CD4800081B51 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4F680C6429B0CD4800081B51 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4F680C6B29B0CF5500081B51 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		70FB35DC56DC30E5258C59A5 /* Pods-VideoChat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoChat.debug.xcconfig"; path = "Target Support Files/Pods-VideoChat/Pods-VideoChat.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,17 +35,30 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48BA038A644C2862DB0E9708 /* Pods_VideoChat.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2B05F693EE2135240585C8AC /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				70FB35DC56DC30E5258C59A5 /* Pods-VideoChat.debug.xcconfig */,
+				47E83595787715E0B70923CD /* Pods-VideoChat.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		4F680C4A29B0CD4600081B51 = {
 			isa = PBXGroup;
 			children = (
 				4F680C5529B0CD4600081B51 /* VideoChat */,
 				4F680C5429B0CD4600081B51 /* Products */,
+				2B05F693EE2135240585C8AC /* Pods */,
+				5300D41ABFE6A96BBD39671F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -56,15 +73,31 @@
 		4F680C5529B0CD4600081B51 /* VideoChat */ = {
 			isa = PBXGroup;
 			children = (
+				4F680C6A29B0CDE900081B51 /* Views */,
 				4F680C5629B0CD4600081B51 /* AppDelegate.swift */,
 				4F680C5829B0CD4600081B51 /* SceneDelegate.swift */,
-				4F680C5A29B0CD4600081B51 /* ViewController.swift */,
-				4F680C5C29B0CD4600081B51 /* Main.storyboard */,
 				4F680C5F29B0CD4800081B51 /* Assets.xcassets */,
 				4F680C6129B0CD4800081B51 /* LaunchScreen.storyboard */,
 				4F680C6429B0CD4800081B51 /* Info.plist */,
+				4F680C6B29B0CF5500081B51 /* GoogleService-Info.plist */,
 			);
 			path = VideoChat;
+			sourceTree = "<group>";
+		};
+		4F680C6A29B0CDE900081B51 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				4F680C5A29B0CD4600081B51 /* ViewController.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		5300D41ABFE6A96BBD39671F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				05C4EB91BE85C1D8D4B38FFE /* Pods_VideoChat.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -74,9 +107,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4F680C6729B0CD4800081B51 /* Build configuration list for PBXNativeTarget "VideoChat" */;
 			buildPhases = (
+				E12BCE55B2EED3C261FC5D15 /* [CP] Check Pods Manifest.lock */,
 				4F680C4F29B0CD4600081B51 /* Sources */,
 				4F680C5029B0CD4600081B51 /* Frameworks */,
 				4F680C5129B0CD4600081B51 /* Resources */,
+				16311ECD385AADFBF3B95574 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -127,11 +162,53 @@
 			files = (
 				4F680C6329B0CD4800081B51 /* LaunchScreen.storyboard in Resources */,
 				4F680C6029B0CD4800081B51 /* Assets.xcassets in Resources */,
-				4F680C5E29B0CD4600081B51 /* Main.storyboard in Resources */,
+				4F680C6C29B0CF5600081B51 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		16311ECD385AADFBF3B95574 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VideoChat/Pods-VideoChat-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VideoChat/Pods-VideoChat-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VideoChat/Pods-VideoChat-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E12BCE55B2EED3C261FC5D15 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-VideoChat-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4F680C4F29B0CD4600081B51 /* Sources */ = {
@@ -147,14 +224,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		4F680C5C29B0CD4600081B51 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				4F680C5D29B0CD4600081B51 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		4F680C6129B0CD4800081B51 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -216,7 +285,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -270,7 +339,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -282,6 +351,7 @@
 		};
 		4F680C6829B0CD4800081B51 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 70FB35DC56DC30E5258C59A5 /* Pods-VideoChat.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -292,9 +362,9 @@
 				INFOPLIST_FILE = VideoChat/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -302,14 +372,18 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.harundemirkaya.VideoChat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
 		4F680C6929B0CD4800081B51 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 47E83595787715E0B70923CD /* Pods-VideoChat.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -320,9 +394,9 @@
 				INFOPLIST_FILE = VideoChat/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -330,9 +404,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.harundemirkaya.VideoChat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
