@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		48BA038A644C2862DB0E9708 /* Pods_VideoChat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05C4EB91BE85C1D8D4B38FFE /* Pods_VideoChat.framework */; };
+		4F6766E429B0DCA600DC3BD6 /* root-bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6766E329B0DCA600DC3BD6 /* root-bg.png */; };
+		4F6766EA29B0EC2000DC3BD6 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */; };
+		4F6766EC29B0F02E00DC3BD6 /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6766EB29B0F02E00DC3BD6 /* RegisterViewController.swift */; };
 		4F680C5729B0CD4600081B51 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F680C5629B0CD4600081B51 /* AppDelegate.swift */; };
 		4F680C5929B0CD4600081B51 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F680C5829B0CD4600081B51 /* SceneDelegate.swift */; };
 		4F680C5B29B0CD4600081B51 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F680C5A29B0CD4600081B51 /* ViewController.swift */; };
@@ -19,6 +22,9 @@
 /* Begin PBXFileReference section */
 		05C4EB91BE85C1D8D4B38FFE /* Pods_VideoChat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VideoChat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		47E83595787715E0B70923CD /* Pods-VideoChat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoChat.release.xcconfig"; path = "Target Support Files/Pods-VideoChat/Pods-VideoChat.release.xcconfig"; sourceTree = "<group>"; };
+		4F6766E329B0DCA600DC3BD6 /* root-bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "root-bg.png"; sourceTree = "<group>"; };
+		4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		4F6766EB29B0F02E00DC3BD6 /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
 		4F680C5329B0CD4600081B51 /* VideoChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F680C5629B0CD4600081B51 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4F680C5829B0CD4600081B51 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -48,8 +54,15 @@
 				70FB35DC56DC30E5258C59A5 /* Pods-VideoChat.debug.xcconfig */,
 				47E83595787715E0B70923CD /* Pods-VideoChat.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		4F6766E229B0DC9B00DC3BD6 /* assets */ = {
+			isa = PBXGroup;
+			children = (
+				4F6766E329B0DCA600DC3BD6 /* root-bg.png */,
+			);
+			path = assets;
 			sourceTree = "<group>";
 		};
 		4F680C4A29B0CD4600081B51 = {
@@ -73,6 +86,7 @@
 		4F680C5529B0CD4600081B51 /* VideoChat */ = {
 			isa = PBXGroup;
 			children = (
+				4F6766E229B0DC9B00DC3BD6 /* assets */,
 				4F680C6A29B0CDE900081B51 /* Views */,
 				4F680C5629B0CD4600081B51 /* AppDelegate.swift */,
 				4F680C5829B0CD4600081B51 /* SceneDelegate.swift */,
@@ -88,6 +102,8 @@
 			isa = PBXGroup;
 			children = (
 				4F680C5A29B0CD4600081B51 /* ViewController.swift */,
+				4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */,
+				4F6766EB29B0F02E00DC3BD6 /* RegisterViewController.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -161,6 +177,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F680C6329B0CD4800081B51 /* LaunchScreen.storyboard in Resources */,
+				4F6766E429B0DCA600DC3BD6 /* root-bg.png in Resources */,
 				4F680C6029B0CD4800081B51 /* Assets.xcassets in Resources */,
 				4F680C6C29B0CF5600081B51 /* GoogleService-Info.plist in Resources */,
 			);
@@ -215,6 +232,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F6766EA29B0EC2000DC3BD6 /* LoginViewController.swift in Sources */,
+				4F6766EC29B0F02E00DC3BD6 /* RegisterViewController.swift in Sources */,
 				4F680C5B29B0CD4600081B51 /* ViewController.swift in Sources */,
 				4F680C5729B0CD4600081B51 /* AppDelegate.swift in Sources */,
 				4F680C5929B0CD4600081B51 /* SceneDelegate.swift in Sources */,
