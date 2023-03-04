@@ -6,6 +6,9 @@
 //
 
 import UIKit
+import Firebase
+import FirebaseAuth
+import FirebaseFirestore
 
 class RegisterViewController: UIViewController {
 
@@ -76,6 +79,7 @@ class RegisterViewController: UIViewController {
         txtField.layer.cornerRadius = 15
         txtField.layer.borderColor = UIColor.white.withAlphaComponent(0.6).cgColor
         txtField.layer.borderWidth = 1
+        txtField.isSecureTextEntry = true
         return txtField
     }()
     
@@ -109,10 +113,54 @@ class RegisterViewController: UIViewController {
         btnRegister.btnRegisterConstraints(stackView, txtFieldPassword: txtFieldPassword, view: view)
         
         btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
+        btnRegister.addTarget(self, action: #selector(btnRegisterTarget), for: .touchUpInside)
+        txtFieldEmail.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
     }
     
     @objc func btnBackTarget(){
         dismiss(animated: true)
+    }
+    
+    @objc func btnRegisterTarget(){
+        let name = txtFieldName.text ?? ""
+        let email = txtFieldEmail.text ?? ""
+        let password = txtFieldPassword.text ?? ""
+        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+            if let error = error {
+                self.alertMessage(title: "Error", description: error.localizedDescription)
+            } else {
+                let db = Firestore.firestore()
+                let user = Auth.auth().currentUser
+                if let user = user {
+                    db.collection("users").document(user.uid).setData([
+                        "name": name,
+                        "email": email
+                    ]) { error in
+                        if let error = error {
+                            self.alertMessage(title: "Error", description: error.localizedDescription)
+                        } else {
+                            let matchHomeVC = MatchHomeViewController()
+                            matchHomeVC.modalPresentationStyle = .fullScreen
+                            self.present(matchHomeVC, animated: true)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func textFieldDidChange(_ textField: UITextField) {
+        txtFieldEmail.text = txtFieldEmail.text?.lowercased()
+    }
+    
+    // MARK: -Show Alert Message
+    private func alertMessage(title: String, description: String){
+        let alertMessage = UIAlertController(title: title, message: description, preferredStyle: UIAlertController.Style.alert)
+        let okButton = UIAlertAction(title: "Okey", style: UIAlertAction.Style.default)
+        alertMessage.addAction(okButton)
+        alertMessage.isAccessibilityElement = true
+        alertMessage.accessibilityHint = description
+        self.present(alertMessage, animated: true)
     }
 }
 
@@ -179,7 +227,7 @@ private extension UIView{
 }
 
 // MARK: -TextField Padding Placeholder
-class RightAlignedTextField: UITextField {
+private class RightAlignedTextField: UITextField {
     override func textRect(forBounds bounds: CGRect) -> CGRect {
         return bounds.insetBy(dx: 20, dy: 0)
     }

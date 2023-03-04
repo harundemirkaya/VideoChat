@@ -18,6 +18,7 @@
 		4F680C6029B0CD4800081B51 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C5F29B0CD4800081B51 /* Assets.xcassets */; };
 		4F680C6329B0CD4800081B51 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C6129B0CD4800081B51 /* LaunchScreen.storyboard */; };
 		4F680C6C29B0CF5600081B51 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C6B29B0CF5500081B51 /* GoogleService-Info.plist */; };
+		4F944E6329B35D3500B7AC14 /* MatchHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F944E6229B35D3500B7AC14 /* MatchHomeViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,7 @@
 		4F680C6229B0CD4800081B51 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4F680C6429B0CD4800081B51 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4F680C6B29B0CF5500081B51 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		4F944E6229B35D3500B7AC14 /* MatchHomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchHomeViewController.swift; sourceTree = "<group>"; };
 		70FB35DC56DC30E5258C59A5 /* Pods-VideoChat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoChat.debug.xcconfig"; path = "Target Support Files/Pods-VideoChat/Pods-VideoChat.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -107,6 +109,7 @@
 				4F680C5A29B0CD4600081B51 /* ViewController.swift */,
 				4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */,
 				4F6766EB29B0F02E00DC3BD6 /* RegisterViewController.swift */,
+				4F944E6229B35D3500B7AC14 /* MatchHomeViewController.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -237,6 +240,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F6766EA29B0EC2000DC3BD6 /* LoginViewController.swift in Sources */,
+				4F944E6329B35D3500B7AC14 /* MatchHomeViewController.swift in Sources */,
 				4F6766EC29B0F02E00DC3BD6 /* RegisterViewController.swift in Sources */,
 				4F680C5B29B0CD4600081B51 /* ViewController.swift in Sources */,
 				4F680C5729B0CD4600081B51 /* AppDelegate.swift in Sources */,
