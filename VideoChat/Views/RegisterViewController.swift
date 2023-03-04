@@ -115,6 +115,13 @@ class RegisterViewController: UIViewController {
         btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
         btnRegister.addTarget(self, action: #selector(btnRegisterTarget), for: .touchUpInside)
         txtFieldEmail.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     @objc func btnBackTarget(){
