@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import Firebase
+import FirebaseAuth
 
 class LoginViewController: UIViewController {
 
@@ -96,19 +98,33 @@ class LoginViewController: UIViewController {
         btnLogin.btnLoginConstraints(stackView, txtFieldPassword: txtFieldPassword, view: view)
         
         btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
+        btnLogin.addTarget(self, action: #selector(btnLoginTarget), for: .touchUpInside)
         txtFieldEmail.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
     }
     
-    @objc func btnBackTarget(){
+    @objc private func btnBackTarget(){
         dismiss(animated: true)
     }
     
-    @objc func textFieldDidChange(_ textField: UITextField) {
+    @objc private func btnLoginTarget(){
+        Auth.auth().signIn(withEmail: txtFieldEmail.text ?? "", password: txtFieldPassword.text ?? "") { [weak self] authResult, error in
+            guard self != nil else { return }
+            if error != nil {
+                self?.alertMessage(title: "Error", description: error?.localizedDescription ?? "Error")
+                return
+            }
+            let matchHomeVC = MatchHomeViewController()
+            matchHomeVC.modalPresentationStyle = .fullScreen
+            self?.present(matchHomeVC, animated: true)
+        }
+    }
+    
+    @objc private func textFieldDidChange(_ textField: UITextField) {
         txtFieldEmail.text = txtFieldEmail.text?.lowercased()
     }
     
     // MARK: -Show Alert Message
-    func alertMessage(title: String, description: String){
+    private func alertMessage(title: String, description: String){
         let alertMessage = UIAlertController(title: title, message: description, preferredStyle: UIAlertController.Style.alert)
         let okButton = UIAlertAction(title: "Okey", style: UIAlertAction.Style.default)
         alertMessage.addAction(okButton)
