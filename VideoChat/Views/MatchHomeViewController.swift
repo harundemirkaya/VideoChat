@@ -13,9 +13,9 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
     // Update with the App ID of your project generated on Agora Console.
     let appID = "3dbfbb81b19e4e379cdc2c179d89999e"
     // Update with the temporary token generated in Agora Console.
-    var token = "78d8883b94dc42c6822784fddf93c57a"
+    var token = "007eJxTYGCZOrvxWqz6ggjh1cs8U9826eyRmxzdGDPhM0fZ9hOmpXsUGIxTktKSkiwMkwwtU01Sjc0tk1OSjZINzS1TLCyBIFW8kDmlIZCRYZ7EYxZGBkYGFiAG8ZnAJDOYZAGTHAzF+WklqSWZ2QwMAOcIIuU="
     // Update with the channel name you used to generate the token in Agora Console.
-    var channelName = "VideChat"
+    var channelName = "softetik"
 
     // The video feed for the local user is displayed here
     var localView: UIView!
