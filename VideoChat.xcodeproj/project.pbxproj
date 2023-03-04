@@ -11,6 +11,7 @@
 		4F6766E429B0DCA600DC3BD6 /* root-bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6766E329B0DCA600DC3BD6 /* root-bg.png */; };
 		4F6766EA29B0EC2000DC3BD6 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */; };
 		4F6766EC29B0F02E00DC3BD6 /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6766EB29B0F02E00DC3BD6 /* RegisterViewController.swift */; };
+		4F6766F029B0F3FD00DC3BD6 /* register-bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F6766EF29B0F3FD00DC3BD6 /* register-bg.png */; };
 		4F680C5729B0CD4600081B51 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F680C5629B0CD4600081B51 /* AppDelegate.swift */; };
 		4F680C5929B0CD4600081B51 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F680C5829B0CD4600081B51 /* SceneDelegate.swift */; };
 		4F680C5B29B0CD4600081B51 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F680C5A29B0CD4600081B51 /* ViewController.swift */; };
@@ -25,6 +26,7 @@
 		4F6766E329B0DCA600DC3BD6 /* root-bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "root-bg.png"; sourceTree = "<group>"; };
 		4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		4F6766EB29B0F02E00DC3BD6 /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
+		4F6766EF29B0F3FD00DC3BD6 /* register-bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "register-bg.png"; sourceTree = "<group>"; };
 		4F680C5329B0CD4600081B51 /* VideoChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F680C5629B0CD4600081B51 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4F680C5829B0CD4600081B51 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -61,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				4F6766E329B0DCA600DC3BD6 /* root-bg.png */,
+				4F6766EF29B0F3FD00DC3BD6 /* register-bg.png */,
 			);
 			path = assets;
 			sourceTree = "<group>";
@@ -176,6 +179,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F6766F029B0F3FD00DC3BD6 /* register-bg.png in Resources */,
 				4F680C6329B0CD4800081B51 /* LaunchScreen.storyboard in Resources */,
 				4F6766E429B0DCA600DC3BD6 /* root-bg.png in Resources */,
 				4F680C6029B0CD4800081B51 /* Assets.xcassets in Resources */,

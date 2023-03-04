@@ -120,11 +120,13 @@ class ViewController: UIViewController {
     
     @objc func btnEmailLoginTarget(){
         let registerVC = RegisterViewController()
+        registerVC.modalPresentationStyle = .fullScreen
         present(registerVC, animated: true)
     }
     
     @objc func lblLoginTarget(){
         let loginVC = LoginViewController()
+        loginVC.modalPresentationStyle = .fullScreen
         present(loginVC, animated: true)
     }
 }
@@ -133,7 +135,7 @@ class ViewController: UIViewController {
 private extension UIView{
     func stackViewConstraints(_ view: UIView){
         view.addSubview(self)
-        topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+        topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
@@ -141,7 +143,7 @@ private extension UIView{
     
     func imgViewBGConstraints(_ stackView: UIStackView){
         stackView.addSubview(self)
-        topAnchor.constraint(equalTo: stackView.safeAreaLayoutGuide.topAnchor).isActive = true
+        topAnchor.constraint(equalTo: stackView.topAnchor).isActive = true
         leadingAnchor.constraint(equalTo: stackView.leadingAnchor).isActive = true
         trailingAnchor.constraint(equalTo: stackView.trailingAnchor).isActive = true
         bottomAnchor.constraint(equalTo: stackView.bottomAnchor).isActive = true
