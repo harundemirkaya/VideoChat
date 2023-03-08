@@ -5,22 +5,18 @@ import AgoraRtcKit
 
 class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
     
-    // The main entry point for Video SDK
+    // MARK: -Agora Config
     var agoraEngine: AgoraRtcEngineKit!
-    // By default, set the current user role to broadcaster to both send and receive streams.
     var userRole: AgoraClientRole = .broadcaster
-
-    // Update with the App ID of your project generated on Agora Console.
     let appID = "3dbfbb81b19e4e379cdc2c179d89999e"
-    // Update with the temporary token generated in Agora Console.
     var token = "007eJxTYGCZOrvxWqz6ggjh1cs8U9826eyRmxzdGDPhM0fZ9hOmpXsUGIxTktKSkiwMkwwtU01Sjc0tk1OSjZINzS1TLCyBIFW8kDmlIZCRYZ7EYxZGBkYGFiAG8ZnAJDOYZAGTHAzF+WklqSWZ2QwMAOcIIuU="
-    // Update with the channel name you used to generate the token in Agora Console.
     var channelName = "softetik"
 
-    // The video feed for the local user is displayed here
+    // MARK: -Define Views
     var localView: UIView!
-    // The video feed for the remote user is displayed here
     var remoteView: UIView!
+
+    
     // Click to join or leave a call
     var joinButton: UIButton!
 
@@ -34,44 +30,65 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
     }
 
     override func viewDidLoad() {
-         super.viewDidLoad()
-         // Do any additional setup after loading the view.
-         // Initializes the video view
-         initViews()
-         // The following functions are used when calling Agora APIs
-         initializeAgoraEngine()
-    }
-
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        remoteView.frame = CGRect(x: 20, y: 50, width: 350, height: 330)
-        localView.frame = CGRect(x: 20, y: 400, width: 350, height: 330)
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        leaveChannel()
-        DispatchQueue.global(qos: .userInitiated).async {AgoraRtcEngineKit.destroy()}
-    }
-
-    func initViews() {
-        // Initializes the remote video view. This view displays video when a remote host joins the channel.
-        remoteView = UIView()
-        remoteView.backgroundColor = .red
-        self.view.addSubview(remoteView)
-        // Initializes the local video window. This view displays video when the local user is a host.
-        localView = UIView()
-        localView.backgroundColor = .green
-        self.view.addSubview(localView)
+        super.viewDidLoad()
+        view.backgroundColor = .white
         
-        //  Button to join or leave a channel
+        localView = UIView(frame: view.bounds)
+        remoteView = UIView(frame: CGRect(x: view.bounds.width, y: 0, width: view.bounds.width, height: view.bounds.height))
+        
+        localView.backgroundColor = .green
+        remoteView.backgroundColor = .red
+        view.addSubview(localView)
+        view.addSubview(remoteView)
+        remoteView.alpha = 0
+        let gestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleGesture(_:)))
+        localView.addGestureRecognizer(gestureRecognizer)
+
+        
         joinButton = UIButton(type: .system)
         joinButton.frame = CGRect(x: 140, y: 700, width: 100, height: 50)
         joinButton.setTitle("Join", for: .normal)
 
         joinButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         self.view.addSubview(joinButton)
+        
+        // The following functions are used when calling Agora APIs
+        initializeAgoraEngine()
+    }
+
+    @objc func handleGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
+        let translation = gestureRecognizer.translation(in: view)
+        switch gestureRecognizer.state {
+        case .changed:
+            localView.frame.origin.x = translation.x
+            remoteView.alpha = min(max(translation.x / 100, 0), 1)
+            remoteView.frame.origin.x = localView.frame.maxX + min(max(translation.x, 0), 100)
+        case .ended:
+            let velocity = gestureRecognizer.velocity(in: view)
+            let duration = TimeInterval(abs(1000 / velocity.x))
+            UIView.animate(withDuration: duration, animations: {
+                if translation.x > 100 {
+                    self.localView.frame.origin.x = self.view.bounds.width
+                    self.remoteView.alpha = 1
+                    self.remoteView.frame.origin.x = self.view.bounds.width - self.remoteView.frame.width
+                } else {
+                    self.localView.frame.origin.x = 0
+                    self.remoteView.alpha = 0
+                    self.remoteView.frame.origin.x = self.view.bounds.width
+                }
+            })
+        default:
+            break
+        }
+        buttonAction(sender: joinButton)
+    }
+
+
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        leaveChannel()
+        DispatchQueue.global(qos: .userInitiated).async {AgoraRtcEngineKit.destroy()}
     }
 
     @objc func buttonAction(sender: UIButton!) {
@@ -185,4 +202,26 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
         if result == 0 { joined = false }
     }
 
+}
+
+private extension UIView{
+    func stackViewConstraints(_ view: UIView){
+        view.addSubview(self)
+        heightAnchor.constraint(equalToConstant: view.frame.size.height).isActive = true
+        widthAnchor.constraint(equalToConstant: view.frame.size.width).isActive = true
+    }
+    
+    func localViewConstraints(_ stackView: UIStackView){
+        stackView.addSubview(self)
+        heightAnchor.constraint(equalToConstant: stackView.frame.size.height).isActive = true
+        widthAnchor.constraint(equalToConstant: stackView.frame.size.width).isActive = true
+        centerXAnchor.constraint(equalTo: stackView.centerXAnchor).isActive = true
+    }
+    
+    func remoteViewConstraints(_ stackView: UIStackView, localView: UIView){
+        stackView.addSubview(self)
+        heightAnchor.constraint(equalToConstant: stackView.frame.size.height).isActive = true
+        widthAnchor.constraint(equalToConstant: stackView.frame.size.width).isActive = true
+        leadingAnchor.constraint(equalTo: localView.trailingAnchor).isActive = true
+    }
 }
