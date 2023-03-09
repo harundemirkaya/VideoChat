@@ -9,18 +9,14 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
     var agoraEngine: AgoraRtcEngineKit!
     var userRole: AgoraClientRole = .broadcaster
     let appID = "3dbfbb81b19e4e379cdc2c179d89999e"
-    var token = "007eJxTYGCZOrvxWqz6ggjh1cs8U9826eyRmxzdGDPhM0fZ9hOmpXsUGIxTktKSkiwMkwwtU01Sjc0tk1OSjZINzS1TLCyBIFW8kDmlIZCRYZ7EYxZGBkYGFiAG8ZnAJDOYZAGTHAzF+WklqSWZ2QwMAOcIIuU="
+    var token = "007eJxTYEjbpFGwae6ZCfvLZr799FDsVssmb7XHB/Ytvy76M7OhU81AgcE4JSktKcnCMMnQMtUk1djcMjkl2SjZ0NwyxcISCFIXyHKlNAQyMpyY/I6RkYGRgQWIQXwmMMkMJlnAJAdDcX5aSWpJZjYDAwBczibE"
     var channelName = "softetik"
 
     // MARK: -Define Views
     var localView: UIView!
     var remoteView: UIView!
 
-    
-    // Click to join or leave a call
     var joinButton: UIButton!
-
-    // Track if the local user is in a call
     var joined: Bool = false {
         didSet {
             DispatchQueue.main.async {
@@ -36,14 +32,11 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
         localView = UIView(frame: view.bounds)
         remoteView = UIView(frame: CGRect(x: view.bounds.width, y: 0, width: view.bounds.width, height: view.bounds.height))
         
-        localView.backgroundColor = .green
-        remoteView.backgroundColor = .red
         view.addSubview(localView)
         view.addSubview(remoteView)
         remoteView.alpha = 0
         let gestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleGesture(_:)))
         localView.addGestureRecognizer(gestureRecognizer)
-
         
         joinButton = UIButton(type: .system)
         joinButton.frame = CGRect(x: 140, y: 700, width: 100, height: 50)
@@ -51,9 +44,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
 
         joinButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         self.view.addSubview(joinButton)
-        
-        // The following functions are used when calling Agora APIs
+        joinButton.isHidden = true
+
         initializeAgoraEngine()
+        setupLocalVideo()
     }
 
     @objc func handleGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
@@ -105,7 +99,6 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
     
     func checkForPermissions() async -> Bool {
         var hasPermissions = await self.avAuthorization(mediaType: .video)
-        // Break out, because camera permissions have been denied or restricted.
         if !hasPermissions { return false }
         hasPermissions = await self.avAuthorization(mediaType: .audio)
         return hasPermissions
@@ -137,9 +130,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
 
     func initializeAgoraEngine() {
         let config = AgoraRtcEngineConfig()
-        // Pass in your App ID here.
         config.appId = appID
-        // Use AgoraRtcEngineDelegate for the following delegate parameter.
         agoraEngine = AgoraRtcEngineKit.sharedEngine(with: config, delegate: self)
     }
 
@@ -152,15 +143,12 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
     }
     
     func setupLocalVideo() {
-        // Enable the video module
         agoraEngine.enableVideo()
-        // Start the local video preview
         agoraEngine.startPreview()
         let videoCanvas = AgoraRtcVideoCanvas()
         videoCanvas.uid = 0
         videoCanvas.renderMode = .hidden
         videoCanvas.view = localView
-        // Set the local video view
         agoraEngine.setupLocalVideo(videoCanvas)
     }
 
@@ -171,8 +159,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
         }
 
         let option = AgoraRtcChannelMediaOptions()
-
-        // Set the client role option as broadcaster or audience.
+        
         if self.userRole == .broadcaster {
             option.clientRoleType = .broadcaster
             setupLocalVideo()
@@ -180,15 +167,13 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
             option.clientRoleType = .audience
         }
 
-        // For a video call scenario, set the channel profile as communication.
         option.channelProfile = .communication
-
-        // Join the channel with a temp token. Pass in your token and channel name here
+        
         let result = agoraEngine.joinChannel(
             byToken: token, channelId: channelName, uid: 0, mediaOptions: option,
             joinSuccess: { (channel, uid, elapsed) in }
         )
-            // Check if joining the channel was successful and set joined Bool accordingly
+        
         if result == 0 {
             joined = true
             showMessage(title: "Success", text: "Successfully joined the channel as \(self.userRole)")
@@ -198,7 +183,6 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
     func leaveChannel() {
         agoraEngine.stopPreview()
         let result = agoraEngine.leaveChannel(nil)
-        // Check if leaving the channel was successful and set joined Bool accordingly
         if result == 0 { joined = false }
     }
 
