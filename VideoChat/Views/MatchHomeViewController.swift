@@ -1,6 +1,8 @@
 import UIKit
 import AVFoundation
 import AgoraRtcKit
+import Firebase
+import FirebaseAuth
 
 
 class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
@@ -9,7 +11,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
     var agoraEngine: AgoraRtcEngineKit!
     var userRole: AgoraClientRole = .broadcaster
     let appID = "3dbfbb81b19e4e379cdc2c179d89999e"
-    var token = "007eJxTYEjbpFGwae6ZCfvLZr799FDsVssmb7XHB/Ytvy76M7OhU81AgcE4JSktKcnCMMnQMtUk1djcMjkl2SjZ0NwyxcISCFIXyHKlNAQyMpyY/I6RkYGRgQWIQXwmMMkMJlnAJAdDcX5aSWpJZjYDAwBczibE"
+    var token = "007eJxTYNBeJhv+heHgq4bEiWxK5Sdz10j7fl0kvkWhpWbSpx05AucUGIxTktKSkiwMkwwtU01Sjc0tk1OSjZINzS1TLCyBILUskielIZCRoYHtDCsjAyMDCxCD+ExgkhlMsoBJDobi/LSS1JLMbAYGAO1tIvc="
     var channelName = "softetik"
 
     // MARK: -Define Views
@@ -25,6 +27,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
         }
     }
 
+    // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -169,14 +172,42 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
 
         option.channelProfile = .communication
         
-        let result = agoraEngine.joinChannel(
-            byToken: token, channelId: channelName, uid: 0, mediaOptions: option,
-            joinSuccess: { (channel, uid, elapsed) in }
-        )
-        
-        if result == 0 {
-            joined = true
-            showMessage(title: "Success", text: "Successfully joined the channel as \(self.userRole)")
+        if let currentUser = Auth.auth().currentUser {
+            let db = Firestore.firestore()
+            var genderID = [Int]()
+            // MARK: Gender Filter
+            db.collection("users").whereField("gender", isEqualTo: "female").getDocuments() { (querySnapshot, error) in
+                if let error = error {
+                    print("Error getting documents: \(error)")
+                } else {
+                    for document in querySnapshot!.documents {
+                        if let userId = document.get("id") as? Int {
+                            genderID.append(userId)
+                        }
+                    }
+                }
+            }
+            // MARK: Set User ID
+            let docRef = db.collection("users").document(currentUser.uid)
+            docRef.getDocument { (document, error) in
+                if let document = document, document.exists {
+                    let data = document.data()
+                    let userID = data!["id"] as! UInt
+                    let result = self.agoraEngine.joinChannel(
+                        byToken: self.token, channelId: self.channelName, uid: userID, mediaOptions: option,
+                        joinSuccess: { (channel, uid, elapsed) in }
+                    )
+                    
+                    if result == 0 {
+                        self.joined = true
+                        self.showMessage(title: "Success", text: "Successfully joined the channel as \(self.userRole)")
+                    }
+                } else {
+                    print("Kullanıcı belgesi mevcut değil")
+                }
+            }
+        } else {
+            print("Kullanıcı oturum açmadı")
         }
     }
 
