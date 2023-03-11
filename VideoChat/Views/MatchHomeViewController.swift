@@ -11,8 +11,13 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
     var agoraEngine: AgoraRtcEngineKit!
     var userRole: AgoraClientRole = .broadcaster
     let appID = "3dbfbb81b19e4e379cdc2c179d89999e"
-    var token = ""
-    var channelName = ""
+    
+    let option: AgoraRtcChannelMediaOptions = {
+        let option = AgoraRtcChannelMediaOptions()
+        option.clientRoleType = .broadcaster
+        option.channelProfile = .communication
+        return option
+    }()
 
     // MARK: -Define Views
     var localView: UIView!
@@ -26,11 +31,37 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
             }
         }
     }
+    
+    var userIDforChannel: UInt?
+    
+    var publisherToken: String?{
+        didSet{
+            if publisherToken != nil{
+                self.createChannel()
+            }
+        }
+    }
+    
+    var listenerToken: String?{
+        didSet{
+            if listenerToken != nil{
+                self.joinListener()
+            }
+        }
+    }
+    
+    var listenerJoinedUID: String?
+    
+    var filteredChannelName: String?
+    
+    let matchHomeViewModel = MatchHomeViewModel()
 
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        
+        matchHomeViewModel.matchHomeVC = self
         
         localView = UIView(frame: view.bounds)
         remoteView = UIView(frame: CGRect(x: view.bounds.width, y: 0, width: view.bounds.width, height: view.bounds.height))
@@ -47,7 +78,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
 
         joinButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         self.view.addSubview(joinButton)
-        joinButton.isHidden = true
+        joinButton.isHidden = false
 
         initializeAgoraEngine()
         setupLocalVideo()
@@ -160,17 +191,6 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
             showMessage(title: "Error", text: "Permissions were not granted")
             return
         }
-
-        let option = AgoraRtcChannelMediaOptions()
-        
-        if self.userRole == .broadcaster {
-            option.clientRoleType = .broadcaster
-            setupLocalVideo()
-        } else {
-            option.clientRoleType = .audience
-        }
-
-        option.channelProfile = .communication
         
         if let currentUser = Auth.auth().currentUser {
             let db = Firestore.firestore()
@@ -193,75 +213,19 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
                 if let document = document, document.exists {
                     let data = document.data()
                     let userID = data!["id"] as! UInt
-                    var isEmptyChannel = true
-                    
+                    self.userIDforChannel = userID
                     let isEmptyChannelDB = db.collection("channels")
-                    isEmptyChannelDB.getDocuments { querySnapshot, error in
-                        if let error = error{
-                            print(error.localizedDescription)
-                        } else{
-                            let isEmpty = querySnapshot?.isEmpty ?? true
-                            isEmptyChannel = isEmpty
-                        }
-                    }
-                    
-                    if isEmptyChannel{
-                        // MARK: Set Token
-                        var publisherToken = ""
-                        guard let url = URL(string: "http://213.238.190.166:3169/rte/\(userID)CHANNEL/publisher/userAccount/\(userID)/?expiry=3600") else {
-                            print("Invalid URL")
-                            return
-                        }
-                        let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
-                            guard error == nil else {
-                                print("Error: \(error!)")
-                                return
-                            }
-                            
-                            guard let data = data else {
-                                print("No data received")
-                                return
-                            }
-                            
-                            do {
-                                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                                guard let rtcToken = json?["rtcToken"] as? String else {
-                                    print("Could not find rtcToken in JSON")
-                                    return
-                                }
-                                
-                                publisherToken = rtcToken
-                            } catch {
-                                print("Error decoding JSON: \(error)")
+                    isEmptyChannelDB.getDocuments { (querySnapshot, error) in
+                        if let error = error {
+                            print("Error getting documents: \(error.localizedDescription)")
+                        } else {
+                            let numberOfDocuments = querySnapshot?.count ?? 0
+                            if numberOfDocuments == 0 {
+                                self.matchHomeViewModel.getTokenPublisher(userID)
+                            } else{
+                                self.listenerFilters(userID)
                             }
                         }
-                        task.resume()
-
-
-                        
-                        
-                        let data: [String: Any] = [
-                            "channelName": "\(userID)CHANNEL",
-                            "publisherToken": publisherToken,
-                            "listenerToken": ""
-                        ]
-                        isEmptyChannelDB.addDocument(data: data){ (error) in
-                            if let error = error {
-                                print("Error adding document: \(error)")
-                            }
-                        }
-                    } else{
-                        // MARK: Dolu ise
-                    }
-                    
-                    let result = self.agoraEngine.joinChannel(
-                        byToken: self.token, channelId: self.channelName, uid: userID, mediaOptions: option,
-                        joinSuccess: { (channel, uid, elapsed) in }
-                    )
-                    
-                    if result == 0 {
-                        self.joined = true
-                        self.showMessage(title: "Success", text: "Successfully joined the channel as \(self.userRole)")
                     }
                 } else {
                     print("Kullanıcı belgesi mevcut değil")
@@ -269,6 +233,83 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
             }
         } else {
             print("Kullanıcı oturum açmadı")
+        }
+    }
+    
+    func createChannel(){
+        let db = Firestore.firestore()
+        let channelsCollection = db.collection("channels")
+        let getCurrentUser = db.collection("users").document(Auth.auth().currentUser!.uid)
+        var currentUserGender = ""
+        getCurrentUser.getDocument { (document, error) in
+            if let document = document, document.exists {
+                currentUserGender = document.data()?["gender"] as! String
+                let data: [String: Any] = [
+                    "channelName": "\(self.userIDforChannel!)CHANNEL",
+                    "publisherToken": self.publisherToken!,
+                    "gender": currentUserGender,
+                    "listenerToken": ""
+                ]
+                channelsCollection.addDocument(data: data){ (error) in
+                    if let error = error {
+                        print("Error adding document: \(error)")
+                    } else{
+                        let result = self.agoraEngine.joinChannel(
+                            byToken: self.publisherToken, channelId: "\(self.userIDforChannel!)CHANNEL", uid: self.userIDforChannel!, mediaOptions: self.option,
+                            joinSuccess: { (channel, uid, elapsed) in }
+                        )
+                        if result == 0 {
+                            self.joined = true
+                            self.showMessage(title: "Success", text: "Successfully joined the channel as \(self.userRole)")
+                        }
+                    }
+                }
+            } else {
+                print("Document does not exist")
+            }
+        }
+    }
+    
+    func listenerFilters(_ userID: UInt){
+        let db = Firestore.firestore()
+        let channelsCollection = db.collection("channels")
+
+        channelsCollection.getDocuments{ (snapshot, error) in
+            if let error = error {
+                print("Error getting documents: \(error.localizedDescription)")
+            } else {
+                guard let documents = snapshot?.documents else { return }
+                for document in documents {
+                    let gender = document.data()["gender"] as? String ?? ""
+                    if gender == "female" {
+                        let data = document.data()
+                        self.filteredChannelName = data["channelName"] as? String ?? ""
+                        self.matchHomeViewModel.getTokenListener(userID, channelName: self.filteredChannelName!)
+                        self.listenerJoinedUID = document.documentID
+                    }
+                }
+            }
+        }
+    }
+    
+    func joinListener(){
+        let result = self.agoraEngine.joinChannel(
+            byToken: self.listenerToken, channelId: self.filteredChannelName!, uid: self.userIDforChannel!, mediaOptions: self.option,
+            joinSuccess: { (channel, uid, elapsed) in }
+        )
+        if result == 0 {
+            self.joined = true
+            let db = Firestore.firestore()
+            let channelsCollctionDocument = db.collection("channels").document(self.listenerJoinedUID!)
+            channelsCollctionDocument.updateData([
+                "listenerToken": self.listenerToken!
+            ]) { err in
+                if let err = err {
+                    print("Error updating document: \(err)")
+                } else {
+                    self.showMessage(title: "Success", text: "Successfully joined the channel as \(self.userRole)")
+                }
+            }
         }
     }
 

@@ -19,6 +19,9 @@
 		4F680C6329B0CD4800081B51 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C6129B0CD4800081B51 /* LaunchScreen.storyboard */; };
 		4F680C6C29B0CF5600081B51 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C6B29B0CF5500081B51 /* GoogleService-Info.plist */; };
 		4F944E6329B35D3500B7AC14 /* MatchHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F944E6229B35D3500B7AC14 /* MatchHomeViewController.swift */; };
+		4FA6348929BD481E00F7C75E /* RTCTokenModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA6348829BD481E00F7C75E /* RTCTokenModel.swift */; };
+		4FC6250629BD17AF00698116 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FC6250529BD17AF00698116 /* NetworkManager.swift */; };
+		4FC6250929BD185C00698116 /* MatchHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FC6250829BD185C00698116 /* MatchHomeViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +40,9 @@
 		4F680C6429B0CD4800081B51 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4F680C6B29B0CF5500081B51 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		4F944E6229B35D3500B7AC14 /* MatchHomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchHomeViewController.swift; sourceTree = "<group>"; };
+		4FA6348829BD481E00F7C75E /* RTCTokenModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RTCTokenModel.swift; sourceTree = "<group>"; };
+		4FC6250529BD17AF00698116 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		4FC6250829BD185C00698116 /* MatchHomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchHomeViewModel.swift; sourceTree = "<group>"; };
 		70FB35DC56DC30E5258C59A5 /* Pods-VideoChat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoChat.debug.xcconfig"; path = "Target Support Files/Pods-VideoChat/Pods-VideoChat.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -91,8 +97,11 @@
 		4F680C5529B0CD4600081B51 /* VideoChat */ = {
 			isa = PBXGroup;
 			children = (
-				4F6766E229B0DC9B00DC3BD6 /* assets */,
+				4FA6348729BD47F600F7C75E /* Models */,
 				4F680C6A29B0CDE900081B51 /* Views */,
+				4FC6250729BD184200698116 /* ViewModels */,
+				4FC6250429BD179B00698116 /* Services */,
+				4F6766E229B0DC9B00DC3BD6 /* assets */,
 				4F680C5629B0CD4600081B51 /* AppDelegate.swift */,
 				4F680C5829B0CD4600081B51 /* SceneDelegate.swift */,
 				4F680C5F29B0CD4800081B51 /* Assets.xcassets */,
@@ -112,6 +121,30 @@
 				4F944E6229B35D3500B7AC14 /* MatchHomeViewController.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		4FA6348729BD47F600F7C75E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				4FA6348829BD481E00F7C75E /* RTCTokenModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		4FC6250429BD179B00698116 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				4FC6250529BD17AF00698116 /* NetworkManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		4FC6250729BD184200698116 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				4FC6250829BD185C00698116 /* MatchHomeViewModel.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		5300D41ABFE6A96BBD39671F /* Frameworks */ = {
@@ -242,7 +275,10 @@
 				4F6766EA29B0EC2000DC3BD6 /* LoginViewController.swift in Sources */,
 				4F944E6329B35D3500B7AC14 /* MatchHomeViewController.swift in Sources */,
 				4F6766EC29B0F02E00DC3BD6 /* RegisterViewController.swift in Sources */,
+				4FC6250629BD17AF00698116 /* NetworkManager.swift in Sources */,
 				4F680C5B29B0CD4600081B51 /* ViewController.swift in Sources */,
+				4FC6250929BD185C00698116 /* MatchHomeViewModel.swift in Sources */,
+				4FA6348929BD481E00F7C75E /* RTCTokenModel.swift in Sources */,
 				4F680C5729B0CD4600081B51 /* AppDelegate.swift in Sources */,
 				4F680C5929B0CD4600081B51 /* SceneDelegate.swift in Sources */,
 			);
