@@ -11,8 +11,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
     var agoraEngine: AgoraRtcEngineKit!
     var userRole: AgoraClientRole = .broadcaster
     let appID = "3dbfbb81b19e4e379cdc2c179d89999e"
-    var token = "007eJxTYNBeJhv+heHgq4bEiWxK5Sdz10j7fl0kvkWhpWbSpx05AucUGIxTktKSkiwMkwwtU01Sjc0tk1OSjZINzS1TLCyBILUskielIZCRoYHtDCsjAyMDCxCD+ExgkhlMsoBJDobi/LSS1JLMbAYGAO1tIvc="
-    var channelName = "softetik"
+    var token = ""
+    var channelName = ""
 
     // MARK: -Define Views
     var localView: UIView!
@@ -193,6 +193,67 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
                 if let document = document, document.exists {
                     let data = document.data()
                     let userID = data!["id"] as! UInt
+                    var isEmptyChannel = true
+                    
+                    let isEmptyChannelDB = db.collection("channels")
+                    isEmptyChannelDB.getDocuments { querySnapshot, error in
+                        if let error = error{
+                            print(error.localizedDescription)
+                        } else{
+                            let isEmpty = querySnapshot?.isEmpty ?? true
+                            isEmptyChannel = isEmpty
+                        }
+                    }
+                    
+                    if isEmptyChannel{
+                        // MARK: Set Token
+                        var publisherToken = ""
+                        guard let url = URL(string: "http://213.238.190.166:3169/rte/\(userID)CHANNEL/publisher/userAccount/\(userID)/?expiry=3600") else {
+                            print("Invalid URL")
+                            return
+                        }
+                        let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
+                            guard error == nil else {
+                                print("Error: \(error!)")
+                                return
+                            }
+                            
+                            guard let data = data else {
+                                print("No data received")
+                                return
+                            }
+                            
+                            do {
+                                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                                guard let rtcToken = json?["rtcToken"] as? String else {
+                                    print("Could not find rtcToken in JSON")
+                                    return
+                                }
+                                
+                                publisherToken = rtcToken
+                            } catch {
+                                print("Error decoding JSON: \(error)")
+                            }
+                        }
+                        task.resume()
+
+
+                        
+                        
+                        let data: [String: Any] = [
+                            "channelName": "\(userID)CHANNEL",
+                            "publisherToken": publisherToken,
+                            "listenerToken": ""
+                        ]
+                        isEmptyChannelDB.addDocument(data: data){ (error) in
+                            if let error = error {
+                                print("Error adding document: \(error)")
+                            }
+                        }
+                    } else{
+                        // MARK: Dolu ise
+                    }
+                    
                     let result = self.agoraEngine.joinChannel(
                         byToken: self.token, channelId: self.channelName, uid: userID, mediaOptions: option,
                         joinSuccess: { (channel, uid, elapsed) in }
