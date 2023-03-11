@@ -132,24 +132,44 @@ class RegisterViewController: UIViewController {
         let name = txtFieldName.text ?? ""
         let email = txtFieldEmail.text ?? ""
         let password = txtFieldPassword.text ?? ""
+        var id = 0
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             if let error = error {
                 self.alertMessage(title: "Error", description: error.localizedDescription)
             } else {
                 let db = Firestore.firestore()
-                let user = Auth.auth().currentUser
-                if let user = user {
-                    db.collection("users").document(user.uid).setData([
-                        "name": name,
-                        "email": email
-                    ]) { error in
-                        if let error = error {
-                            self.alertMessage(title: "Error", description: error.localizedDescription)
-                        } else {
-                            let matchHomeVC = MatchHomeViewController()
-                            matchHomeVC.modalPresentationStyle = .fullScreen
-                            self.present(matchHomeVC, animated: true)
+                db.collection("usersID").document("XnRPhVQEm9NtD8vHuQ8b").getDocument { (document, error) in
+                    if let document = document, document.exists {
+                        let data = document.data()
+                        let myValue = data!["id"]
+                        id = myValue as! Int
+                        let user = Auth.auth().currentUser
+                        if let user = user {
+                            db.collection("users").document(user.uid).setData([
+                                "id": id,
+                                "name": name,
+                                "email": email
+                            ]) { error in
+                                if let error = error {
+                                    self.alertMessage(title: "Error", description: error.localizedDescription)
+                                } else {
+                                    db.collection("usersID").document("XnRPhVQEm9NtD8vHuQ8b").updateData([
+                                        "id": id + 1
+                                    ]) { err in
+                                        if let err = err {
+                                            print("Hata oluştu: \(err)")
+                                        } else {
+                                            print("Veri başarıyla güncellendi")
+                                        }
+                                    }
+                                    let matchHomeVC = MatchHomeViewController()
+                                    matchHomeVC.modalPresentationStyle = .fullScreen
+                                    self.present(matchHomeVC, animated: true)
+                                }
+                            }
                         }
+                    } else {
+                        print("Belge mevcut değil")
                     }
                 }
             }
