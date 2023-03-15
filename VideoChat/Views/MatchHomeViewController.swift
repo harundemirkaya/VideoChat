@@ -3,9 +3,10 @@ import AVFoundation
 import AgoraRtcKit
 import Firebase
 import FirebaseAuth
+import Vision
 
 
-class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
+class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     // MARK: -Agora Config
     var agoraEngine: AgoraRtcEngineKit!
@@ -19,18 +20,20 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
         return option
     }()
 
-    // MARK: -Define Views
+    // MARK: -Views Defined
     var localView: UIView!
     var remoteView: UIView!
 
+    // MARK: -Buttons Defined
     var joinButton: UIButton!
-    var joined: Bool = false {
-        didSet {
-            DispatchQueue.main.async {
-                self.joinButton.setTitle( self.joined ? "Leave" : "Join", for: .normal)
-            }
-        }
-    }
+    var btnLeave: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setImage(UIImage(systemName: "xmark"), for: .normal)
+        return btn
+    }()
+    
+    var joined: Bool = false
     
     var userIDforChannel: UInt?
     
@@ -54,34 +57,42 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
     
     var filteredChannelName: String?
     
+    var genderClassLabel: UILabel!
+    
     let matchHomeViewModel = MatchHomeViewModel()
 
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        
         matchHomeViewModel.matchHomeVC = self
+        setupViews()
         
-        localView = UIView(frame: view.bounds)
-        remoteView = UIView(frame: CGRect(x: view.bounds.width, y: 0, width: view.bounds.width, height: view.bounds.height))
-        
-        view.addSubview(localView)
-        view.addSubview(remoteView)
-        remoteView.alpha = 0
         let gestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleGesture(_:)))
         localView.addGestureRecognizer(gestureRecognizer)
         
-        joinButton = UIButton(type: .system)
-        joinButton.frame = CGRect(x: 140, y: 700, width: 100, height: 50)
-        joinButton.setTitle("Join", for: .normal)
-
-        joinButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
-        self.view.addSubview(joinButton)
-        joinButton.isHidden = false
 
         initializeAgoraEngine()
         setupLocalVideo()
+    }
+    
+    func setupViews(){
+        localView = UIView(frame: view.bounds)
+        localView.backgroundColor = .green
+        remoteView = UIView(frame: CGRect(x: view.bounds.width, y: 0, width: view.bounds.width, height: view.bounds.height))
+        remoteView.backgroundColor = .red
+        view.addSubview(localView)
+        view.addSubview(remoteView)
+        btnLeave.addTarget(self, action: #selector(leaveChannel), for: .touchUpInside)
+        btnLeave.btnLeaveConstraints(remoteView)
+        remoteView.alpha = 0
+    }
+    
+    func resetViews() {
+        UIView.animate(withDuration: 0.3) {
+            self.localView.frame = self.view.bounds
+            self.remoteView.frame = CGRect(x: self.view.bounds.width, y: 0, width: self.view.bounds.width, height: self.view.bounds.height)
+        }
     }
 
     @objc func handleGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
@@ -95,7 +106,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
             let velocity = gestureRecognizer.velocity(in: view)
             let duration = TimeInterval(abs(1000 / velocity.x))
             UIView.animate(withDuration: duration, animations: {
-                if translation.x > 100 {
+                if translation.x < 100 {
                     self.localView.frame.origin.x = self.view.bounds.width
                     self.remoteView.alpha = 1
                     self.remoteView.frame.origin.x = self.view.bounds.width - self.remoteView.frame.width
@@ -105,10 +116,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
                     self.remoteView.frame.origin.x = self.view.bounds.width
                 }
             })
+            gestureAction()
         default:
             break
         }
-        buttonAction(sender: joinButton)
     }
 
 
@@ -119,12 +130,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
         DispatchQueue.global(qos: .userInitiated).async {AgoraRtcEngineKit.destroy()}
     }
 
-    @objc func buttonAction(sender: UIButton!) {
+    @objc func gestureAction() {
         if !joined {
-            sender.isEnabled = false
             Task {
                 await joinChannel()
-                sender.isEnabled = true
             }
         } else {
             leaveChannel()
@@ -273,7 +282,6 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
     func listenerFilters(_ userID: UInt){
         let db = Firestore.firestore()
         let channelsCollection = db.collection("channels")
-
         channelsCollection.getDocuments{ (snapshot, error) in
             if let error = error {
                 print("Error getting documents: \(error.localizedDescription)")
@@ -286,6 +294,11 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
                         self.filteredChannelName = data["channelName"] as? String ?? ""
                         self.matchHomeViewModel.getTokenListener(userID, channelName: self.filteredChannelName!)
                         self.listenerJoinedUID = document.documentID
+                        channelsCollection.document(document.documentID).delete{ error in
+                            if let error = error{
+                                print(error.localizedDescription)
+                            }
+                        }
                     }
                 }
             }
@@ -313,32 +326,21 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate {
         }
     }
 
-    func leaveChannel() {
+    @objc func leaveChannel() {
         agoraEngine.stopPreview()
         let result = agoraEngine.leaveChannel(nil)
         if result == 0 { joined = false }
+        resetViews()
     }
 
 }
 
 private extension UIView{
-    func stackViewConstraints(_ view: UIView){
+    func btnLeaveConstraints(_ view: UIView){
         view.addSubview(self)
-        heightAnchor.constraint(equalToConstant: view.frame.size.height).isActive = true
-        widthAnchor.constraint(equalToConstant: view.frame.size.width).isActive = true
-    }
-    
-    func localViewConstraints(_ stackView: UIStackView){
-        stackView.addSubview(self)
-        heightAnchor.constraint(equalToConstant: stackView.frame.size.height).isActive = true
-        widthAnchor.constraint(equalToConstant: stackView.frame.size.width).isActive = true
-        centerXAnchor.constraint(equalTo: stackView.centerXAnchor).isActive = true
-    }
-    
-    func remoteViewConstraints(_ stackView: UIStackView, localView: UIView){
-        stackView.addSubview(self)
-        heightAnchor.constraint(equalToConstant: stackView.frame.size.height).isActive = true
-        widthAnchor.constraint(equalToConstant: stackView.frame.size.width).isActive = true
-        leadingAnchor.constraint(equalTo: localView.trailingAnchor).isActive = true
+        topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
+        heightAnchor.constraint(equalToConstant: 64).isActive = true
+        widthAnchor.constraint(equalToConstant: 64).isActive = true
     }
 }
