@@ -8,13 +8,6 @@ import Vision
 
 class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, UIGestureRecognizerDelegate {
     
-    enum AnimationDirection {
-        case left
-        case right
-        case up
-        case down
-    }
-    
     // MARK: -Agora Config
     var agoraEngine: AgoraRtcEngineKit!
     var userRole: AgoraClientRole = .broadcaster
@@ -39,6 +32,18 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .red
+        return view
+    }()
+    
+    var localViewVideo: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    var remoteViewVideo: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -79,6 +84,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     var genderClassLabel: UILabel!
     
+    var center = CGPoint()
+    
     let matchHomeViewModel = MatchHomeViewModel()
 
     // MARK: -LifeCycle
@@ -101,8 +108,11 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
 
     // MARK: -Views Config
     func setupViews(){
-        remoteView.remoteViewConstraints(view)
-        localView.localViewConstraints(view)
+        remoteView.viewsConstraints(view)
+        localView.viewsConstraints(view)
+        center = localView.center
+        localViewVideo.viewsConstraints(localView)
+        remoteViewVideo.viewsConstraints(remoteView)
         initializeAgoraEngine()
         setupLocalVideo()
     }
@@ -200,8 +210,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         let videoCanvas = AgoraRtcVideoCanvas()
         videoCanvas.uid = uid
         videoCanvas.renderMode = .hidden
-        videoCanvas.view = remoteView
+        videoCanvas.view = remoteViewVideo
         agoraEngine.setupRemoteVideo(videoCanvas)
+        btnLeave.btnLeaveConstraints(remoteView)
+        btnLeave.addTarget(self, action: #selector(leaveChannel), for: .touchUpInside)
     }
 
     // MARK: -Setup Local Video with Agora
@@ -211,7 +223,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         let videoCanvas = AgoraRtcVideoCanvas()
         videoCanvas.uid = 0
         videoCanvas.renderMode = .hidden
-        videoCanvas.view = localView
+        videoCanvas.view = localViewVideo
         agoraEngine.setupLocalVideo(videoCanvas)
     }
 
@@ -353,7 +365,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         agoraEngine.stopPreview()
         let result = agoraEngine.leaveChannel(nil)
         if result == 0 { joined = false }
-        resetView(localView)
+        localView.removeFromSuperview()
+        localView.viewsConstraints(view)
     }
 
     // MARK: -Show Message
@@ -368,22 +381,14 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
 }
 
 private extension UIView{
-    func localViewConstraints(_ view: UIView){
+    func viewsConstraints(_ view: UIView){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
     }
-    
-    func remoteViewConstraints(_ view: UIView){
-        view.addSubview(self)
-        topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-    }
-    
+
     func btnLeaveConstraints(_ view: UIView){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
