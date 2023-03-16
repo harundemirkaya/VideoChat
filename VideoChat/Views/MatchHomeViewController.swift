@@ -6,7 +6,14 @@ import FirebaseAuth
 import Vision
 
 
-class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
+class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, UIGestureRecognizerDelegate {
+    
+    enum AnimationDirection {
+        case left
+        case right
+        case up
+        case down
+    }
     
     // MARK: -Agora Config
     var agoraEngine: AgoraRtcEngineKit!
@@ -21,8 +28,21 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     }()
 
     // MARK: -Views Defined
-    var localView: UIView!
-    var remoteView: UIView!
+    var localView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .green
+        return view
+    }()
+    
+    var remoteView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .red
+        return view
+    }()
+    
+    var panGestureRecognizer = UIGestureRecognizer()
 
     // MARK: -Buttons Defined
     var joinButton: UIButton!
@@ -68,66 +88,72 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         matchHomeViewModel.matchHomeVC = self
         setupViews()
         
-        let gestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleGesture(_:)))
-        localView.addGestureRecognizer(gestureRecognizer)
-        
-
-        initializeAgoraEngine()
-        setupLocalVideo()
+        panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        panGestureRecognizer.delegate = self
+        localView.addGestureRecognizer(panGestureRecognizer)
     }
-    
-    func setupViews(){
-        localView = UIView(frame: view.bounds)
-        localView.backgroundColor = .green
-        remoteView = UIView(frame: CGRect(x: view.bounds.width, y: 0, width: view.bounds.width, height: view.bounds.height))
-        remoteView.backgroundColor = .red
-        view.addSubview(localView)
-        view.addSubview(remoteView)
-        btnLeave.addTarget(self, action: #selector(leaveChannel), for: .touchUpInside)
-        btnLeave.btnLeaveConstraints(remoteView)
-        remoteView.alpha = 0
-    }
-    
-    func resetViews() {
-        UIView.animate(withDuration: 0.3) {
-            self.localView.frame = self.view.bounds
-            self.remoteView.frame = CGRect(x: self.view.bounds.width, y: 0, width: self.view.bounds.width, height: self.view.bounds.height)
-        }
-    }
-
-    @objc func handleGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
-        let translation = gestureRecognizer.translation(in: view)
-        switch gestureRecognizer.state {
-        case .changed:
-            localView.frame.origin.x = translation.x
-            remoteView.alpha = min(max(translation.x / 100, 0), 1)
-            remoteView.frame.origin.x = localView.frame.maxX + min(max(translation.x, 0), 100)
-        case .ended:
-            let velocity = gestureRecognizer.velocity(in: view)
-            let duration = TimeInterval(abs(1000 / velocity.x))
-            UIView.animate(withDuration: duration, animations: {
-                if translation.x < 100 {
-                    self.localView.frame.origin.x = self.view.bounds.width
-                    self.remoteView.alpha = 1
-                    self.remoteView.frame.origin.x = self.view.bounds.width - self.remoteView.frame.width
-                } else {
-                    self.localView.frame.origin.x = 0
-                    self.remoteView.alpha = 0
-                    self.remoteView.frame.origin.x = self.view.bounds.width
-                }
-            })
-            gestureAction()
-        default:
-            break
-        }
-    }
-
-
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         leaveChannel()
         DispatchQueue.global(qos: .userInitiated).async {AgoraRtcEngineKit.destroy()}
+    }
+
+    // MARK: -Views Config
+    func setupViews(){
+        remoteView.remoteViewConstraints(view)
+        localView.localViewConstraints(view)
+        initializeAgoraEngine()
+        setupLocalVideo()
+    }
+
+    func resetView(_ view: UIView) {
+        UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
+            view.center = CGPoint(x: view.bounds.width / 2.0, y: view.center.y)
+        }, completion: nil)
+    }
+
+    // MARK: -Gesture Recognizer
+    @objc func handlePanGesture(_ recognizer: UIPanGestureRecognizer) {
+        guard let view = recognizer.view else {
+            return
+        }
+
+        let translation = recognizer.translation(in: view.superview)
+
+        view.center.x = max(view.center.x + translation.x, view.bounds.width / 2.0)
+        recognizer.setTranslation(CGPoint.zero, in: view.superview)
+
+        if recognizer.state == .ended {
+            if view.center.x <= view.bounds.width / 2.0 {
+                dismissView(view)
+                gestureAction()
+            } else {
+                UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
+                    view.center = CGPoint(x: view.bounds.width / 2.0, y: view.center.y)
+                }, completion: nil)
+            }
+        }
+        
+        if recognizer.velocity(in: view.superview).x > 0 {
+            recognizer.isEnabled = false
+            recognizer.isEnabled = true
+        }
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer == panGestureRecognizer {
+            return true
+        }
+        return false
+    }
+
+    func dismissView(_ view: UIView) {
+        UIView.animate(withDuration: 0.3, animations: {
+            view.center.x = -view.bounds.width / 2.0
+        }) { (completed) in
+            view.removeFromSuperview()
+        }
     }
 
     @objc func gestureAction() {
@@ -140,6 +166,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         }
     }
     
+    // MARK: -Permissions
     func checkForPermissions() async -> Bool {
         var hasPermissions = await self.avAuthorization(mediaType: .video)
         if !hasPermissions { return false }
@@ -161,16 +188,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         @unknown default: return false
         }
     }
-    
-    func showMessage(title: String, text: String, delay: Int = 2) -> Void {
-        let deadlineTime = DispatchTime.now() + .seconds(delay)
-        DispatchQueue.main.asyncAfter(deadline: deadlineTime, execute: {
-            let alert = UIAlertController(title: title, message: text, preferredStyle: .alert)
-            self.present(alert, animated: true)
-            alert.dismiss(animated: true, completion: nil)
-        })
-    }
 
+    // MARK: -Agora Config
     func initializeAgoraEngine() {
         let config = AgoraRtcEngineConfig()
         config.appId = appID
@@ -184,7 +203,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         videoCanvas.view = remoteView
         agoraEngine.setupRemoteVideo(videoCanvas)
     }
-    
+
+    // MARK: -Setup Local Video with Agora
     func setupLocalVideo() {
         agoraEngine.enableVideo()
         agoraEngine.startPreview()
@@ -195,6 +215,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         agoraEngine.setupLocalVideo(videoCanvas)
     }
 
+    // MARK: -Join Channels Funcs
     func joinChannel() async {
         if await !self.checkForPermissions() {
             showMessage(title: "Error", text: "Permissions were not granted")
@@ -216,6 +237,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                     }
                 }
             }
+            
             // MARK: Set User ID
             let docRef = db.collection("users").document(currentUser.uid)
             docRef.getDocument { (document, error) in
@@ -244,7 +266,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
             print("Kullanıcı oturum açmadı")
         }
     }
-    
+
     func createChannel(){
         let db = Firestore.firestore()
         let channelsCollection = db.collection("channels")
@@ -278,7 +300,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
             }
         }
     }
-    
+
     func listenerFilters(_ userID: UInt){
         let db = Firestore.firestore()
         let channelsCollection = db.collection("channels")
@@ -304,7 +326,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
             }
         }
     }
-    
+
     func joinListener(){
         let result = self.agoraEngine.joinChannel(
             byToken: self.listenerToken, channelId: self.filteredChannelName!, uid: self.userIDforChannel!, mediaOptions: self.option,
@@ -326,16 +348,42 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         }
     }
 
+    // MARK: -Leave Channel
     @objc func leaveChannel() {
         agoraEngine.stopPreview()
         let result = agoraEngine.leaveChannel(nil)
         if result == 0 { joined = false }
-        resetViews()
+        resetView(localView)
     }
 
+    // MARK: -Show Message
+    func showMessage(title: String, text: String, delay: Int = 2) -> Void {
+        let deadlineTime = DispatchTime.now() + .seconds(delay)
+        DispatchQueue.main.asyncAfter(deadline: deadlineTime, execute: {
+            let alert = UIAlertController(title: title, message: text, preferredStyle: .alert)
+            self.present(alert, animated: true)
+            alert.dismiss(animated: true, completion: nil)
+        })
+    }
 }
 
 private extension UIView{
+    func localViewConstraints(_ view: UIView){
+        view.addSubview(self)
+        topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+    }
+    
+    func remoteViewConstraints(_ view: UIView){
+        view.addSubview(self)
+        topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+    }
+    
     func btnLeaveConstraints(_ view: UIView){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
