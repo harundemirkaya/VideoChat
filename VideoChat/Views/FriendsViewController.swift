@@ -1,20 +1,20 @@
 //
-//  MessagesViewController.swift
+//  FriendsViewController.swift
 //  VideoChat
 //
-//  Created by Harun Demirkaya on 16.03.2023.
+//  Created by Harun Demirkaya on 18.03.2023.
 //
 
 import UIKit
 
-class MessagesViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
-    // MARK: Define
+    // MARK: -Define
     
     private var lblTitle: UILabel = {
         let lbl = UILabel()
         lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.text = "Messages"
+        lbl.text = "My Friends"
         return lbl
     }()
     
@@ -24,12 +24,10 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         return tableView
     }()
     
-    private var btnNewChat: UIButton = {
+    private var btnBack: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(systemName: "plus"), for: .normal)
-        btn.setTitle("New Chat", for: .normal)
-        btn.setTitleColor(.tintColor, for: .normal)
+        btn.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
         return btn
     }()
     
@@ -43,20 +41,14 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
     
     private func setupViews(){
         lblTitle.lblTitleConstraints(view)
-        btnNewChat.btnNewChatConstraints(view)
+        btnBack.btnBackConstraints(view)
         tableView.tableViewConstraints(view, lblTitle: lblTitle)
         
+        tableView.register(FriendsTableViewCell.self, forCellReuseIdentifier: "FriendsTableViewCell")
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(MessageTableViewCell.self, forCellReuseIdentifier: "MessageTableViewCell")
         
-        btnNewChat.addTarget(self, action: #selector(btnNewChatTarget), for: .touchUpInside)
-    }
-    
-    @objc private func btnNewChatTarget(){
-        let friendsVC = FriendsViewController()
-        friendsVC.modalPresentationStyle = .fullScreen
-        present(friendsVC, animated: true)
+        btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -64,18 +56,18 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MessageTableViewCell", for: indexPath) as! MessageTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FriendsTableViewCell", for: indexPath) as! FriendsTableViewCell
         
         // Kullanıcı resmini ve adını ayarla
         cell.userImageView.image = UIImage(systemName: "person")
         cell.userNameLabel.text = "John Doe"
         
-        // Mesajın kısa bir önizlemesini ayarla
-        cell.messageLabel.text = "Hello, how are you?"
-        
         return cell
     }
-
+    
+    @objc private func btnBackTarget(){
+        self.dismiss(animated: true)
+    }
 }
 
 private extension UIView{
@@ -85,10 +77,10 @@ private extension UIView{
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
     }
     
-    func btnNewChatConstraints(_ view: UIView){
+    func btnBackConstraints(_ view: UIView){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
-        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
     }
     
     func tableViewConstraints(_ view: UIView, lblTitle: UILabel){
