@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Firebase
 import FirebaseAuth
 
 class LoginViewController: UIViewController {
@@ -113,9 +112,9 @@ class LoginViewController: UIViewController {
                 self?.alertMessage(title: "Error", description: error?.localizedDescription ?? "Error")
                 return
             }
-            let matchHomeVC = MatchHomeViewController()
-            matchHomeVC.modalPresentationStyle = .fullScreen
-            self?.present(matchHomeVC, animated: true)
+            let appTabBar = AppTabBarController()
+            appTabBar.modalPresentationStyle = .fullScreen
+            self?.present(appTabBar, animated: true)
         }
     }
     

@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Firebase
 import FirebaseAuth
 import FirebaseFirestore
 
@@ -162,9 +161,9 @@ class RegisterViewController: UIViewController {
                                             print("Veri başarıyla güncellendi")
                                         }
                                     }
-                                    let matchHomeVC = MatchHomeViewController()
-                                    matchHomeVC.modalPresentationStyle = .fullScreen
-                                    self.present(matchHomeVC, animated: true)
+                                    let appTabBar = AppTabBarController()
+                                    appTabBar.modalPresentationStyle = .fullScreen
+                                    self.present(appTabBar, animated: true)
                                 }
                             }
                         }

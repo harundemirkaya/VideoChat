@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Firebase
 import FirebaseAuth
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -28,7 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
          */
         window = UIWindow(windowScene: windowScene)
         if Auth.auth().currentUser != nil {
-            let rootVC = MatchHomeViewController()
+            let rootVC = AppTabBarController()
             window?.rootViewController = rootVC
         } else {
             let rootVC = ViewController()

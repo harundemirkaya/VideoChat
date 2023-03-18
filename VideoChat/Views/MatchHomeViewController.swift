@@ -1,9 +1,8 @@
 import UIKit
 import AVFoundation
 import AgoraRtcKit
-import Firebase
 import FirebaseAuth
-import Vision
+import FirebaseFirestore
 
 
 class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, UIGestureRecognizerDelegate {
@@ -24,7 +23,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     var localView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .green
+        view.backgroundColor = .white
         return view
     }()
     
@@ -50,11 +49,30 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     var panGestureRecognizer = UIGestureRecognizer()
 
     // MARK: -Buttons Defined
-    var joinButton: UIButton!
     var btnLeave: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.setImage(UIImage(systemName: "xmark"), for: .normal)
+        return btn
+    }()
+    
+    var btnPremium: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setImage(UIImage(named: "coin"), for: .normal)
+        btn.setTitle("  0 Coin  ", for: .normal)
+        btn.backgroundColor = .black.withAlphaComponent(0.8)
+        btn.layer.cornerRadius = 20
+        return btn
+    }()
+    
+    var btnGender: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setImage(UIImage(named: "gender"), for: .normal)
+        btn.setTitle("  Female  ", for: .normal)
+        btn.backgroundColor = .black.withAlphaComponent(0.8)
+        btn.layer.cornerRadius = 20
         return btn
     }()
     
@@ -84,8 +102,6 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     var genderClassLabel: UILabel!
     
-    var center = CGPoint()
-    
     let matchHomeViewModel = MatchHomeViewModel()
 
     // MARK: -LifeCycle
@@ -105,13 +121,19 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         leaveChannel()
         DispatchQueue.global(qos: .userInitiated).async {AgoraRtcEngineKit.destroy()}
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        initializeAgoraEngine()
+        setupLocalVideo()
+    }
 
     // MARK: -Views Config
     func setupViews(){
         remoteView.viewsConstraints(view)
         localView.viewsConstraints(view)
-        center = localView.center
         localViewVideo.viewsConstraints(localView)
+        btnPremium.btnPremiumConstraints(localView)
+        btnGender.btnGenderConstraints(localView)
         remoteViewVideo.viewsConstraints(remoteView)
         initializeAgoraEngine()
         setupLocalVideo()
@@ -128,7 +150,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         guard let view = recognizer.view else {
             return
         }
-
+        
         let translation = recognizer.translation(in: view.superview)
 
         view.center.x = max(view.center.x + translation.x, view.bounds.width / 2.0)
@@ -367,6 +389,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         if result == 0 { joined = false }
         localView.removeFromSuperview()
         localView.viewsConstraints(view)
+        setupLocalVideo()
     }
 
     // MARK: -Show Message
@@ -395,5 +418,17 @@ private extension UIView{
         leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
         heightAnchor.constraint(equalToConstant: 64).isActive = true
         widthAnchor.constraint(equalToConstant: 64).isActive = true
+    }
+    
+    func btnPremiumConstraints(_ view: UIView){
+        view.addSubview(self)
+        topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
+        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+    }
+    
+    func btnGenderConstraints(_ view: UIView){
+        view.addSubview(self)
+        topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
     }
 }
