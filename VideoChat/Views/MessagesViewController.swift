@@ -66,14 +66,17 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MessageTableViewCell", for: indexPath) as! MessageTableViewCell
         
-        // Kullanıcı resmini ve adını ayarla
         cell.userImageView.image = UIImage(systemName: "person")
         cell.userNameLabel.text = "John Doe"
-        
-        // Mesajın kısa bir önizlemesini ayarla
         cell.messageLabel.text = "Hello, how are you?"
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let messageChatVC = MessageChatViewController()
+        messageChatVC.modalPresentationStyle = .fullScreen
+        present(messageChatVC, animated: true)
     }
 
 }
