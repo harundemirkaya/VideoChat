@@ -234,6 +234,29 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         videoCanvas.renderMode = .hidden
         videoCanvas.view = remoteViewVideo
         agoraEngine.setupRemoteVideo(videoCanvas)
+        
+        let db = Firestore.firestore()
+        let channelsCollectionDocument = db.collection("channels").document(self.listenerJoinedUID!)
+        channelsCollectionDocument.getDocument { (document, error) in
+            if let document = document, document.exists {
+                let data = document.data()
+                let listenerUID = data?["listenerUID"] as! String
+                if let userID = Auth.auth().currentUser?.uid{
+                    let docCurrentUser = db.collection("users").document(userID)
+                    docCurrentUser.updateData(["remoteUserID": listenerUID]) { error in
+                        if let error = error {
+                            print("Hata oluştu: \(error.localizedDescription)")
+                        } else {
+                            print("Kullanıcı adı güncellendi.")
+                        }
+                    }
+                    
+                }
+                
+            } else {
+                print(error?.localizedDescription as Any)
+            }
+        }
         btnLeave.btnLeaveConstraints(remoteView)
         btnLeave.addTarget(self, action: #selector(leaveChannel), for: .touchUpInside)
     }
@@ -350,11 +373,11 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                         self.filteredChannelName = data["channelName"] as? String ?? ""
                         self.matchHomeViewModel.getTokenListener(userID, channelName: self.filteredChannelName!)
                         self.listenerJoinedUID = document.documentID
-                        channelsCollection.document(document.documentID).delete{ error in
-                            if let error = error{
-                                print(error.localizedDescription)
-                            }
-                        }
+                        //channelsCollection.document(document.documentID).delete{ error in
+                        //    if let error = error{
+                        //        print(error.localizedDescription)
+                        //    }
+                        //}
                     }
                 }
             }
@@ -369,9 +392,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         if result == 0 {
             self.joined = true
             let db = Firestore.firestore()
-            let channelsCollctionDocument = db.collection("channels").document(self.listenerJoinedUID!)
-            channelsCollctionDocument.updateData([
-                "listenerToken": self.listenerToken!
+            let channelsCollectionDocument = db.collection("channels").document(self.listenerJoinedUID!)
+            channelsCollectionDocument.updateData([
+                "listenerToken": self.listenerToken!,
+                "listenerUID": String(Auth.auth().currentUser!.uid)
             ]) { err in
                 if let err = err {
                     print("Error updating document: \(err)")
