@@ -102,6 +102,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     var genderClassLabel: UILabel!
     
+    var isRole = false // MARK: False = Publisher - True = Listener
+    
     let matchHomeViewModel = MatchHomeViewModel()
 
     // MARK: -LifeCycle
@@ -236,25 +238,38 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         agoraEngine.setupRemoteVideo(videoCanvas)
         
         let db = Firestore.firestore()
-        let channelsCollectionDocument = db.collection("channels").document(self.listenerJoinedUID!)
-        channelsCollectionDocument.getDocument { (document, error) in
-            if let document = document, document.exists {
-                let data = document.data()
-                let listenerUID = data?["listenerUID"] as! String
-                if let userID = Auth.auth().currentUser?.uid{
-                    let docCurrentUser = db.collection("users").document(userID)
-                    docCurrentUser.updateData(["remoteUserID": listenerUID]) { error in
-                        if let error = error {
-                            print("Hata oluştu: \(error.localizedDescription)")
-                        } else {
-                            print("Kullanıcı adı güncellendi.")
+        if isRole{
+            let channelDocument = db.collection("channels").document(self.listenerJoinedUID!)
+            channelDocument.getDocument { (document, error) in
+                if let document = document, document.exists {
+                    let data = document.data()
+                    let publisherUID = data?["publisherUID"] as! String
+                    let listenerUID = data?["listenerUID"] as! String
+                    if let userID = Auth.auth().currentUser?.uid{
+                        let docListenerUser = db.collection("users").document(userID)
+                        docListenerUser.updateData(["remoteUserID": publisherUID]) { error in
+                            if let error = error {
+                                print("Hata oluştu: \(error.localizedDescription)")
+                            }
+                        }
+                        
+                        let docPublisherUser = db.collection("users").document(publisherUID)
+                        docPublisherUser.updateData(["remoteUserID": listenerUID]) { error in
+                            if let error = error {
+                                print("Hata oluştu: \(error.localizedDescription)")
+                            } else{
+                                channelDocument.delete{ error in
+                                    if let error = error{
+                                        print(error.localizedDescription)
+                                    }
+                                }
+                            }
                         }
                     }
                     
+                } else {
+                    print(error?.localizedDescription as Any)
                 }
-                
-            } else {
-                print(error?.localizedDescription as Any)
             }
         }
         btnLeave.btnLeaveConstraints(remoteView)
@@ -335,6 +350,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                 let data: [String: Any] = [
                     "channelName": "\(self.userIDforChannel!)CHANNEL",
                     "publisherToken": self.publisherToken!,
+                    "publisherUID": Auth.auth().currentUser!.uid as String,
                     "gender": currentUserGender,
                     "listenerToken": ""
                 ]
@@ -373,11 +389,6 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                         self.filteredChannelName = data["channelName"] as? String ?? ""
                         self.matchHomeViewModel.getTokenListener(userID, channelName: self.filteredChannelName!)
                         self.listenerJoinedUID = document.documentID
-                        //channelsCollection.document(document.documentID).delete{ error in
-                        //    if let error = error{
-                        //        print(error.localizedDescription)
-                        //    }
-                        //}
                     }
                 }
             }
@@ -400,6 +411,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                 if let err = err {
                     print("Error updating document: \(err)")
                 } else {
+                    self.isRole = true
                     self.showMessage(title: "Success", text: "Successfully joined the channel as \(self.userRole)")
                 }
             }
