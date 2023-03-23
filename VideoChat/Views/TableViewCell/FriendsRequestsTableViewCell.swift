@@ -1,13 +1,13 @@
 //
-//  MessageTableViewCell.swift
+//  FriendsRequestsTableViewCell.swift
 //  VideoChat
 //
-//  Created by Harun Demirkaya on 18.03.2023.
+//  Created by Harun Demirkaya on 23.03.2023.
 //
 
 import UIKit
 
-class FriendsTableViewCell: UITableViewCell {
+class FriendsRequestsTableViewCell: UITableViewCell {
     
     let userImageView: UIImageView = {
         let imageView = UIImageView()

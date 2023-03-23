@@ -31,6 +31,9 @@
 		4FCA50B929C5F31E00E0DC8E /* gender.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FCA50B529C5F31E00E0DC8E /* gender.png */; };
 		4FCA50BD29C6159B00E0DC8E /* FriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCA50BC29C6159B00E0DC8E /* FriendsViewController.swift */; };
 		4FCA50BF29C616B000E0DC8E /* FriendsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCA50BE29C616B000E0DC8E /* FriendsTableViewCell.swift */; };
+		4FE3723329CCACB90095EDAD /* FriendRequestsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE3723229CCACB90095EDAD /* FriendRequestsViewController.swift */; };
+		4FE3723529CCB6BA0095EDAD /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE3723429CCB6BA0095EDAD /* User.swift */; };
+		4FE3723729CCBB700095EDAD /* FriendsRequestsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE3723629CCBB700095EDAD /* FriendsRequestsTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,6 +64,9 @@
 		4FCA50B529C5F31E00E0DC8E /* gender.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gender.png; sourceTree = "<group>"; };
 		4FCA50BC29C6159B00E0DC8E /* FriendsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsViewController.swift; sourceTree = "<group>"; };
 		4FCA50BE29C616B000E0DC8E /* FriendsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsTableViewCell.swift; sourceTree = "<group>"; };
+		4FE3723229CCACB90095EDAD /* FriendRequestsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRequestsViewController.swift; sourceTree = "<group>"; };
+		4FE3723429CCB6BA0095EDAD /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		4FE3723629CCBB700095EDAD /* FriendsRequestsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsRequestsTableViewCell.swift; sourceTree = "<group>"; };
 		70FB35DC56DC30E5258C59A5 /* Pods-VideoChat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoChat.debug.xcconfig"; path = "Target Support Files/Pods-VideoChat/Pods-VideoChat.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -145,6 +151,7 @@
 				4FA2967929C5D5C000398BFE /* MessagesViewController.swift */,
 				4FCA50BC29C6159B00E0DC8E /* FriendsViewController.swift */,
 				4F87C10829C73B100059EC6F /* MessageChatViewController.swift */,
+				4FE3723229CCACB90095EDAD /* FriendRequestsViewController.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -161,6 +168,7 @@
 			isa = PBXGroup;
 			children = (
 				4FA6348829BD481E00F7C75E /* RTCTokenModel.swift */,
+				4FE3723429CCB6BA0095EDAD /* User.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -186,6 +194,7 @@
 			children = (
 				4FCA50B029C5F0A300E0DC8E /* MessageTableViewCell.swift */,
 				4FCA50BE29C616B000E0DC8E /* FriendsTableViewCell.swift */,
+				4FE3723629CCBB700095EDAD /* FriendsRequestsTableViewCell.swift */,
 			);
 			path = TableViewCell;
 			sourceTree = "<group>";
@@ -321,6 +330,8 @@
 				4F944E6329B35D3500B7AC14 /* MatchHomeViewController.swift in Sources */,
 				4F6766EC29B0F02E00DC3BD6 /* RegisterViewController.swift in Sources */,
 				4FCA50BF29C616B000E0DC8E /* FriendsTableViewCell.swift in Sources */,
+				4FE3723729CCBB700095EDAD /* FriendsRequestsTableViewCell.swift in Sources */,
+				4FE3723329CCACB90095EDAD /* FriendRequestsViewController.swift in Sources */,
 				4FC6250629BD17AF00698116 /* NetworkManager.swift in Sources */,
 				4FCA50BD29C6159B00E0DC8E /* FriendsViewController.swift in Sources */,
 				4F680C5B29B0CD4600081B51 /* ViewController.swift in Sources */,
@@ -330,6 +341,7 @@
 				4FA2967829C5D5B100398BFE /* ProfileViewController.swift in Sources */,
 				4FA6348929BD481E00F7C75E /* RTCTokenModel.swift in Sources */,
 				4F680C5729B0CD4600081B51 /* AppDelegate.swift in Sources */,
+				4FE3723529CCB6BA0095EDAD /* User.swift in Sources */,
 				4F680C5929B0CD4600081B51 /* SceneDelegate.swift in Sources */,
 				4F87C10929C73B100059EC6F /* MessageChatViewController.swift in Sources */,
 				4FA2967629C5D57200398BFE /* TabBar.swift in Sources */,

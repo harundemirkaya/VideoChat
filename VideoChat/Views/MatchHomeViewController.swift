@@ -76,6 +76,16 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         return btn
     }()
     
+    var btnAddFriend: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setImage(UIImage(named: "add-friends"), for: .normal)
+        btn.setTitle("  Add Friend ", for: .normal)
+        btn.backgroundColor = .black.withAlphaComponent(0.8)
+        btn.layer.cornerRadius = 20
+        return btn
+    }()
+    
     var joined: Bool = false
     
     var userIDforChannel: UInt?
@@ -102,7 +112,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     var genderClassLabel: UILabel!
     
-    var isRole = false // MARK: False = Publisher - True = Listener
+    var isListener = false
     
     let matchHomeViewModel = MatchHomeViewModel()
 
@@ -238,7 +248,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         agoraEngine.setupRemoteVideo(videoCanvas)
         
         let db = Firestore.firestore()
-        if isRole{
+        if isListener{
             let channelDocument = db.collection("channels").document(self.listenerJoinedUID!)
             channelDocument.getDocument { (document, error) in
                 if let document = document, document.exists {
@@ -258,11 +268,11 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                             if let error = error {
                                 print("Hata oluştu: \(error.localizedDescription)")
                             } else{
-                                channelDocument.delete{ error in
-                                    if let error = error{
-                                        print(error.localizedDescription)
-                                    }
-                                }
+                                //channelDocument.delete{ error in
+                                //    if let error = error{
+                                //        print(error.localizedDescription)
+                                //    }
+                                //}
                             }
                         }
                     }
@@ -274,10 +284,13 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         }
         btnLeave.btnLeaveConstraints(remoteView)
         btnLeave.addTarget(self, action: #selector(leaveChannel), for: .touchUpInside)
+        btnAddFriend.btnAddFriendConstraints(remoteView)
+        btnAddFriend.addTarget(self, action: #selector(btnAddFriendTarget), for: .touchUpInside)
     }
 
     // MARK: -Setup Local Video with Agora
     func setupLocalVideo() {
+        self.btnAddFriend.isHidden = false
         agoraEngine.enableVideo()
         agoraEngine.startPreview()
         let videoCanvas = AgoraRtcVideoCanvas()
@@ -354,7 +367,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                     "gender": currentUserGender,
                     "listenerToken": ""
                 ]
-                channelsCollection.addDocument(data: data){ (error) in
+                let docRefChannel = channelsCollection.document("\(self.userIDforChannel!)CHANNEL")
+                docRefChannel.setData(data){ error in
                     if let error = error {
                         print("Error adding document: \(error)")
                     } else{
@@ -411,7 +425,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                 if let err = err {
                     print("Error updating document: \(err)")
                 } else {
-                    self.isRole = true
+                    self.isListener = true
                     self.showMessage(title: "Success", text: "Successfully joined the channel as \(self.userRole)")
                 }
             }
@@ -426,6 +440,71 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         localView.removeFromSuperview()
         localView.viewsConstraints(view)
         setupLocalVideo()
+        self.btnAddFriend.isHidden = false
+    }
+    
+    @objc func btnAddFriendTarget(){
+        let db = Firestore.firestore()
+        var channelName = ""
+        if isListener{
+            channelName = listenerJoinedUID!
+        } else{
+            channelName = "\(self.userIDforChannel!)CHANNEL"
+        }
+        let channel = db.collection("channels").document(channelName)
+        channel.getDocument { (document, error) in
+            if let document = document, document.exists {
+                let data = document.data()
+                let publisherUID = data?["publisherUID"] as! String
+                let listenerUID = data?["listenerUID"] as! String
+                if self.isListener{
+                    let user = db.collection("users").document(publisherUID)
+                    user.getDocument { userDocument, userError in
+                        if let userDocument = userDocument, userDocument.exists{
+                            let userData = userDocument.data()
+                            var friendsRequests = userData?["friendsRequests"] as? [String] ?? []
+                            if friendsRequests.contains(listenerUID){
+                                self.showMessage(title: "Failed", text: "You have already sent a request to the user")
+                            } else{
+                                friendsRequests.append(listenerUID)
+                                user.updateData(["friendsRequests": friendsRequests]) { error in
+                                    if let error = error {
+                                        print("Hata oluştu: \(error.localizedDescription)")
+                                    } else{
+                                        self.showMessage(title: "Success", text: "Friendship Request Success")
+                                        self.btnAddFriend.isHidden = true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else{
+                    let user = db.collection("users").document(listenerUID)
+                    user.getDocument { userDocument, userError in
+                        if let userDocument = userDocument, userDocument.exists{
+                            let userData = userDocument.data()
+                            var friendsRequests = userData?["friendsRequests"] as? [String] ?? []
+                            if friendsRequests.contains(publisherUID){
+                                self.showMessage(title: "Failed", text: "You have already sent a request to the user")
+                            } else{
+                                friendsRequests.append(publisherUID)
+                                user.updateData(["friendsRequests": friendsRequests]) { error in
+                                    if let error = error {
+                                        print("Hata oluştu: \(error.localizedDescription)")
+                                    } else{
+                                        self.showMessage(title: "Success", text: "Friendship Request Success")
+                                        self.btnAddFriend.isHidden = true
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+            } else {
+                print(error?.localizedDescription as Any)
+            }
+        }
     }
 
     // MARK: -Show Message
@@ -456,15 +535,21 @@ private extension UIView{
         widthAnchor.constraint(equalToConstant: 64).isActive = true
     }
     
+    func btnGenderConstraints(_ view: UIView){
+        view.addSubview(self)
+        topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
+    }
+    
     func btnPremiumConstraints(_ view: UIView){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
         trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
     }
     
-    func btnGenderConstraints(_ view: UIView){
+    func btnAddFriendConstraints(_ view: UIView){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
+        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
     }
 }

@@ -33,6 +33,14 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         return btn
     }()
     
+    private var btnFriendRequests: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setImage(UIImage(systemName: "person.crop.circle.fill.badge.plus"), for: .normal)
+        btn.setTitleColor(.tintColor, for: .normal)
+        return btn
+    }()
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,6 +52,7 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
     private func setupViews(){
         lblTitle.lblTitleConstraints(view)
         btnNewChat.btnNewChatConstraints(view)
+        btnFriendRequests.btnFriendsRequestsConstraints(view)
         tableView.tableViewConstraints(view, lblTitle: lblTitle)
         
         tableView.delegate = self
@@ -51,12 +60,19 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         tableView.register(MessageTableViewCell.self, forCellReuseIdentifier: "MessageTableViewCell")
         
         btnNewChat.addTarget(self, action: #selector(btnNewChatTarget), for: .touchUpInside)
+        btnFriendRequests.addTarget(self, action: #selector(btnFriendRequestsTarget), for: .touchUpInside)
     }
     
     @objc private func btnNewChatTarget(){
         let friendsVC = FriendsViewController()
         friendsVC.modalPresentationStyle = .fullScreen
         present(friendsVC, animated: true)
+    }
+    
+    @objc private func btnFriendRequestsTarget(){
+        let friendRequestsVC = FriendRequestsViewController()
+        friendRequestsVC.modalPresentationStyle = .fullScreen
+        present(friendRequestsVC, animated: true)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -92,6 +108,12 @@ private extension UIView{
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
         trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
+    }
+    
+    func btnFriendsRequestsConstraints(_ view: UIView){
+        view.addSubview(self)
+        topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
     }
     
     func tableViewConstraints(_ view: UIView, lblTitle: UILabel){
