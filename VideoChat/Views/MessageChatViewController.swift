@@ -119,12 +119,43 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         view.backgroundColor = .white
         
         setupViews()
+        fetchData()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let currentUser = Auth.auth().currentUser{
+            let db = Firestore.firestore()
+            let users = db.collection("users")
+            let user = users.document(currentUser.uid)
+            
+            // Dinleyici ekle
+            user.addSnapshotListener { userDocument, userError in
+                if let userDocument = userDocument, userDocument.exists{
+                    let userData = userDocument.data()
+                    var unreadMessages = userData?["unreadMessages"] as? [String:[String]] ?? [:]
+                    if let userUnreadmessages = unreadMessages[self.remoteUser.uid] {
+                        for userUnreadMessage in userUnreadmessages{
+                            self.saveData(userUnreadMessage)
+                        }
+                        unreadMessages.removeValue(forKey: self.remoteUser.uid)
+                        user.updateData([
+                            "unreadMessages": unreadMessages
+                        ]) { err in
+                            if let err = err {
+                                print("Hata oluştu: \(err)")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     
     private func setupViews(){
         // MARK: for Remote User
         lblUsername.text = remoteUser.userName
-        fetchData()
+        
         stackView.stackViewConstraints(view)
         
         userInfoView.userInfoViewConstraints(stackView)
@@ -159,11 +190,11 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
                     var unreadMessages = userData?["unreadMessages"] as? [String:[String]] ?? [:]
-                    if var messages = unreadMessages[self.remoteUser.uid] {
+                    if var messages = unreadMessages[Auth.auth().currentUser!.uid] {
                         messages.append(self.txtFieldMessage.text!)
-                        unreadMessages[self.remoteUser.uid] = messages
+                        unreadMessages[Auth.auth().currentUser!.uid] = messages
                     } else {
-                        unreadMessages[self.remoteUser.uid] = [self.txtFieldMessage.text!]
+                        unreadMessages[Auth.auth().currentUser!.uid] = [self.txtFieldMessage.text!]
                     }
                     user.updateData([
                         "unreadMessages": unreadMessages
@@ -179,17 +210,21 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
     
-    private func saveData(){
+    private func saveData(_ message: String = ""){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let context = appDelegate.persistentContainer.viewContext
         
         let messages = NSEntityDescription.insertNewObject(forEntityName: "Messages", into: context)
         messages.setValue(Auth.auth().currentUser?.uid, forKey: "senderID")
         messages.setValue(remoteUser.uid, forKey: "remoteID")
-        messages.setValue(txtFieldMessage.text, forKey: "message")
+        if message == ""{
+            messages.setValue(txtFieldMessage.text, forKey: "message")
+        } else{
+            messages.setValue(message, forKey: "message")
+        }
         do{
             try context.save()
-            tableView.reloadData()
+            self.fetchData()
         } catch{
             print("error")
         }
