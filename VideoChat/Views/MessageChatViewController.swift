@@ -7,8 +7,10 @@
 
 import UIKit
 import FirebaseFirestore
+import FirebaseAuth
+import CoreData
 
-class MessageChatViewController: UIViewController {
+class MessageChatViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     // MARK: -Define
     
@@ -99,7 +101,17 @@ class MessageChatViewController: UIViewController {
         return txtField
     }()
     
+    // MARK: TableView Defined
+    private let tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.allowsSelection = false
+        return tableView
+    }()
+    
     var remoteUser = User(userName: "", uid: "")
+    
+    var messages = [Message]()
     
     // MARK: -LifeCycle
     override func viewDidLoad() {
@@ -112,7 +124,7 @@ class MessageChatViewController: UIViewController {
     private func setupViews(){
         // MARK: for Remote User
         lblUsername.text = remoteUser.userName
-        
+        fetchData()
         stackView.stackViewConstraints(view)
         
         userInfoView.userInfoViewConstraints(stackView)
@@ -126,6 +138,9 @@ class MessageChatViewController: UIViewController {
         txtFieldMessage.txtFieldsMessageConstraints(textEditView, btnSend: btnSend)
         
         messagesView.messagesViewConstraints(stackView, userInfoView: userInfoView, textEditView: textEditView)
+        tableView.tableViewConstraints(messagesView)
+        tableView.dataSource = self
+        tableView.delegate = self
         
         btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
         btnSend.addTarget(self, action: #selector(btnSendTarget), for: .touchUpInside)
@@ -155,11 +170,66 @@ class MessageChatViewController: UIViewController {
                     ]) { err in
                         if let err = err {
                             print("Hata oluştu: \(err)")
+                        } else{
+                            self.saveData()
                         }
                     }
                 }
             }
         }
+    }
+    
+    private func saveData(){
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+        
+        let messages = NSEntityDescription.insertNewObject(forEntityName: "Messages", into: context)
+        messages.setValue(Auth.auth().currentUser?.uid, forKey: "senderID")
+        messages.setValue(remoteUser.uid, forKey: "remoteID")
+        messages.setValue(txtFieldMessage.text, forKey: "message")
+        do{
+            try context.save()
+            tableView.reloadData()
+        } catch{
+            print("error")
+        }
+    }
+    
+    @objc private func fetchData(){
+        messages.removeAll(keepingCapacity: false)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+            
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Messages")
+        fetchRequest.returnsObjectsAsFaults = false
+        
+        do{
+            let results = try context.fetch(fetchRequest)
+            if results.count > 0{
+                for result in results as! [NSManagedObject]{
+                    if result.value(forKey: "remoteID") as! String == remoteUser.uid{
+                        let senderID = result.value(forKey: "senderID")
+                        let remoteID = result.value(forKey: "remoteID")
+                        let messageDesc = result.value(forKey: "message")
+                        let message = Message(senderID: senderID as! String , remoteID: remoteID as! String, message: messageDesc as! String)
+                        messages.append(message)
+                    }
+                }
+                tableView.reloadData()
+            }
+        } catch{
+            print("error")
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return messages.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell()
+        cell.textLabel?.text = messages[indexPath.row].message
+        return cell
     }
 }
 
@@ -238,5 +308,13 @@ private extension UIView{
         leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         bottomAnchor.constraint(equalTo: textEditView.topAnchor).isActive = true
+    }
+    
+    func tableViewConstraints(_ view: UIView){
+        view.addSubview(self)
+        topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
     }
 }
