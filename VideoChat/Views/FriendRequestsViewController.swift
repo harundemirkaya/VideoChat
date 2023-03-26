@@ -59,7 +59,7 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
         btnBack.btnBackConstraints(view)
         tableView.tableViewConstraints(view, lblTitle: lblTitle)
         
-        tableView.register(FriendsTableViewCell.self, forCellReuseIdentifier: "FriendsTableViewCell")
+        tableView.register(FriendsRequestsTableViewCell.self, forCellReuseIdentifier: "FriendsRequestsTableViewCell")
         tableView.delegate = self
         tableView.dataSource = self
         
@@ -91,7 +91,7 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
                     if let userDocument = userDocument, userDocument.exists{
                         let userData = userDocument.data()
                         let name = userData?["name"] as! String
-                        self.users.append(User(userName: name))
+                        self.users.append(User(userName: name, uid: userID))
                         
                     }
                 }
@@ -104,12 +104,54 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "FriendsTableViewCell", for: indexPath) as! FriendsTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FriendsRequestsTableViewCell", for: indexPath) as! FriendsRequestsTableViewCell
         if users.count != 0{
             cell.userImageView.image = UIImage(systemName: "person")
             cell.userNameLabel.text = users[indexPath.row].userName
         }
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print(users[indexPath.row].uid)
+        if let currentUser = Auth.auth().currentUser{
+            let userID = currentUser.uid
+            let db = Firestore.firestore()
+            let userCollection = db.collection("users").document(userID)
+            userCollection.getDocument { userDocument, userError in
+                if let userDocument = userDocument, userDocument.exists{
+                    let userData = userDocument.data()
+                    var userFriends = userData?["friends"] as? [String] ?? []
+                    userFriends.append(self.users[indexPath.row].uid)
+                    userCollection.updateData([
+                        "friends": userFriends
+                    ]) { err in
+                        if let err = err {
+                            print("Hata oluştu: \(err)")
+                        } else {
+                            userCollection.getDocument { userDocument, userError in
+                                if let userDocument = userDocument, userDocument.exists{
+                                    let userData = userDocument.data()
+                                    var friendsRequests = userData?["friendsRequests"] as? [String] ?? []
+                                    friendsRequests.removeAll(where: { $0 == self.users[indexPath.row].uid})
+                                    userCollection.updateData([
+                                        "friendsRequests": friendsRequests
+                                    ]) { err in
+                                        if let err = err {
+                                            print("Hata oluştu: \(err)")
+                                        } else{
+                                            self.users.remove(at: indexPath.row)
+                                            self.tableView.reloadData()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
     }
     
     @objc private func btnBackTarget(){

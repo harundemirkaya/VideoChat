@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseFirestore
 
 class MessageChatViewController: UIViewController {
 
@@ -75,10 +76,10 @@ class MessageChatViewController: UIViewController {
     }()
     
     // MARK: Labels Defined
-    private let lblUsername: UILabel = {
+    let lblUsername: UILabel = {
         let lbl = UILabel()
         lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.text = "John Doe"
+        lbl.text = ""
         return lbl
     }()
     
@@ -98,6 +99,8 @@ class MessageChatViewController: UIViewController {
         return txtField
     }()
     
+    var remoteUser = User(userName: "", uid: "")
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -107,6 +110,9 @@ class MessageChatViewController: UIViewController {
     }
     
     private func setupViews(){
+        // MARK: for Remote User
+        lblUsername.text = remoteUser.userName
+        
         stackView.stackViewConstraints(view)
         
         userInfoView.userInfoViewConstraints(stackView)
@@ -122,10 +128,38 @@ class MessageChatViewController: UIViewController {
         messagesView.messagesViewConstraints(stackView, userInfoView: userInfoView, textEditView: textEditView)
         
         btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
+        btnSend.addTarget(self, action: #selector(btnSendTarget), for: .touchUpInside)
     }
     
     @objc private func btnBackTarget(){
         self.dismiss(animated: true)
+    }
+    
+    @objc private func btnSendTarget(){
+        if txtFieldMessage.text != ""{
+            let db = Firestore.firestore()
+            let users = db.collection("users")
+            let user = users.document(remoteUser.uid)
+            user.getDocument { userDocument, userError in
+                if let userDocument = userDocument, userDocument.exists{
+                    let userData = userDocument.data()
+                    var unreadMessages = userData?["unreadMessages"] as? [String:[String]] ?? [:]
+                    if var messages = unreadMessages[self.remoteUser.uid] {
+                        messages.append(self.txtFieldMessage.text!)
+                        unreadMessages[self.remoteUser.uid] = messages
+                    } else {
+                        unreadMessages[self.remoteUser.uid] = [self.txtFieldMessage.text!]
+                    }
+                    user.updateData([
+                        "unreadMessages": unreadMessages
+                    ]) { err in
+                        if let err = err {
+                            print("Hata oluştu: \(err)")
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

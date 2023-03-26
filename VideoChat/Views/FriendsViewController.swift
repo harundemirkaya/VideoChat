@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import FirebaseFirestore
+import FirebaseAuth
 
 class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
@@ -31,12 +33,58 @@ class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewD
         return btn
     }()
     
+    private var userFriendsID: [String] = []{
+        didSet{
+            getFriends()
+        }
+    }
+    
+    private var userFriends: [User] = []{
+        didSet{
+            tableView.reloadData()
+        }
+    }
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         
+        getFriendsID()
         setupViews()
+    }
+    
+    private func getFriendsID(){
+        if let currentUser = Auth.auth().currentUser{
+            let userID = currentUser.uid
+            let db = Firestore.firestore()
+            let userCollection = db.collection("users").document(userID)
+            userCollection.getDocument { userDocument, userError in
+                if let userDocument = userDocument, userDocument.exists{
+                    let userData = userDocument.data()
+                    let friendsRequests = userData?["friends"] as? [String] ?? []
+                    self.userFriendsID = friendsRequests
+                }
+            }
+        }
+    }
+    
+    private func getFriends(){
+        if userFriendsID != []{
+            let db = Firestore.firestore()
+            let users = db.collection("users")
+            for userID in userFriendsID{
+                let user = users.document(userID)
+                user.getDocument { userDocument, userError in
+                    if let userDocument = userDocument, userDocument.exists{
+                        let userData = userDocument.data()
+                        let name = userData?["name"] as! String
+                        self.userFriends.append(User(userName: name, uid: userID))
+                        
+                    }
+                }
+            }
+        }
     }
     
     private func setupViews(){
@@ -52,21 +100,28 @@ class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return userFriends.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FriendsTableViewCell", for: indexPath) as! FriendsTableViewCell
         
-        // Kullanıcı resmini ve adını ayarla
         cell.userImageView.image = UIImage(systemName: "person")
-        cell.userNameLabel.text = "John Doe"
+        cell.userNameLabel.text = userFriends[indexPath.row].userName
         
         return cell
     }
     
     @objc private func btnBackTarget(){
         self.dismiss(animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let messageChatVC = MessageChatViewController()
+        messageChatVC.modalPresentationStyle = .fullScreen
+        messageChatVC.remoteUser.userName = userFriends[indexPath.row].userName
+        messageChatVC.remoteUser.uid = userFriends[indexPath.row].uid
+        present(messageChatVC, animated: true)
     }
 }
 

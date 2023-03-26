@@ -8,10 +8,12 @@
 import Foundation
 
 class User{
+    var uid: String
     var userName: String
     // var userPhoto
     
-    init(userName: String) {
+    init(userName: String, uid: String) {
         self.userName = userName
+        self.uid = uid
     }
 }

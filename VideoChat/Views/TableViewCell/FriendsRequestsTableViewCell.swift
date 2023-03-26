@@ -8,7 +8,7 @@
 import UIKit
 
 class FriendsRequestsTableViewCell: UITableViewCell {
-    
+
     let userImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -24,26 +24,56 @@ class FriendsRequestsTableViewCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    let btnDelete: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
+        btn.tintColor = .systemRed
+        return btn
+    }()
+    
+    let btnConfirm: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
+        btn.tintColor = .systemGreen
+        return btn
+    }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         addSubview(userImageView)
         addSubview(userNameLabel)
+        addSubview(btnDelete)
+        addSubview(btnConfirm)
+        
+        btnConfirm.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
         
         NSLayoutConstraint.activate([
             userImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             userImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             userImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             userImageView.widthAnchor.constraint(equalToConstant: 50),
-            userImageView.heightAnchor.constraint(equalToConstant: 50)
-        ])
-        
-        NSLayoutConstraint.activate([
+            userImageView.heightAnchor.constraint(equalToConstant: 50),
+            
             userNameLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             userNameLabel.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 10),
-            userNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
+            userNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            
+            btnConfirm.centerYAnchor.constraint(equalTo: centerYAnchor),
+            btnConfirm.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            btnConfirm.widthAnchor.constraint(equalToConstant: 44),
+            btnConfirm.heightAnchor.constraint(equalToConstant: 44),
+            
+            btnDelete.centerYAnchor.constraint(equalTo: centerYAnchor),
+            btnDelete.trailingAnchor.constraint(equalTo: btnConfirm.leadingAnchor, constant: -5)
         ])
+    }
+    
+    @objc func buttonTapped(){
+        print("Success")
     }
 
     required init?(coder: NSCoder) {
