@@ -175,6 +175,9 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         
         btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
         btnSend.addTarget(self, action: #selector(btnSendTarget), for: .touchUpInside)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
     }
     
     @objc private func btnBackTarget(){
@@ -266,6 +269,10 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         let cell = UITableViewCell()
         cell.textLabel?.text = messages[indexPath.row].message
         return cell
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
 }
 

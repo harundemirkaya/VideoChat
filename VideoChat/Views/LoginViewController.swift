@@ -99,6 +99,9 @@ class LoginViewController: UIViewController {
         btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
         btnLogin.addTarget(self, action: #selector(btnLoginTarget), for: .touchUpInside)
         txtFieldEmail.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
     }
     
     @objc private func btnBackTarget(){
@@ -120,6 +123,10 @@ class LoginViewController: UIViewController {
     
     @objc private func textFieldDidChange(_ textField: UITextField) {
         txtFieldEmail.text = txtFieldEmail.text?.lowercased()
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     // MARK: -Show Alert Message
