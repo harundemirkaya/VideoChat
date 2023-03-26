@@ -217,6 +217,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         let messages = NSEntityDescription.insertNewObject(forEntityName: "Messages", into: context)
         messages.setValue(Auth.auth().currentUser?.uid, forKey: "senderID")
         messages.setValue(remoteUser.uid, forKey: "remoteID")
+        messages.setValue(remoteUser.userName, forKey: "remoteUsername")
         if message == ""{
             messages.setValue(txtFieldMessage.text, forKey: "message")
         } else{

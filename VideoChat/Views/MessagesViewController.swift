@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 class MessagesViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
@@ -41,6 +42,8 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         return btn
     }()
     
+    private var recentlyChat = [User]()
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,6 +52,10 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         setupViews()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        fetchData()
+    }
+        
     private func setupViews(){
         lblTitle.lblTitleConstraints(view)
         btnNewChat.btnNewChatConstraints(view)
@@ -75,16 +82,40 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         present(friendRequestsVC, animated: true)
     }
     
+    @objc private func fetchData(){
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let context = appDelegate.persistentContainer.viewContext
+            
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Messages")
+        fetchRequest.returnsObjectsAsFaults = false
+        
+        do{
+            let results = try context.fetch(fetchRequest)
+            if results.count > 0{
+                for result in results as! [NSManagedObject]{
+                    if let remoteUser = result.value(forKey: "remoteUsername"){
+                        if let remoteUserID = result.value(forKey: "remoteID"){
+                            recentlyChat.append(User(userName: remoteUser as! String, uid: remoteUserID as! String))
+                        }
+                    }
+                }
+                tableView.reloadData()
+            }
+        } catch{
+            print("error")
+        }
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return recentlyChat.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MessageTableViewCell", for: indexPath) as! MessageTableViewCell
         
         cell.userImageView.image = UIImage(systemName: "person")
-        cell.userNameLabel.text = "John Doe"
-        cell.messageLabel.text = "Hello, how are you?"
+        cell.userNameLabel.text = recentlyChat[indexPath.row].userName
+        cell.messageLabel.text = "Recently Chat"
         
         return cell
     }
@@ -92,6 +123,8 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let messageChatVC = MessageChatViewController()
         messageChatVC.modalPresentationStyle = .fullScreen
+        messageChatVC.remoteUser.userName = recentlyChat[indexPath.row].userName
+        messageChatVC.remoteUser.uid = recentlyChat[indexPath.row].uid
         present(messageChatVC, animated: true)
     }
 

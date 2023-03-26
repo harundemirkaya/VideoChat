@@ -3,6 +3,7 @@
     <entity name="Messages" representedClassName="Messages" syncable="YES" codeGenerationType="class">
         <attribute name="message" optional="YES" attributeType="String"/>
         <attribute name="remoteID" optional="YES" attributeType="String"/>
+        <attribute name="remoteUsername" optional="YES" attributeType="String"/>
         <attribute name="senderID" optional="YES" attributeType="String"/>
     </entity>
 </model>
