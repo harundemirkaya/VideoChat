@@ -59,7 +59,7 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        recentlyChat = [User]()
+        recentlyChat = [User]()
     }
         
     private func setupViews(){

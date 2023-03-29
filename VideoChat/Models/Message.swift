@@ -10,11 +10,13 @@ import Foundation
 class Message{
     var senderID: String
     var remoteID: String
+    var publisherID: String
     var message: String
     
-    init(senderID: String, remoteID: String, message: String) {
+    init(senderID: String, remoteID: String, publisherID: String, message: String) {
         self.senderID = senderID
         self.remoteID = remoteID
         self.message = message
+        self.publisherID = publisherID
     }
 }

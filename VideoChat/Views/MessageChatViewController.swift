@@ -62,7 +62,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     private let btnSend: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(systemName: "paperplane.fill"), for: .normal)
+        btn.setImage(UIImage(systemName: "paperplane.circle.fill"), for: .normal)
         return btn
     }()
     
@@ -115,6 +115,8 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     
     var messages = [Message]()
     
+    var currentUserID = ""
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -125,6 +127,10 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         
         setupViews()
         fetchData()
+        
+        if let currentUser = Auth.auth().currentUser{
+            currentUserID = currentUser.uid
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -140,7 +146,8 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
                     var unreadMessages = userData?["unreadMessages"] as? [String:[String]] ?? [:]
                     if let userUnreadmessages = unreadMessages[self.remoteUser.uid] {
                         for userUnreadMessage in userUnreadmessages{
-                            self.saveData(userUnreadMessage)
+                            self.saveData(userUnreadMessage, isRemote: true)
+                            self.tableView.reloadData()
                         }
                         unreadMessages.removeValue(forKey: self.remoteUser.uid)
                         user.updateData([
@@ -161,7 +168,6 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         lblUsername.text = remoteUser.userName
 
         userInfoView.userInfoViewConstraints(view)
-        
         
         view.addSubview(stackView)
         stackView.topAnchor.constraint(equalTo: userInfoView.bottomAnchor).isActive = true
@@ -184,6 +190,8 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         tableView.tableViewConstraints(messagesView)
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.separatorStyle = .none
+        tableView.register(MessageChatTableViewCell.self, forCellReuseIdentifier: "MessageChatTableViewCell")
         
         btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
         btnSend.addTarget(self, action: #selector(btnSendTarget), for: .touchUpInside)
@@ -251,13 +259,18 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         tableView.scrollToRow(at: bottomMessageIndex, at: .bottom, animated: true)
     }
     
-    private func saveData(_ message: String = ""){
+    private func saveData(_ message: String = "", isRemote: Bool = false){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let context = appDelegate.persistentContainer.viewContext
         
         let messages = NSEntityDescription.insertNewObject(forEntityName: "Messages", into: context)
         messages.setValue(Auth.auth().currentUser?.uid, forKey: "senderID")
         messages.setValue(remoteUser.uid, forKey: "remoteID")
+        if isRemote{
+            messages.setValue(remoteUser.uid, forKey: "publisherID")
+        } else{
+            messages.setValue(Auth.auth().currentUser?.uid, forKey: "publisherID")
+        }
         messages.setValue(remoteUser.userName, forKey: "remoteUsername")
         if message == ""{
             messages.setValue(txtFieldMessage.text, forKey: "message")
@@ -287,8 +300,9 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
                     if result.value(forKey: "remoteID") as! String == remoteUser.uid{
                         let senderID = result.value(forKey: "senderID")
                         let remoteID = result.value(forKey: "remoteID")
+                        let publisherID = result.value(forKey: "publisherID")
                         let messageDesc = result.value(forKey: "message")
-                        let message = Message(senderID: senderID as! String , remoteID: remoteID as! String, message: messageDesc as! String)
+                        let message = Message(senderID: senderID as! String , remoteID: remoteID as! String, publisherID: publisherID as! String, message: messageDesc as! String)
                         messages.append(message)
                     }
                 }
@@ -305,8 +319,16 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
-        cell.textLabel?.text = messages[indexPath.row].message
+        let cell = tableView.dequeueReusableCell(withIdentifier: "MessageChatTableViewCell", for: indexPath) as! MessageChatTableViewCell
+        cell.isCurrentUser = false
+        if messages[indexPath.row].publisherID == currentUserID{
+            cell.isCurrentUser = true
+            cell.message = messages[indexPath.row]
+        } else{
+            cell.message = messages[indexPath.row]
+        }
+        
+        
         return cell
     }
     

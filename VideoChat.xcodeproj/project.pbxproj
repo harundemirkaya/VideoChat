@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		48BA038A644C2862DB0E9708 /* Pods_VideoChat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05C4EB91BE85C1D8D4B38FFE /* Pods_VideoChat.framework */; };
+		4F404CB729D4914500164DBF /* MessageChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F404CB629D4914500164DBF /* MessageChatTableViewCell.swift */; };
 		4F6766EA29B0EC2000DC3BD6 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */; };
 		4F6766EC29B0F02E00DC3BD6 /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6766EB29B0F02E00DC3BD6 /* RegisterViewController.swift */; };
 		4F680C5729B0CD4600081B51 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F680C5629B0CD4600081B51 /* AppDelegate.swift */; };
@@ -41,6 +42,7 @@
 /* Begin PBXFileReference section */
 		05C4EB91BE85C1D8D4B38FFE /* Pods_VideoChat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VideoChat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		47E83595787715E0B70923CD /* Pods-VideoChat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoChat.release.xcconfig"; path = "Target Support Files/Pods-VideoChat/Pods-VideoChat.release.xcconfig"; sourceTree = "<group>"; };
+		4F404CB629D4914500164DBF /* MessageChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageChatTableViewCell.swift; sourceTree = "<group>"; };
 		4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		4F6766EB29B0F02E00DC3BD6 /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
 		4F680C5329B0CD4600081B51 /* VideoChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -201,6 +203,7 @@
 				4FCA50B029C5F0A300E0DC8E /* MessageTableViewCell.swift */,
 				4FCA50BE29C616B000E0DC8E /* FriendsTableViewCell.swift */,
 				4FE3723629CCBB700095EDAD /* FriendsRequestsTableViewCell.swift */,
+				4F404CB629D4914500164DBF /* MessageChatTableViewCell.swift */,
 			);
 			path = TableViewCell;
 			sourceTree = "<group>";
@@ -347,6 +350,7 @@
 				4FCA50B129C5F0A300E0DC8E /* MessageTableViewCell.swift in Sources */,
 				4FA2967829C5D5B100398BFE /* ProfileViewController.swift in Sources */,
 				4FA6348929BD481E00F7C75E /* RTCTokenModel.swift in Sources */,
+				4F404CB729D4914500164DBF /* MessageChatTableViewCell.swift in Sources */,
 				4F680C5729B0CD4600081B51 /* AppDelegate.swift in Sources */,
 				4FE3723529CCB6BA0095EDAD /* User.swift in Sources */,
 				4F680C5929B0CD4600081B51 /* SceneDelegate.swift in Sources */,
