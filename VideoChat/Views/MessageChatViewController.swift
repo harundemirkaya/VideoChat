@@ -109,6 +109,8 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         return tableView
     }()
     
+    var stackViewBottomAnchor = NSLayoutConstraint()
+    
     var remoteUser = User(userName: "", uid: "")
     
     var messages = [Message]()
@@ -117,6 +119,9 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
         setupViews()
         fetchData()
@@ -151,14 +156,21 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
 
-    
     private func setupViews(){
         // MARK: for Remote User
         lblUsername.text = remoteUser.userName
+
+        userInfoView.userInfoViewConstraints(view)
         
-        stackView.stackViewConstraints(view)
         
-        userInfoView.userInfoViewConstraints(stackView)
+        view.addSubview(stackView)
+        stackView.topAnchor.constraint(equalTo: userInfoView.bottomAnchor).isActive = true
+        stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        stackViewBottomAnchor = stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        stackViewBottomAnchor.isActive = true
+        
+        
         imgViewUserPhoto.imgViewUserPhotoConstraints(userInfoView)
         btnBack.btnBackConstraints(userInfoView, imgViewUserPhoto: imgViewUserPhoto)
         lblUsername.lblUsernameConstraints(userInfoView, imgViewUserPhoto: imgViewUserPhoto)
@@ -178,6 +190,23 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc func keyboardWillShow(sender: NSNotification) {
+        if let keyboardSize = (sender.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            let keyboardHeight = keyboardSize.height
+            stackViewBottomAnchor.isActive = false
+            stackViewBottomAnchor = stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -keyboardHeight)
+            stackViewBottomAnchor.isActive = true
+            view.layoutIfNeeded()
+            scrollToBottomMessage()
+        }
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        stackViewBottomAnchor.isActive = false
+        stackViewBottomAnchor = stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        stackViewBottomAnchor.isActive = true
     }
     
     @objc private func btnBackTarget(){
@@ -206,11 +235,20 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
                             print("Hata oluştu: \(err)")
                         } else{
                             self.saveData()
+                            self.txtFieldMessage.text = ""
                         }
                     }
                 }
             }
         }
+    }
+    
+    private func scrollToBottomMessage() {
+        if messages.count == 0 {
+            return
+        }
+        let bottomMessageIndex = IndexPath(row: messages.count - 1, section: 0)
+        tableView.scrollToRow(at: bottomMessageIndex, at: .bottom, animated: true)
     }
     
     private func saveData(_ message: String = ""){
@@ -255,6 +293,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
                     }
                 }
                 tableView.reloadData()
+                scrollToBottomMessage()
             }
         } catch{
             print("error")
@@ -277,22 +316,14 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
 }
 
 private extension UIView{
-    func stackViewConstraints(_ view: UIView){
-        view.addSubview(self)
-        topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-    }
-    
-    func userInfoViewConstraints(_ view: UIStackView){
+    func userInfoViewConstraints(_ view: UIView){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         heightAnchor.constraint(equalToConstant: 60).isActive = true
     }
-    
+
     func imgViewUserPhotoConstraints(_ view: UIView){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
@@ -338,7 +369,6 @@ private extension UIView{
     
     func txtFieldsMessageConstraints(_ view: UIView, btnSend: UIButton){
         view.addSubview(self)
-        
         centerYAnchor.constraint(equalTo: btnSend.centerYAnchor).isActive = true
         leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
         trailingAnchor.constraint(equalTo: btnSend.leadingAnchor, constant: -5).isActive = true

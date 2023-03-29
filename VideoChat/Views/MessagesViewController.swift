@@ -95,7 +95,10 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
                 for result in results as! [NSManagedObject]{
                     if let remoteUser = result.value(forKey: "remoteUsername"){
                         if let remoteUserID = result.value(forKey: "remoteID"){
-                            recentlyChat.append(User(userName: remoteUser as! String, uid: remoteUserID as! String))
+                            let newUser = User(userName: remoteUser as! String, uid: remoteUserID as! String)
+                            if !recentlyChat.contains(where: { $0.uid == newUser.uid }) {
+                                recentlyChat.append(newUser)
+                            }
                         }
                     }
                 }
