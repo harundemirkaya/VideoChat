@@ -44,12 +44,10 @@ class FriendsRequestsTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        addSubview(userImageView)
-        addSubview(userNameLabel)
-        addSubview(btnDelete)
-        addSubview(btnConfirm)
-        
-        btnConfirm.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+        contentView.addSubview(userImageView)
+        contentView.addSubview(userNameLabel)
+        contentView.addSubview(btnDelete)
+        contentView.addSubview(btnConfirm)
         
         NSLayoutConstraint.activate([
             userImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -70,10 +68,6 @@ class FriendsRequestsTableViewCell: UITableViewCell {
             btnDelete.centerYAnchor.constraint(equalTo: centerYAnchor),
             btnDelete.trailingAnchor.constraint(equalTo: btnConfirm.leadingAnchor, constant: -5)
         ])
-    }
-    
-    @objc func buttonTapped(){
-        print("Success")
     }
 
     required init?(coder: NSCoder) {

@@ -7,6 +7,8 @@
 
 import UIKit
 import CoreData
+import FirebaseFirestore
+import FirebaseAuth
 
 class MessagesViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
@@ -106,6 +108,26 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
             }
         } catch{
             print("error")
+        }
+        if let currentUser = Auth.auth().currentUser{
+            let db = Firestore.firestore()
+            let usersCollection = db.collection("users").document(currentUser.uid)
+            usersCollection.addSnapshotListener { userDocument, userError in
+                if let userDocument = userDocument, userDocument.exists{
+                    let userData = userDocument.data()
+                    let unreadMessages = userData?["unreadMessages"] as? [String:[String]] ?? [:]
+                    for unreadMessage in unreadMessages{
+                        db.collection("users").document(unreadMessage.key).getDocument { (document, error) in
+                            if let document = document, document.exists {
+                                let data = document.data()
+                                let userName = data?["name"] as? String ?? "Unkown"
+                                self.recentlyChat.append(User(userName: userName, uid: unreadMessage.key))
+                                self.tableView.reloadData()
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     
