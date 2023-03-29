@@ -57,6 +57,10 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
     override func viewWillAppear(_ animated: Bool) {
         fetchData()
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        recentlyChat = [User]()
+    }
         
     private func setupViews(){
         lblTitle.lblTitleConstraints(view)
@@ -121,7 +125,10 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
                             if let document = document, document.exists {
                                 let data = document.data()
                                 let userName = data?["name"] as? String ?? "Unkown"
-                                self.recentlyChat.append(User(userName: userName, uid: unreadMessage.key))
+                                let newUser = User(userName: userName, uid: unreadMessage.key)
+                                if !self.recentlyChat.contains(where: { $0.uid == newUser.uid }) {
+                                    self.recentlyChat.append(newUser)
+                                }
                                 self.tableView.reloadData()
                             }
                         }
