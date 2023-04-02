@@ -29,7 +29,7 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
     private var btnBack: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
+        btn.setImage(UIImage(named: "btn-back"), for: .normal)
         return btn
     }()
     
@@ -106,7 +106,7 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FriendsRequestsTableViewCell", for: indexPath) as! FriendsRequestsTableViewCell
         if users.count != 0{
-            cell.userImageView.image = UIImage(systemName: "person")
+            cell.userImageView.image = UIImage(named: "profile-photo")
             cell.userNameLabel.text = users[indexPath.row].userName
             cell.btnConfirm.tag = indexPath.row
             cell.btnDelete.tag = indexPath.row
@@ -188,6 +188,10 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
     @objc private func btnBackTarget(){
         self.dismiss(animated: true)
     }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 70
+    }
 }
 
 private extension UIView{
@@ -200,7 +204,7 @@ private extension UIView{
     func btnBackConstraints(_ view: UIView){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
     }
     
     func tableViewConstraints(_ view: UIView, lblTitle: UILabel){

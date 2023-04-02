@@ -28,7 +28,7 @@ class RegisterViewController: UIViewController {
     let btnBack: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
+        btn.setImage(UIImage(named: "btn-back"), for: .normal)
         btn.tintColor = .white
         return btn
     }()

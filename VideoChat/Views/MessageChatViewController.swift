@@ -40,7 +40,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .white
         view.layer.borderWidth = 1
-        view.layer.borderColor = UIColor.gray.withAlphaComponent(0.5).cgColor
+        view.layer.borderColor = UIColor.gray.withAlphaComponent(0.2).cgColor
         return view
     }()
     
@@ -48,21 +48,24 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     private let btnBack: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
+        btn.setImage(UIImage(named: "btn-back"), for: .normal)
         return btn
     }()
     
     private let btnVideoCall: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(systemName: "video.fill"), for: .normal)
+        btn.setImage(UIImage(named: "btn-video-call"), for: .normal)
+        btn.contentMode = .scaleAspectFit
+        btn.imageView?.contentMode = .scaleAspectFit
+        btn.imageView?.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
         return btn
     }()
     
     private let btnSend: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(systemName: "paperplane.circle.fill"), for: .normal)
+        btn.setImage(UIImage(named: "btn-send"), for: .normal)
         return btn
     }()
     
@@ -70,7 +73,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     private let imgViewUserPhoto: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.image = UIImage(systemName: "person")
+        imageView.image = UIImage(named: "profile-photo")
         imageView.contentMode = .scaleAspectFit
         imageView.layer.cornerRadius = 25
         imageView.clipsToBounds = true
@@ -82,6 +85,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         let lbl = UILabel()
         lbl.translatesAutoresizingMaskIntoConstraints = false
         lbl.text = ""
+        lbl.font = UIFont(name: "Futura", size: 16)
         return lbl
     }()
     
@@ -89,15 +93,14 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     private let txtFieldMessage: UITextField = {
         let txtField = UITextField()
         txtField.translatesAutoresizingMaskIntoConstraints = false
-        txtField.layer.cornerRadius = 4.0
-        txtField.layer.borderWidth = 1.0
-        txtField.layer.borderColor = UIColor.gray.cgColor
-        let paddingViewUsername = UIView(frame: CGRectMake(0, 0, 15, txtField.frame.height))
-        txtField.leftView = paddingViewUsername
+        txtField.layer.cornerRadius = 12
+        let paddingViewMessage = UIView(frame: CGRectMake(0, 0, 15, txtField.frame.height))
+        txtField.leftView = paddingViewMessage
         txtField.leftViewMode = UITextField.ViewMode.always
-        txtField.backgroundColor = .white
+        txtField.backgroundColor = UIColor(red: 0.95, green: 0.96, blue: 0.96, alpha: 1.00)
         txtField.autocorrectionType = .no
         txtField.autocapitalizationType = .none
+        txtField.placeholder = "Write your message"
         return txtField
     }()
     
@@ -139,7 +142,6 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
             let users = db.collection("users")
             let user = users.document(currentUser.uid)
             
-            // Dinleyici ekle
             user.addSnapshotListener { userDocument, userError in
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
@@ -349,7 +351,7 @@ private extension UIView{
     func imgViewUserPhotoConstraints(_ view: UIView){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 45).isActive = true
         bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10).isActive = true
         widthAnchor.constraint(equalToConstant: 40).isActive = true
         heightAnchor.constraint(equalToConstant: 40).isActive = true
@@ -358,7 +360,7 @@ private extension UIView{
     func btnBackConstraints(_ view: UIView, imgViewUserPhoto: UIImageView){
         view.addSubview(self)
         centerYAnchor.constraint(equalTo: imgViewUserPhoto.centerYAnchor).isActive = true
-        leadingAnchor.constraint(equalTo: imgViewUserPhoto.leadingAnchor, constant: -15).isActive = true
+        leadingAnchor.constraint(equalTo: imgViewUserPhoto.leadingAnchor, constant: -30).isActive = true
     }
     
     func lblUsernameConstraints(_ view: UIView, imgViewUserPhoto: UIImageView){

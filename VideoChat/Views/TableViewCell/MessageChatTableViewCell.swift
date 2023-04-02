@@ -18,7 +18,7 @@ class MessageChatTableViewCell: UITableViewCell {
     let messageView: UIView = {
         let view = UIView()
         view.backgroundColor = .systemBlue
-        view.layer.cornerRadius = 16
+        view.layer.cornerRadius = 12
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -28,6 +28,8 @@ class MessageChatTableViewCell: UITableViewCell {
         label.numberOfLines = 0
         label.font = UIFont.systemFont(ofSize: 17)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
+        label.sizeToFit()
         return label
     }()
     
@@ -42,7 +44,7 @@ class MessageChatTableViewCell: UITableViewCell {
         contentView.addSubview(messageView)
         messageView.addSubview(messageLabel)
         
-        leadingConstraint = messageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16)
+        leadingConstraint = messageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15)
         trailingConstraint = messageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
         
         NSLayoutConstraint.activate([
@@ -52,7 +54,8 @@ class MessageChatTableViewCell: UITableViewCell {
             messageLabel.leadingAnchor.constraint(equalTo: messageView.leadingAnchor, constant: 16),
             messageLabel.topAnchor.constraint(equalTo: messageView.topAnchor, constant: 8),
             messageLabel.trailingAnchor.constraint(equalTo: messageView.trailingAnchor, constant: -16),
-            messageLabel.bottomAnchor.constraint(equalTo: messageView.bottomAnchor, constant: -8)
+            messageLabel.bottomAnchor.constraint(equalTo: messageView.bottomAnchor, constant: -8),
+            messageLabel.widthAnchor.constraint(lessThanOrEqualToConstant: UIScreen.main.bounds.width * 0.7)
         ])
     }
     
@@ -65,11 +68,12 @@ class MessageChatTableViewCell: UITableViewCell {
         messageLabel.text = message.message
         
         if isCurrentUser {
-            messageView.backgroundColor = UIColor(red: 0.5, green: 0.8, blue: 1, alpha: 1)
+            messageView.backgroundColor = UIColor(red: 0.13, green: 0.63, blue: 0.56, alpha: 1.00)
+            messageLabel.textColor = .white
             leadingConstraint.isActive = false
             trailingConstraint.isActive = true
         } else {
-            messageView.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1)
+            messageView.backgroundColor = UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1.00)
             leadingConstraint.isActive = true
             trailingConstraint.isActive = false
         }

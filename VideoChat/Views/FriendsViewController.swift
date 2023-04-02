@@ -29,7 +29,7 @@ class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewD
     private var btnBack: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(systemName: "chevron.backward"), for: .normal)
+        btn.setImage(UIImage(named: "btn-back"), for: .normal)
         return btn
     }()
     

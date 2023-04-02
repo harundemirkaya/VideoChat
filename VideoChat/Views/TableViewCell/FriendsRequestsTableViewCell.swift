@@ -20,7 +20,7 @@ class FriendsRequestsTableViewCell: UITableViewCell {
 
     let userNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 16)
+        label.font = UIFont(name: "Futura", size: 16)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -51,7 +51,7 @@ class FriendsRequestsTableViewCell: UITableViewCell {
         
         NSLayoutConstraint.activate([
             userImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            userImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            userImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
             userImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             userImageView.widthAnchor.constraint(equalToConstant: 50),
             userImageView.heightAnchor.constraint(equalToConstant: 50),
@@ -61,7 +61,7 @@ class FriendsRequestsTableViewCell: UITableViewCell {
             userNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             btnConfirm.centerYAnchor.constraint(equalTo: centerYAnchor),
-            btnConfirm.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            btnConfirm.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
             btnConfirm.widthAnchor.constraint(equalToConstant: 44),
             btnConfirm.heightAnchor.constraint(equalToConstant: 44),
             
