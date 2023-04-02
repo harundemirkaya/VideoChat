@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import FirebaseStorage
+import FirebaseFirestore
+import FirebaseAuth
 
-class ProfileViewController: UIViewController {
+class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     // MARK: -Define
     
@@ -17,8 +20,6 @@ class ProfileViewController: UIViewController {
         imgView.layer.cornerRadius = imgView.frame.size.width / 2
         imgView.clipsToBounds = true
         imgView.contentMode = .scaleAspectFit
-        imgView.image = UIImage(named: "profile-photo")
-        imgView.image = UIImage(named: "profile-photo")
         return imgView
     }()
     
@@ -129,7 +130,36 @@ class ProfileViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
+        fetchData()
         setupViews()
+    }
+    
+    func fetchData(){
+        if let currentUser = Auth.auth().currentUser{
+            let db = Firestore.firestore()
+            db.collection("users").document(currentUser.uid).getDocument { (document, error) in
+                if let document = document, document.exists {
+                    let data = document.data()
+                    self.txtFieldName.placeholder = data!["name"] as? String
+                    self.txtFieldEmail.placeholder = data!["email"] as? String
+                    let urlString = data!["profilePhoto"] as? String
+                    if let url = URL(string: urlString!){
+                        URLSession.shared.dataTask(with: url) { (data, response, error) in
+                                guard let data = data, error == nil else {
+                                    print("Error loading image: \(error?.localizedDescription ?? "unknown error")")
+                                    return
+                                }
+                                DispatchQueue.main.async {
+                                    self.imgProfilePhoto.image = UIImage(data: data)
+                                }
+                            }.resume()
+                    }
+                } else {
+                    print("Belge mevcut değil")
+                }
+            }
+            
+        }
     }
     
     func setupViews(){
@@ -143,6 +173,70 @@ class ProfileViewController: UIViewController {
         txtFieldNewPassword.txtFieldNewPasswordConstraints(view, txtFieldOldPassword: txtFieldOldPassword)
         txtFieldNewPasswordAgain.txtFieldNewPasswordAgainConstraints(view, txtFieldNewPassword: txtFieldNewPassword)
         btnUpdatePassword.btnUpdatePasswordConstraints(view, txtFieldNewPasswordAgain: txtFieldNewPasswordAgain)
+        
+        btnUpdateNameOrEmail.addTarget(self, action: #selector(btnUpdateNameOrEmailTarget), for: .touchUpInside)
+        
+        imgProfilePhoto.isUserInteractionEnabled = true
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(selectPhoto))
+        imgProfilePhoto.addGestureRecognizer(gestureRecognizer)
+        
+        let endEditing = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(endEditing)
+    }
+    
+    @objc func selectPhoto(){
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .photoLibrary
+        picker.allowsEditing = true
+        present(picker, animated: true)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        imgProfilePhoto.image = info[.editedImage] as? UIImage
+        picker.dismiss(animated: true)
+    }
+    
+    @objc func btnUpdateNameOrEmailTarget(){
+        let storage = Storage.storage()
+        let storageReference = storage.reference()
+        
+        let mediaFolder = storageReference.child("media")
+        
+        let id = UUID().uuidString
+        
+        if let data = imgProfilePhoto.image?.jpegData(compressionQuality: 0.5){
+            let imageReference = mediaFolder.child("\(id).jpg")
+            imageReference.putData(data) { StorageMetadata, error in
+                if error != nil{
+                    print(error?.localizedDescription as Any)
+                } else{
+                    imageReference.downloadURL { url, error in
+                        if error == nil{
+                            let imageUrl = url?.absoluteString
+                            if let imageUrl = imageUrl{
+                                let fireStoreDB = Firestore.firestore()
+                                if let currentUser = Auth.auth().currentUser{
+                                    fireStoreDB.collection("users").document(currentUser.uid).updateData([
+                                        "profilePhoto": imageUrl
+                                    ]) { err in
+                                        if let err = err {
+                                            print("Hata oluştu: \(err)")
+                                        } else {
+                                            print("Veri başarıyla güncellendi")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
     }
 }
 
