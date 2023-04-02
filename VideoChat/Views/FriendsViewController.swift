@@ -106,7 +106,9 @@ class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewD
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FriendsTableViewCell", for: indexPath) as! FriendsTableViewCell
         
-        cell.userImageView.image = UIImage(systemName: "person")
+        cell.selectedBackgroundView = UIView()
+        cell.selectedBackgroundView?.backgroundColor = .clear
+        cell.userImageView.image = UIImage(named: "profile-photo")
         cell.userNameLabel.text = userFriends[indexPath.row].userName
         
         return cell
@@ -122,6 +124,10 @@ class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewD
         messageChatVC.remoteUser.userName = userFriends[indexPath.row].userName
         messageChatVC.remoteUser.uid = userFriends[indexPath.row].uid
         present(messageChatVC, animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 70
     }
 }
 

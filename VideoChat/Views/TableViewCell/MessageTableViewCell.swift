@@ -9,7 +9,6 @@ import UIKit
 
 class MessageTableViewCell: UITableViewCell {
     
-    // Kullanıcının resmini göstermek için bir UIImageView oluşturun
     let userImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -19,33 +18,42 @@ class MessageTableViewCell: UITableViewCell {
         return imageView
     }()
 
-    // Kullanıcının adını göstermek için bir UILabel oluşturun
     let userNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 16)
+        label.font = UIFont(name: "Futura", size: 16)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
-    // Mesajın kısa bir önizlemesini göstermek için bir UILabel oluşturun
     let messageLabel: UILabel = {
         let label = UILabel()
         label.textColor = .gray
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont(name: "Futura", size: 12)
         return label
     }()
+    
+    let btnUnread: UIButton = {
+        let btn = UIButton(type: .custom)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.backgroundColor = .systemRed
+        btn.titleLabel?.font = UIFont(name: "Futura", size: 15)
+        btn.setTitleColor(UIColor.white, for: .normal)
+        btn.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+        btn.layer.cornerRadius = btn.frame.size.width / 2
+        btn.clipsToBounds = true
+        return btn
+    }()
 
-    // Hücre oluşturulduğunda çağrılan fonksiyon
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        // UI bileşenlerini hücreye ekle
         addSubview(userImageView)
         addSubview(userNameLabel)
         addSubview(messageLabel)
+        addSubview(btnUnread)
         
-        // Kullanıcı resmini sola hizala
         NSLayoutConstraint.activate([
             userImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             userImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -54,7 +62,6 @@ class MessageTableViewCell: UITableViewCell {
             userImageView.heightAnchor.constraint(equalToConstant: 50)
         ])
         
-        // Kullanıcı adını ve mesajı sağa hizala
         NSLayoutConstraint.activate([
             userNameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             userNameLabel.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 10),
@@ -62,7 +69,9 @@ class MessageTableViewCell: UITableViewCell {
             messageLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: 0),
             messageLabel.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 10),
             messageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            messageLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+            messageLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            btnUnread.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            btnUnread.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }
 

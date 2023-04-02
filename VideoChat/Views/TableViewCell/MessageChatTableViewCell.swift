@@ -74,6 +74,7 @@ class MessageChatTableViewCell: UITableViewCell {
             trailingConstraint.isActive = true
         } else {
             messageView.backgroundColor = UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1.00)
+            messageLabel.textColor = .black
             leadingConstraint.isActive = true
             trailingConstraint.isActive = false
         }

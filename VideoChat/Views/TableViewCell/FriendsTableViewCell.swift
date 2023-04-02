@@ -20,8 +20,16 @@ class FriendsTableViewCell: UITableViewCell {
 
     let userNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 16)
+        label.font = UIFont(name: "Futura", size: 16)
         label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    let clickToChatLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont(name: "Futura", size: 12)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Click to Chat"
         return label
     }()
 
@@ -30,6 +38,7 @@ class FriendsTableViewCell: UITableViewCell {
         
         addSubview(userImageView)
         addSubview(userNameLabel)
+        addSubview(clickToChatLabel)
         
         NSLayoutConstraint.activate([
             userImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -40,9 +49,14 @@ class FriendsTableViewCell: UITableViewCell {
         ])
         
         NSLayoutConstraint.activate([
-            userNameLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            userNameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             userNameLabel.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 10),
-            userNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
+            userNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            
+            clickToChatLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: 0),
+            clickToChatLabel.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 10),
+            clickToChatLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            clickToChatLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
         ])
     }
 

@@ -23,6 +23,7 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
     private var tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.allowsSelection = false
         return tableView
     }()
     
@@ -33,17 +34,33 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
         return btn
     }()
     
-    var userFriendsRequests = [String](){
+    private var userFriendsRequests = [String](){
         didSet{
             setRequests()
         }
     }
     
-    var users = [User](){
+    private var users = [User](){
         didSet{
             self.tableView.reloadData()
         }
     }
+    
+    private let imgEmptyData: UIImageView = {
+        let imgView = UIImageView(image: UIImage(systemName : "person.crop.circle.fill.badge.plus"))
+        imgView.translatesAutoresizingMaskIntoConstraints = false
+        imgView.tintColor = UIColor(red: 0.13, green: 0.63, blue: 0.56, alpha: 1.00)
+        imgView.contentMode = .scaleAspectFit
+        return imgView
+    }()
+    
+    private let lblEmptyData: UILabel = {
+        let lbl = UILabel()
+        lbl.translatesAutoresizingMaskIntoConstraints = false
+        lbl.text = "You Do Not Have a Friend Request"
+        lbl.font = UIFont(name: "Futura", size: 16)
+        return lbl
+    }()
     
     // MARK: -LifeCycle
     override func viewDidLoad() {
@@ -62,6 +79,11 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
         tableView.register(FriendsRequestsTableViewCell.self, forCellReuseIdentifier: "FriendsRequestsTableViewCell")
         tableView.delegate = self
         tableView.dataSource = self
+        
+        imgEmptyData.imgEmptyData(view)
+        lblEmptyData.lblEmptyData(view, imgView: imgEmptyData)
+        imgEmptyData.isHidden = true
+        lblEmptyData.isHidden = true
         
         btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
     }
@@ -100,6 +122,15 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1){
+            if self.users.count == 0{
+                self.imgEmptyData.isHidden = false
+                self.lblEmptyData.isHidden = false
+            } else{
+                self.imgEmptyData.isHidden = true
+                self.lblEmptyData.isHidden = true
+            }
+        }
         return  users.count
     }
     
@@ -112,6 +143,8 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
             cell.btnDelete.tag = indexPath.row
             cell.btnConfirm.addTarget(self, action: #selector(btnConfirmTarget(sender:)), for: .touchUpInside)
             cell.btnDelete.addTarget(self, action: #selector(btnDeleteTarget(sender:)), for: .touchUpInside)
+            cell.selectedBackgroundView = UIView()
+            cell.selectedBackgroundView?.backgroundColor = .clear
         }
         return cell
     }
@@ -213,5 +246,19 @@ private extension UIView{
         leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+    }
+    
+    func imgEmptyData(_ view: UIView){
+        view.addSubview(self)
+        centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        widthAnchor.constraint(equalToConstant: 80).isActive = true
+        heightAnchor.constraint(equalToConstant: 80).isActive = true
+    }
+    
+    func lblEmptyData(_ view: UIView, imgView: UIImageView){
+        view.addSubview(self)
+        topAnchor.constraint(equalTo: imgView.bottomAnchor, constant: 10).isActive = true
+        centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
     }
 }

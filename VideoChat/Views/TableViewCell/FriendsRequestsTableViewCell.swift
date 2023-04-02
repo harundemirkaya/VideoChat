@@ -28,17 +28,29 @@ class FriendsRequestsTableViewCell: UITableViewCell {
     let btnDelete: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
-        btn.tintColor = .systemRed
+        btn.tintColor = UIColor(red: 0.92, green: 0.22, blue: 0.21, alpha: 1.00)
         return btn
     }()
     
     let btnConfirm: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
-        btn.tintColor = .systemGreen
+        btn.tintColor = UIColor(red: 0.13, green: 0.63, blue: 0.56, alpha: 1.00)
         return btn
+    }()
+    
+    let imgConfirm: UIImageView = {
+        let imgView = UIImageView(image: UIImage(systemName: "checkmark.circle.fill"))
+        imgView.translatesAutoresizingMaskIntoConstraints = false
+        imgView.contentMode = .scaleAspectFit
+        return imgView
+    }()
+    
+    let imgDelete: UIImageView = {
+        let imgView = UIImageView(image: UIImage(systemName: "xmark.circle.fill"))
+        imgView.translatesAutoresizingMaskIntoConstraints = false
+        imgView.contentMode = .scaleAspectFit
+        return imgView
     }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -48,6 +60,8 @@ class FriendsRequestsTableViewCell: UITableViewCell {
         contentView.addSubview(userNameLabel)
         contentView.addSubview(btnDelete)
         contentView.addSubview(btnConfirm)
+        btnConfirm.addSubview(imgConfirm)
+        btnDelete.addSubview(imgDelete)
         
         NSLayoutConstraint.activate([
             userImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
@@ -58,15 +72,27 @@ class FriendsRequestsTableViewCell: UITableViewCell {
             
             userNameLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             userNameLabel.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 10),
-            userNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            userNameLabel.trailingAnchor.constraint(equalTo: btnDelete.leadingAnchor, constant: -5),
             
             btnConfirm.centerYAnchor.constraint(equalTo: centerYAnchor),
-            btnConfirm.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
-            btnConfirm.widthAnchor.constraint(equalToConstant: 44),
-            btnConfirm.heightAnchor.constraint(equalToConstant: 44),
+            btnConfirm.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            btnConfirm.widthAnchor.constraint(equalToConstant: 64),
+            btnConfirm.heightAnchor.constraint(equalToConstant: 64),
+            
+            imgConfirm.centerXAnchor.constraint(equalTo: btnConfirm.centerXAnchor),
+            imgConfirm.centerYAnchor.constraint(equalTo: btnConfirm.centerYAnchor),
+            imgConfirm.widthAnchor.constraint(equalTo: btnConfirm.widthAnchor, multiplier: 0.6),
+            imgConfirm.heightAnchor.constraint(equalTo: btnConfirm.heightAnchor, multiplier: 0.6),
             
             btnDelete.centerYAnchor.constraint(equalTo: centerYAnchor),
-            btnDelete.trailingAnchor.constraint(equalTo: btnConfirm.leadingAnchor, constant: -5)
+            btnDelete.trailingAnchor.constraint(equalTo: btnConfirm.leadingAnchor, constant: -5),
+            btnDelete.widthAnchor.constraint(equalToConstant: 64),
+            btnDelete.heightAnchor.constraint(equalToConstant: 64),
+            
+            imgDelete.centerXAnchor.constraint(equalTo: btnDelete.centerXAnchor),
+            imgDelete.centerYAnchor.constraint(equalTo: btnDelete.centerYAnchor),
+            imgDelete.widthAnchor.constraint(equalTo: btnDelete.widthAnchor, multiplier: 0.6),
+            imgDelete.heightAnchor.constraint(equalTo: btnDelete.heightAnchor, multiplier: 0.6),
         ])
     }
 

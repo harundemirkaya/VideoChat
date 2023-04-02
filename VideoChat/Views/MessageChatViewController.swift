@@ -329,8 +329,8 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         } else{
             cell.message = messages[indexPath.row]
         }
-        
-        
+        cell.selectedBackgroundView = UIView()
+        cell.selectedBackgroundView?.backgroundColor = .clear
         return cell
     }
     

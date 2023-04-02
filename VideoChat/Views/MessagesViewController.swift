@@ -31,20 +31,22 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.setImage(UIImage(systemName: "plus"), for: .normal)
+        btn.tintColor = UIColor(red: 0.13, green: 0.63, blue: 0.56, alpha: 1.00)
         btn.setTitle("New Chat", for: .normal)
-        btn.setTitleColor(.tintColor, for: .normal)
+        btn.setTitleColor(UIColor(red: 0.13, green: 0.63, blue: 0.56, alpha: 1.00), for: .normal)
         return btn
     }()
     
     private var btnFriendRequests: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(systemName: "person.crop.circle.fill.badge.plus"), for: .normal)
-        btn.setTitleColor(.tintColor, for: .normal)
+        btn.setImage(UIImage(systemName: "figure.stand.line.dotted.figure.stand"), for: .normal)
+        btn.tintColor = UIColor(red: 0.13, green: 0.63, blue: 0.56, alpha: 1.00)
         return btn
     }()
     
     private var recentlyChat = [User]()
+    private var recentlyChatCount = [String:Int]()
     
     // MARK: -LifeCycle
     override func viewDidLoad() {
@@ -116,11 +118,12 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         if let currentUser = Auth.auth().currentUser{
             let db = Firestore.firestore()
             let usersCollection = db.collection("users").document(currentUser.uid)
-            usersCollection.addSnapshotListener { userDocument, userError in
+            usersCollection.addSnapshotListener { [self] userDocument, userError in
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
                     let unreadMessages = userData?["unreadMessages"] as? [String:[String]] ?? [:]
                     for unreadMessage in unreadMessages{
+                        recentlyChatCount.updateValue(unreadMessage.value.count, forKey: unreadMessage.key)
                         db.collection("users").document(unreadMessage.key).getDocument { (document, error) in
                             if let document = document, document.exists {
                                 let data = document.data()
@@ -144,8 +147,15 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MessageTableViewCell", for: indexPath) as! MessageTableViewCell
-        
-        cell.userImageView.image = UIImage(systemName: "person")
+        if let unreadMessagesCount = recentlyChatCount[recentlyChat[indexPath.row].uid]{
+            cell.btnUnread.isHidden = false
+            cell.btnUnread.setTitle(String(unreadMessagesCount), for: .normal)
+        } else{
+            cell.btnUnread.isHidden = true
+        }
+        cell.selectedBackgroundView = UIView()
+        cell.selectedBackgroundView?.backgroundColor = .clear
+        cell.userImageView.image = UIImage(named: "profile-photo")
         cell.userNameLabel.text = recentlyChat[indexPath.row].userName
         cell.messageLabel.text = "Recently Chat"
         
@@ -158,6 +168,11 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         messageChatVC.remoteUser.userName = recentlyChat[indexPath.row].userName
         messageChatVC.remoteUser.uid = recentlyChat[indexPath.row].uid
         present(messageChatVC, animated: true)
+        recentlyChatCount.removeValue(forKey: recentlyChat[indexPath.row].uid)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 70
     }
 
 }
