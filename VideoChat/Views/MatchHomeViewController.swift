@@ -1,3 +1,10 @@
+//
+//  MatchHomeViewController.swift
+//  VideoChat
+//
+//  Created by Harun Demirkaya on 03.03.2023.
+//
+
 import UIKit
 import AVFoundation
 import AgoraRtcKit
@@ -115,6 +122,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     var isListener = false
     
     let matchHomeViewModel = MatchHomeViewModel()
+    
+    var channelName = ""
+    
+    let db = Firestore.firestore()
 
     // MARK: -LifeCycle
     override func viewDidLoad() {
@@ -151,18 +162,11 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         setupLocalVideo()
     }
 
-    func resetView(_ view: UIView) {
-        UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
-            view.center = CGPoint(x: view.bounds.width / 2.0, y: view.center.y)
-        }, completion: nil)
-    }
-
     // MARK: -Gesture Recognizer
     @objc func handlePanGesture(_ recognizer: UIPanGestureRecognizer) {
         guard let view = recognizer.view else {
             return
         }
-        
         let translation = recognizer.translation(in: view.superview)
 
         view.center.x = max(view.center.x + translation.x, view.bounds.width / 2.0)
@@ -247,45 +251,14 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         videoCanvas.view = remoteViewVideo
         agoraEngine.setupRemoteVideo(videoCanvas)
         
-        let db = Firestore.firestore()
-        if isListener{
-            let channelDocument = db.collection("channels").document(self.listenerJoinedUID!)
-            channelDocument.getDocument { (document, error) in
-                if let document = document, document.exists {
-                    let data = document.data()
-                    let publisherUID = data?["publisherUID"] as! String
-                    let listenerUID = data?["listenerUID"] as! String
-                    if let userID = Auth.auth().currentUser?.uid{
-                        let docListenerUser = db.collection("users").document(userID)
-                        docListenerUser.updateData(["remoteUserID": publisherUID]) { error in
-                            if let error = error {
-                                print("Hata oluştu: \(error.localizedDescription)")
-                            }
-                        }
-                        
-                        let docPublisherUser = db.collection("users").document(publisherUID)
-                        docPublisherUser.updateData(["remoteUserID": listenerUID]) { error in
-                            if let error = error {
-                                print("Hata oluştu: \(error.localizedDescription)")
-                            } else{
-                                //channelDocument.delete{ error in
-                                //    if let error = error{
-                                //        print(error.localizedDescription)
-                                //    }
-                                //}
-                            }
-                        }
-                    }
-                    
-                } else {
-                    print(error?.localizedDescription as Any)
-                }
-            }
-        }
+        matchHomeViewModel.setRemoteUserID(isListener, listenerJoinedUID: listenerJoinedUID ?? "")
+        
         btnLeave.btnLeaveConstraints(remoteView)
         btnLeave.addTarget(self, action: #selector(leaveChannel), for: .touchUpInside)
         btnAddFriend.btnAddFriendConstraints(remoteView)
         btnAddFriend.addTarget(self, action: #selector(btnAddFriendTarget), for: .touchUpInside)
+        
+        matchHomeViewModel.listenChatState(channelName)
     }
 
     // MARK: -Setup Local Video with Agora
@@ -308,7 +281,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         }
         
         if let currentUser = Auth.auth().currentUser {
-            let db = Firestore.firestore()
+            
             var genderID = [Int]()
             // MARK: Gender Filter
             db.collection("users").whereField("gender", isEqualTo: "female").getDocuments() { (querySnapshot, error) in
@@ -330,7 +303,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                     let data = document.data()
                     let userID = data!["id"] as! UInt
                     self.userIDforChannel = userID
-                    let isEmptyChannelDB = db.collection("channels")
+                    let isEmptyChannelDB = self.db.collection("channels")
                     isEmptyChannelDB.getDocuments { (querySnapshot, error) in
                         if let error = error {
                             print("Error getting documents: \(error.localizedDescription)")
@@ -353,7 +326,6 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     }
 
     func createChannel(){
-        let db = Firestore.firestore()
         let channelsCollection = db.collection("channels")
         let getCurrentUser = db.collection("users").document(Auth.auth().currentUser!.uid)
         var currentUserGender = ""
@@ -372,8 +344,9 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                     if let error = error {
                         print("Error adding document: \(error)")
                     } else{
+                        self.channelName = "\(self.userIDforChannel!)CHANNEL"
                         let result = self.agoraEngine.joinChannel(
-                            byToken: self.publisherToken, channelId: "\(self.userIDforChannel!)CHANNEL", uid: self.userIDforChannel!, mediaOptions: self.option,
+                            byToken: self.publisherToken, channelId: self.channelName, uid: self.userIDforChannel!, mediaOptions: self.option,
                             joinSuccess: { (channel, uid, elapsed) in }
                         )
                         if result == 0 {
@@ -389,7 +362,6 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     }
 
     func listenerFilters(_ userID: UInt){
-        let db = Firestore.firestore()
         let channelsCollection = db.collection("channels")
         channelsCollection.getDocuments{ (snapshot, error) in
             if let error = error {
@@ -410,13 +382,13 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     }
 
     func joinListener(){
+        channelName = self.filteredChannelName!
         let result = self.agoraEngine.joinChannel(
-            byToken: self.listenerToken, channelId: self.filteredChannelName!, uid: self.userIDforChannel!, mediaOptions: self.option,
+            byToken: self.listenerToken, channelId: channelName, uid: self.userIDforChannel!, mediaOptions: self.option,
             joinSuccess: { (channel, uid, elapsed) in }
         )
         if result == 0 {
             self.joined = true
-            let db = Firestore.firestore()
             let channelsCollectionDocument = db.collection("channels").document(self.listenerJoinedUID!)
             channelsCollectionDocument.updateData([
                 "listenerToken": self.listenerToken!,
@@ -441,10 +413,18 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         localView.viewsConstraints(view)
         setupLocalVideo()
         self.btnAddFriend.isHidden = false
+        
+        let channelCollection = db.collection("channels").document(channelName)
+        channelCollection.delete() { error in
+            if let error = error {
+                print("Error removing document: \(error)")
+            } else {
+                print("Document successfully removed!")
+            }
+        }
     }
     
     @objc func btnAddFriendTarget(){
-        let db = Firestore.firestore()
         var channelName = ""
         if isListener{
             channelName = listenerJoinedUID!
@@ -458,7 +438,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                 let publisherUID = data?["publisherUID"] as! String
                 let listenerUID = data?["listenerUID"] as! String
                 if self.isListener{
-                    let user = db.collection("users").document(publisherUID)
+                    let user = self.db.collection("users").document(publisherUID)
                     user.getDocument { userDocument, userError in
                         if let userDocument = userDocument, userDocument.exists{
                             let userData = userDocument.data()
@@ -479,7 +459,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                         }
                     }
                 } else{
-                    let user = db.collection("users").document(listenerUID)
+                    let user = self.db.collection("users").document(listenerUID)
                     user.getDocument { userDocument, userError in
                         if let userDocument = userDocument, userDocument.exists{
                             let userData = userDocument.data()

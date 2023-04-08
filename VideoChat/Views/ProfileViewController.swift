@@ -26,7 +26,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     private let lblUsername: UILabel = {
         let lbl = UILabel()
         lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.text = "John Doe"
+        lbl.text = "Edit Profile"
         lbl.font = UIFont(name: "Futura", size: 16)
         return lbl
     }()
@@ -125,6 +125,15 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         return btn
     }()
     
+    private let btnLogout: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.backgroundColor = UIColor(red: 0.92, green: 0.22, blue: 0.21, alpha: 1.00)
+        btn.setTitle("Logout", for: .normal)
+        btn.layer.cornerRadius = 10
+        return btn
+    }()
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -173,8 +182,11 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         txtFieldNewPassword.txtFieldNewPasswordConstraints(view, txtFieldOldPassword: txtFieldOldPassword)
         txtFieldNewPasswordAgain.txtFieldNewPasswordAgainConstraints(view, txtFieldNewPassword: txtFieldNewPassword)
         btnUpdatePassword.btnUpdatePasswordConstraints(view, txtFieldNewPasswordAgain: txtFieldNewPasswordAgain)
+        btnLogout.btnLogoutConstraints(view, btnUpdatePassword: btnUpdatePassword)
         
         btnUpdateNameOrEmail.addTarget(self, action: #selector(btnUpdateNameOrEmailTarget), for: .touchUpInside)
+        btnUpdatePassword.addTarget(self, action: #selector(btnUpdatePasswordTarget), for: .touchUpInside)
+        btnLogout.addTarget(self, action: #selector(btnLogoutTarget), for: .touchUpInside)
         
         imgProfilePhoto.isUserInteractionEnabled = true
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(selectPhoto))
@@ -182,6 +194,17 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         
         let endEditing = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(endEditing)
+    }
+    
+    @objc func btnLogoutTarget(){
+        do {
+            try Auth.auth().signOut()
+            let homeVC = ViewController()
+            homeVC.modalPresentationStyle = .fullScreen
+            present(homeVC, animated: true)
+        } catch let signOutError as NSError {
+            print(signOutError.localizedDescription)
+        }
     }
     
     @objc func selectPhoto(){
@@ -192,12 +215,33 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         present(picker, animated: true)
     }
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        imgProfilePhoto.image = info[.editedImage] as? UIImage
-        picker.dismiss(animated: true)
+    @objc func btnUpdatePasswordTarget(){
+        if txtFieldOldPassword.text != "", txtFieldNewPassword.text != "", txtFieldNewPasswordAgain.text != ""{
+            if txtFieldNewPassword.text == txtFieldNewPasswordAgain.text{
+                if let currentUser = Auth.auth().currentUser{
+                    let credential = EmailAuthProvider.credential(withEmail: currentUser.email!, password: txtFieldOldPassword.text!)
+                    currentUser.reauthenticate(with: credential) { authResult, error in
+                        if let error = error {
+                            print(error.localizedDescription)
+                        } else {
+                            currentUser.updatePassword(to: self.txtFieldNewPassword.text!) { error in
+                              if let error = error {
+                                print(error.localizedDescription)
+                              } else {
+                                  self.txtFieldOldPassword.text = ""
+                                  self.txtFieldNewPassword.text = ""
+                                  self.txtFieldNewPasswordAgain.text = ""
+                              }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
-    @objc func btnUpdateNameOrEmailTarget(){
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        imgProfilePhoto.image = info[.editedImage] as? UIImage
         let storage = Storage.storage()
         let storageReference = storage.reference()
         
@@ -230,6 +274,45 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
                             }
                         }
                     }
+                }
+            }
+        }
+        picker.dismiss(animated: true)
+    }
+    
+    @objc func btnUpdateNameOrEmailTarget(){
+        let fireStoreDB = Firestore.firestore()
+        if let currentUser = Auth.auth().currentUser{
+            if txtFieldName.text != ""{
+                fireStoreDB.collection("users").document(currentUser.uid).updateData([
+                    "name": txtFieldName.text as Any
+                ]) { err in
+                    if let err = err {
+                        print("Hata oluştu: \(err)")
+                    } else {
+                        self.txtFieldName.placeholder = self.txtFieldName.text
+                        self.txtFieldName.text = ""
+                        print("Veri başarıyla güncellendi")
+                    }
+                }
+            }
+            if txtFieldEmail.text != ""{
+                currentUser.updateEmail(to: txtFieldEmail.text!) { error in
+                  if let error = error {
+                    print(error.localizedDescription)
+                  } else {
+                      fireStoreDB.collection("users").document(currentUser.uid).updateData([
+                        "email": self.txtFieldEmail.text as Any
+                      ]) { err in
+                          if let err = err {
+                              print("Hata oluştu: \(err)")
+                          } else {
+                              self.txtFieldEmail.placeholder = self.txtFieldEmail.text
+                              self.txtFieldEmail.text = ""
+                              print("Veri başarıyla güncellendi")
+                          }
+                      }
+                  }
                 }
             }
         }
@@ -318,6 +401,14 @@ private extension UIView{
         view.addSubview(self)
         centerXAnchor.constraint(equalTo: txtFieldNewPasswordAgain.centerXAnchor).isActive = true
         topAnchor.constraint(equalTo: txtFieldNewPasswordAgain.bottomAnchor, constant: 10).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
+        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+    }
+    
+    func btnLogoutConstraints(_ view: UIView, btnUpdatePassword: UIButton){
+        view.addSubview(self)
+        topAnchor.constraint(equalTo: btnUpdatePassword.bottomAnchor, constant: 10).isActive = true
+        centerXAnchor.constraint(equalTo: btnUpdatePassword.centerXAnchor).isActive = true
         leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
         trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
     }
