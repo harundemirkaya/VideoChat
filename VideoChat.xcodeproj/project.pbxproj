@@ -37,6 +37,13 @@
 		4FE3723329CCACB90095EDAD /* FriendRequestsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE3723229CCACB90095EDAD /* FriendRequestsViewController.swift */; };
 		4FE3723529CCB6BA0095EDAD /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE3723429CCB6BA0095EDAD /* User.swift */; };
 		4FE3723729CCBB700095EDAD /* FriendsRequestsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE3723629CCBB700095EDAD /* FriendsRequestsTableViewCell.swift */; };
+		4FF30B2329E30DE6006AA02C /* RegisterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF30B2229E30DE6006AA02C /* RegisterViewModel.swift */; };
+		4FF30B2529E30FED006AA02C /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF30B2429E30FED006AA02C /* ProfileViewModel.swift */; };
+		4FF30B2729E31127006AA02C /* MessagesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF30B2629E31127006AA02C /* MessagesViewModel.swift */; };
+		4FF30B2929E312A1006AA02C /* FriendsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF30B2829E312A1006AA02C /* FriendsViewModel.swift */; };
+		4FF30B2B29E3137D006AA02C /* MessageChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF30B2A29E3137D006AA02C /* MessageChatViewModel.swift */; };
+		4FF30B2D29E315E9006AA02C /* FriendRequestsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF30B2C29E315E9006AA02C /* FriendRequestsViewModel.swift */; };
+		4FF30B2F29E31879006AA02C /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF30B2E29E31879006AA02C /* LoginViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -73,6 +80,13 @@
 		4FE3723229CCACB90095EDAD /* FriendRequestsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRequestsViewController.swift; sourceTree = "<group>"; };
 		4FE3723429CCB6BA0095EDAD /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		4FE3723629CCBB700095EDAD /* FriendsRequestsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsRequestsTableViewCell.swift; sourceTree = "<group>"; };
+		4FF30B2229E30DE6006AA02C /* RegisterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewModel.swift; sourceTree = "<group>"; };
+		4FF30B2429E30FED006AA02C /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
+		4FF30B2629E31127006AA02C /* MessagesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesViewModel.swift; sourceTree = "<group>"; };
+		4FF30B2829E312A1006AA02C /* FriendsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsViewModel.swift; sourceTree = "<group>"; };
+		4FF30B2A29E3137D006AA02C /* MessageChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageChatViewModel.swift; sourceTree = "<group>"; };
+		4FF30B2C29E315E9006AA02C /* FriendRequestsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRequestsViewModel.swift; sourceTree = "<group>"; };
+		4FF30B2E29E31879006AA02C /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		70FB35DC56DC30E5258C59A5 /* Pods-VideoChat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoChat.debug.xcconfig"; path = "Target Support Files/Pods-VideoChat/Pods-VideoChat.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -193,6 +207,13 @@
 			isa = PBXGroup;
 			children = (
 				4FC6250829BD185C00698116 /* MatchHomeViewModel.swift */,
+				4FF30B2229E30DE6006AA02C /* RegisterViewModel.swift */,
+				4FF30B2429E30FED006AA02C /* ProfileViewModel.swift */,
+				4FF30B2629E31127006AA02C /* MessagesViewModel.swift */,
+				4FF30B2829E312A1006AA02C /* FriendsViewModel.swift */,
+				4FF30B2A29E3137D006AA02C /* MessageChatViewModel.swift */,
+				4FF30B2C29E315E9006AA02C /* FriendRequestsViewModel.swift */,
+				4FF30B2E29E31879006AA02C /* LoginViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -335,14 +356,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FF30B2D29E315E9006AA02C /* FriendRequestsViewModel.swift in Sources */,
 				4F6766EA29B0EC2000DC3BD6 /* LoginViewController.swift in Sources */,
 				4F944E6329B35D3500B7AC14 /* MatchHomeViewController.swift in Sources */,
 				4F6766EC29B0F02E00DC3BD6 /* RegisterViewController.swift in Sources */,
 				4FCA50BF29C616B000E0DC8E /* FriendsTableViewCell.swift in Sources */,
 				4FE3723729CCBB700095EDAD /* FriendsRequestsTableViewCell.swift in Sources */,
 				4FE3723329CCACB90095EDAD /* FriendRequestsViewController.swift in Sources */,
+				4FF30B2529E30FED006AA02C /* ProfileViewModel.swift in Sources */,
 				4FC6250629BD17AF00698116 /* NetworkManager.swift in Sources */,
 				4FDB18AC29D0894A009E246E /* Messages.xcdatamodeld in Sources */,
+				4FF30B2B29E3137D006AA02C /* MessageChatViewModel.swift in Sources */,
 				4FCA50BD29C6159B00E0DC8E /* FriendsViewController.swift in Sources */,
 				4F680C5B29B0CD4600081B51 /* ViewController.swift in Sources */,
 				4FC6250929BD185C00698116 /* MatchHomeViewModel.swift in Sources */,
@@ -351,12 +375,16 @@
 				4FA2967829C5D5B100398BFE /* ProfileViewController.swift in Sources */,
 				4FA6348929BD481E00F7C75E /* RTCTokenModel.swift in Sources */,
 				4F404CB729D4914500164DBF /* MessageChatTableViewCell.swift in Sources */,
+				4FF30B2729E31127006AA02C /* MessagesViewModel.swift in Sources */,
 				4F680C5729B0CD4600081B51 /* AppDelegate.swift in Sources */,
+				4FF30B2F29E31879006AA02C /* LoginViewModel.swift in Sources */,
 				4FE3723529CCB6BA0095EDAD /* User.swift in Sources */,
 				4F680C5929B0CD4600081B51 /* SceneDelegate.swift in Sources */,
 				4FAE974629D07EA700C59B8F /* Message.swift in Sources */,
 				4F87C10929C73B100059EC6F /* MessageChatViewController.swift in Sources */,
 				4FA2967629C5D57200398BFE /* TabBar.swift in Sources */,
+				4FF30B2929E312A1006AA02C /* FriendsViewModel.swift in Sources */,
+				4FF30B2329E30DE6006AA02C /* RegisterViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

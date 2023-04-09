@@ -8,9 +8,6 @@
 import UIKit
 import AVFoundation
 import AgoraRtcKit
-import FirebaseAuth
-import FirebaseFirestore
-
 
 class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, UIGestureRecognizerDelegate {
     
@@ -100,7 +97,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     var publisherToken: String?{
         didSet{
             if publisherToken != nil{
-                self.createChannel()
+                matchHomeViewModel.createChannel()
             }
         }
     }
@@ -124,8 +121,6 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     let matchHomeViewModel = MatchHomeViewModel()
     
     var channelName = ""
-    
-    let db = Firestore.firestore()
 
     // MARK: -LifeCycle
     override func viewDidLoad() {
@@ -160,6 +155,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         remoteViewVideo.viewsConstraints(remoteView)
         initializeAgoraEngine()
         setupLocalVideo()
+        btnLeave.btnLeaveConstraints(remoteView)
+        btnLeave.addTarget(self, action: #selector(leaveChannel), for: .touchUpInside)
+        btnAddFriend.btnAddFriendConstraints(remoteView)
+        btnAddFriend.addTarget(self, action: #selector(btnAddFriendTarget), for: .touchUpInside)
     }
 
     // MARK: -Gesture Recognizer
@@ -252,12 +251,6 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         agoraEngine.setupRemoteVideo(videoCanvas)
         
         matchHomeViewModel.setRemoteUserID(isListener, listenerJoinedUID: listenerJoinedUID ?? "")
-        
-        btnLeave.btnLeaveConstraints(remoteView)
-        btnLeave.addTarget(self, action: #selector(leaveChannel), for: .touchUpInside)
-        btnAddFriend.btnAddFriendConstraints(remoteView)
-        btnAddFriend.addTarget(self, action: #selector(btnAddFriendTarget), for: .touchUpInside)
-        
         matchHomeViewModel.listenChatState(channelName)
     }
 
@@ -279,106 +272,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
             showMessage(title: "Error", text: "Permissions were not granted")
             return
         }
-        
-        if let currentUser = Auth.auth().currentUser {
-            
-            var genderID = [Int]()
-            // MARK: Gender Filter
-            db.collection("users").whereField("gender", isEqualTo: "female").getDocuments() { (querySnapshot, error) in
-                if let error = error {
-                    print("Error getting documents: \(error)")
-                } else {
-                    for document in querySnapshot!.documents {
-                        if let userId = document.get("id") as? Int {
-                            genderID.append(userId)
-                        }
-                    }
-                }
-            }
-            
-            // MARK: Set User ID
-            let docRef = db.collection("users").document(currentUser.uid)
-            docRef.getDocument { (document, error) in
-                if let document = document, document.exists {
-                    let data = document.data()
-                    let userID = data!["id"] as! UInt
-                    self.userIDforChannel = userID
-                    let isEmptyChannelDB = self.db.collection("channels")
-                    isEmptyChannelDB.getDocuments { (querySnapshot, error) in
-                        if let error = error {
-                            print("Error getting documents: \(error.localizedDescription)")
-                        } else {
-                            let numberOfDocuments = querySnapshot?.count ?? 0
-                            if numberOfDocuments == 0 {
-                                self.matchHomeViewModel.getTokenPublisher(userID)
-                            } else{
-                                self.listenerFilters(userID)
-                            }
-                        }
-                    }
-                } else {
-                    print("Kullanıcı belgesi mevcut değil")
-                }
-            }
-        } else {
-            print("Kullanıcı oturum açmadı")
-        }
-    }
-
-    func createChannel(){
-        let channelsCollection = db.collection("channels")
-        let getCurrentUser = db.collection("users").document(Auth.auth().currentUser!.uid)
-        var currentUserGender = ""
-        getCurrentUser.getDocument { (document, error) in
-            if let document = document, document.exists {
-                currentUserGender = document.data()?["gender"] as! String
-                let data: [String: Any] = [
-                    "channelName": "\(self.userIDforChannel!)CHANNEL",
-                    "publisherToken": self.publisherToken!,
-                    "publisherUID": Auth.auth().currentUser!.uid as String,
-                    "gender": currentUserGender,
-                    "listenerToken": ""
-                ]
-                let docRefChannel = channelsCollection.document("\(self.userIDforChannel!)CHANNEL")
-                docRefChannel.setData(data){ error in
-                    if let error = error {
-                        print("Error adding document: \(error)")
-                    } else{
-                        self.channelName = "\(self.userIDforChannel!)CHANNEL"
-                        let result = self.agoraEngine.joinChannel(
-                            byToken: self.publisherToken, channelId: self.channelName, uid: self.userIDforChannel!, mediaOptions: self.option,
-                            joinSuccess: { (channel, uid, elapsed) in }
-                        )
-                        if result == 0 {
-                            self.joined = true
-                            self.showMessage(title: "Success", text: "Successfully joined the channel as \(self.userRole)")
-                        }
-                    }
-                }
-            } else {
-                print("Document does not exist")
-            }
-        }
-    }
-
-    func listenerFilters(_ userID: UInt){
-        let channelsCollection = db.collection("channels")
-        channelsCollection.getDocuments{ (snapshot, error) in
-            if let error = error {
-                print("Error getting documents: \(error.localizedDescription)")
-            } else {
-                guard let documents = snapshot?.documents else { return }
-                for document in documents {
-                    let gender = document.data()["gender"] as? String ?? ""
-                    if gender == "female" {
-                        let data = document.data()
-                        self.filteredChannelName = data["channelName"] as? String ?? ""
-                        self.matchHomeViewModel.getTokenListener(userID, channelName: self.filteredChannelName!)
-                        self.listenerJoinedUID = document.documentID
-                    }
-                }
-            }
-        }
+        matchHomeViewModel.joinChannel()
     }
 
     func joinListener(){
@@ -389,18 +283,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         )
         if result == 0 {
             self.joined = true
-            let channelsCollectionDocument = db.collection("channels").document(self.listenerJoinedUID!)
-            channelsCollectionDocument.updateData([
-                "listenerToken": self.listenerToken!,
-                "listenerUID": String(Auth.auth().currentUser!.uid)
-            ]) { err in
-                if let err = err {
-                    print("Error updating document: \(err)")
-                } else {
-                    self.isListener = true
-                    self.showMessage(title: "Success", text: "Successfully joined the channel as \(self.userRole)")
-                }
-            }
+            matchHomeViewModel.setListenerToken()
         }
     }
 
@@ -413,78 +296,13 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         localView.viewsConstraints(view)
         setupLocalVideo()
         self.btnAddFriend.isHidden = false
-        
-        let channelCollection = db.collection("channels").document(channelName)
-        channelCollection.delete() { error in
-            if let error = error {
-                print("Error removing document: \(error)")
-            } else {
-                print("Document successfully removed!")
-            }
+        if channelName != ""{
+            matchHomeViewModel.deleteChannel()
         }
     }
     
     @objc func btnAddFriendTarget(){
-        var channelName = ""
-        if isListener{
-            channelName = listenerJoinedUID!
-        } else{
-            channelName = "\(self.userIDforChannel!)CHANNEL"
-        }
-        let channel = db.collection("channels").document(channelName)
-        channel.getDocument { (document, error) in
-            if let document = document, document.exists {
-                let data = document.data()
-                let publisherUID = data?["publisherUID"] as! String
-                let listenerUID = data?["listenerUID"] as! String
-                if self.isListener{
-                    let user = self.db.collection("users").document(publisherUID)
-                    user.getDocument { userDocument, userError in
-                        if let userDocument = userDocument, userDocument.exists{
-                            let userData = userDocument.data()
-                            var friendsRequests = userData?["friendsRequests"] as? [String] ?? []
-                            if friendsRequests.contains(listenerUID){
-                                self.showMessage(title: "Failed", text: "You have already sent a request to the user")
-                            } else{
-                                friendsRequests.append(listenerUID)
-                                user.updateData(["friendsRequests": friendsRequests]) { error in
-                                    if let error = error {
-                                        print("Hata oluştu: \(error.localizedDescription)")
-                                    } else{
-                                        self.showMessage(title: "Success", text: "Friendship Request Success")
-                                        self.btnAddFriend.isHidden = true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else{
-                    let user = self.db.collection("users").document(listenerUID)
-                    user.getDocument { userDocument, userError in
-                        if let userDocument = userDocument, userDocument.exists{
-                            let userData = userDocument.data()
-                            var friendsRequests = userData?["friendsRequests"] as? [String] ?? []
-                            if friendsRequests.contains(publisherUID){
-                                self.showMessage(title: "Failed", text: "You have already sent a request to the user")
-                            } else{
-                                friendsRequests.append(publisherUID)
-                                user.updateData(["friendsRequests": friendsRequests]) { error in
-                                    if let error = error {
-                                        print("Hata oluştu: \(error.localizedDescription)")
-                                    } else{
-                                        self.showMessage(title: "Success", text: "Friendship Request Success")
-                                        self.btnAddFriend.isHidden = true
-                                    }
-                                }
-                            }
-                            
-                        }
-                    }
-                }
-            } else {
-                print(error?.localizedDescription as Any)
-            }
-        }
+        matchHomeViewModel.addFriends()
     }
 
     // MARK: -Show Message

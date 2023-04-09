@@ -7,7 +7,6 @@
 
 import UIKit
 import FirebaseFirestore
-import FirebaseAuth
 
 class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
@@ -33,58 +32,28 @@ class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewD
         return btn
     }()
     
-    private var userFriendsID: [String] = []{
+    var userFriendsID: [String] = []{
         didSet{
-            getFriends()
+            friendsViewModel.getFriends()
         }
     }
     
-    private var userFriends: [User] = []{
+    var userFriends: [User] = []{
         didSet{
             tableView.reloadData()
         }
     }
     
+    let friendsViewModel = FriendsViewModel()
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        friendsViewModel.friendsVC = self
         
-        getFriendsID()
+        friendsViewModel.getFriendsID()
         setupViews()
-    }
-    
-    private func getFriendsID(){
-        if let currentUser = Auth.auth().currentUser{
-            let userID = currentUser.uid
-            let db = Firestore.firestore()
-            let userCollection = db.collection("users").document(userID)
-            userCollection.getDocument { userDocument, userError in
-                if let userDocument = userDocument, userDocument.exists{
-                    let userData = userDocument.data()
-                    let friendsRequests = userData?["friends"] as? [String] ?? []
-                    self.userFriendsID = friendsRequests
-                }
-            }
-        }
-    }
-    
-    private func getFriends(){
-        if userFriendsID != []{
-            let db = Firestore.firestore()
-            let users = db.collection("users")
-            for userID in userFriendsID{
-                let user = users.document(userID)
-                user.getDocument { userDocument, userError in
-                    if let userDocument = userDocument, userDocument.exists{
-                        let userData = userDocument.data()
-                        let name = userData?["name"] as! String
-                        self.userFriends.append(User(userName: name, uid: userID))
-                        
-                    }
-                }
-            }
-        }
     }
     
     private func setupViews(){

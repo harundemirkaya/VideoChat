@@ -7,8 +7,6 @@
 
 import UIKit
 import CoreData
-import FirebaseFirestore
-import FirebaseAuth
 
 class MessagesViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
@@ -45,19 +43,22 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         return btn
     }()
     
-    private var recentlyChat = [User]()
-    private var recentlyChatCount = [String:Int]()
+    var recentlyChat = [User]()
+    var recentlyChatCount = [String:Int]()
+    
+    var messagesViewModel = MessagesViewModel()
     
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        messagesViewModel.messagesVC = self
         
         setupViews()
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        fetchData()
+        self.fetchData()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -115,30 +116,11 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         } catch{
             print("error")
         }
-        if let currentUser = Auth.auth().currentUser{
-            let db = Firestore.firestore()
-            let usersCollection = db.collection("users").document(currentUser.uid)
-            usersCollection.addSnapshotListener { [self] userDocument, userError in
-                if let userDocument = userDocument, userDocument.exists{
-                    let userData = userDocument.data()
-                    let unreadMessages = userData?["unreadMessages"] as? [String:[String]] ?? [:]
-                    for unreadMessage in unreadMessages{
-                        recentlyChatCount.updateValue(unreadMessage.value.count, forKey: unreadMessage.key)
-                        db.collection("users").document(unreadMessage.key).getDocument { (document, error) in
-                            if let document = document, document.exists {
-                                let data = document.data()
-                                let userName = data?["name"] as? String ?? "Unkown"
-                                let newUser = User(userName: userName, uid: unreadMessage.key)
-                                if !self.recentlyChat.contains(where: { $0.uid == newUser.uid }) {
-                                    self.recentlyChat.append(newUser)
-                                }
-                                self.tableView.reloadData()
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        messagesViewModel.getUnreadMessags()
+    }
+    
+    func reloadTableData(){
+        self.tableView.reloadData()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

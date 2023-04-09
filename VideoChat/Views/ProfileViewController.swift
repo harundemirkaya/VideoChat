@@ -7,14 +7,12 @@
 
 import UIKit
 import FirebaseStorage
-import FirebaseFirestore
-import FirebaseAuth
 
 class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     // MARK: -Define
     
-    private let imgProfilePhoto: UIImageView = {
+    let imgProfilePhoto: UIImageView = {
         let imgView = UIImageView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
         imgView.translatesAutoresizingMaskIntoConstraints = false
         imgView.layer.cornerRadius = imgView.frame.size.width / 2
@@ -31,7 +29,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         return lbl
     }()
     
-    private let txtFieldName: UITextField = {
+    let txtFieldName: UITextField = {
         let txtField = RightAlignedTextField()
         txtField.translatesAutoresizingMaskIntoConstraints = false
         txtField.attributedPlaceholder = NSAttributedString(string: "Name Surname", attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
@@ -44,7 +42,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         return txtField
     }()
     
-    private let txtFieldEmail: UITextField = {
+    let txtFieldEmail: UITextField = {
         let txtField = RightAlignedTextField()
         txtField.translatesAutoresizingMaskIntoConstraints = false
         txtField.attributedPlaceholder = NSAttributedString(string: "E-mail", attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
@@ -74,7 +72,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         return lbl
     }()
     
-    private let txtFieldOldPassword: UITextField = {
+    let txtFieldOldPassword: UITextField = {
         let txtField = RightAlignedTextField()
         txtField.translatesAutoresizingMaskIntoConstraints = false
         txtField.attributedPlaceholder = NSAttributedString(string: "Old Password", attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
@@ -88,7 +86,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         return txtField
     }()
     
-    private let txtFieldNewPassword: UITextField = {
+    let txtFieldNewPassword: UITextField = {
         let txtField = RightAlignedTextField()
         txtField.translatesAutoresizingMaskIntoConstraints = false
         txtField.attributedPlaceholder = NSAttributedString(string: "New Password", attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
@@ -102,7 +100,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         return txtField
     }()
     
-    private let txtFieldNewPasswordAgain: UITextField = {
+    let txtFieldNewPasswordAgain: UITextField = {
         let txtField = RightAlignedTextField()
         txtField.translatesAutoresizingMaskIntoConstraints = false
         txtField.attributedPlaceholder = NSAttributedString(string: "New Password Again", attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
@@ -134,42 +132,18 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         return btn
     }()
     
+    private let profileViewModel = ProfileViewModel()
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        profileViewModel.profileVC = self
         
-        fetchData()
+        profileViewModel.fetchData()
         setupViews()
     }
     
-    func fetchData(){
-        if let currentUser = Auth.auth().currentUser{
-            let db = Firestore.firestore()
-            db.collection("users").document(currentUser.uid).getDocument { (document, error) in
-                if let document = document, document.exists {
-                    let data = document.data()
-                    self.txtFieldName.placeholder = data!["name"] as? String
-                    self.txtFieldEmail.placeholder = data!["email"] as? String
-                    let urlString = data!["profilePhoto"] as? String
-                    if let url = URL(string: urlString!){
-                        URLSession.shared.dataTask(with: url) { (data, response, error) in
-                                guard let data = data, error == nil else {
-                                    print("Error loading image: \(error?.localizedDescription ?? "unknown error")")
-                                    return
-                                }
-                                DispatchQueue.main.async {
-                                    self.imgProfilePhoto.image = UIImage(data: data)
-                                }
-                            }.resume()
-                    }
-                } else {
-                    print("Belge mevcut değil")
-                }
-            }
-            
-        }
-    }
     
     func setupViews(){
         imgProfilePhoto.imgProfilePhotoConstraints(view)
@@ -197,14 +171,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     }
     
     @objc func btnLogoutTarget(){
-        do {
-            try Auth.auth().signOut()
-            let homeVC = ViewController()
-            homeVC.modalPresentationStyle = .fullScreen
-            present(homeVC, animated: true)
-        } catch let signOutError as NSError {
-            print(signOutError.localizedDescription)
-        }
+        profileViewModel.logout()
     }
     
     @objc func selectPhoto(){
@@ -218,24 +185,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     @objc func btnUpdatePasswordTarget(){
         if txtFieldOldPassword.text != "", txtFieldNewPassword.text != "", txtFieldNewPasswordAgain.text != ""{
             if txtFieldNewPassword.text == txtFieldNewPasswordAgain.text{
-                if let currentUser = Auth.auth().currentUser{
-                    let credential = EmailAuthProvider.credential(withEmail: currentUser.email!, password: txtFieldOldPassword.text!)
-                    currentUser.reauthenticate(with: credential) { authResult, error in
-                        if let error = error {
-                            print(error.localizedDescription)
-                        } else {
-                            currentUser.updatePassword(to: self.txtFieldNewPassword.text!) { error in
-                              if let error = error {
-                                print(error.localizedDescription)
-                              } else {
-                                  self.txtFieldOldPassword.text = ""
-                                  self.txtFieldNewPassword.text = ""
-                                  self.txtFieldNewPasswordAgain.text = ""
-                              }
-                            }
-                        }
-                    }
-                }
+                profileViewModel.updatePassword()
             }
         }
     }
@@ -259,18 +209,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
                         if error == nil{
                             let imageUrl = url?.absoluteString
                             if let imageUrl = imageUrl{
-                                let fireStoreDB = Firestore.firestore()
-                                if let currentUser = Auth.auth().currentUser{
-                                    fireStoreDB.collection("users").document(currentUser.uid).updateData([
-                                        "profilePhoto": imageUrl
-                                    ]) { err in
-                                        if let err = err {
-                                            print("Hata oluştu: \(err)")
-                                        } else {
-                                            print("Veri başarıyla güncellendi")
-                                        }
-                                    }
-                                }
+                                self.profileViewModel.updateProfilePhoto(imageUrl)
                             }
                         }
                     }
@@ -281,41 +220,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     }
     
     @objc func btnUpdateNameOrEmailTarget(){
-        let fireStoreDB = Firestore.firestore()
-        if let currentUser = Auth.auth().currentUser{
-            if txtFieldName.text != ""{
-                fireStoreDB.collection("users").document(currentUser.uid).updateData([
-                    "name": txtFieldName.text as Any
-                ]) { err in
-                    if let err = err {
-                        print("Hata oluştu: \(err)")
-                    } else {
-                        self.txtFieldName.placeholder = self.txtFieldName.text
-                        self.txtFieldName.text = ""
-                        print("Veri başarıyla güncellendi")
-                    }
-                }
-            }
-            if txtFieldEmail.text != ""{
-                currentUser.updateEmail(to: txtFieldEmail.text!) { error in
-                  if let error = error {
-                    print(error.localizedDescription)
-                  } else {
-                      fireStoreDB.collection("users").document(currentUser.uid).updateData([
-                        "email": self.txtFieldEmail.text as Any
-                      ]) { err in
-                          if let err = err {
-                              print("Hata oluştu: \(err)")
-                          } else {
-                              self.txtFieldEmail.placeholder = self.txtFieldEmail.text
-                              self.txtFieldEmail.text = ""
-                              print("Veri başarıyla güncellendi")
-                          }
-                      }
-                  }
-                }
-            }
-        }
+        profileViewModel.updateNameOrEmail()
     }
     
     @objc func dismissKeyboard() {

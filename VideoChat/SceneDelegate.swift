@@ -24,7 +24,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         } catch{
             print("")
         }
-         */
+        */
         window = UIWindow(windowScene: windowScene)
         if Auth.auth().currentUser != nil {
             let rootVC = AppTabBarController()

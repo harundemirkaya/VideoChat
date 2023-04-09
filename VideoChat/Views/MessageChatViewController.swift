@@ -6,8 +6,6 @@
 //
 
 import UIKit
-import FirebaseFirestore
-import FirebaseAuth
 import CoreData
 
 class MessageChatViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
@@ -90,7 +88,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     }()
     
     // MARK: Textfields Defined
-    private let txtFieldMessage: UITextField = {
+    let txtFieldMessage: UITextField = {
         let txtField = UITextField()
         txtField.translatesAutoresizingMaskIntoConstraints = false
         txtField.layer.cornerRadius = 12
@@ -120,49 +118,25 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     
     var currentUserID = ""
     
+    let messageChatViewModel = MessageChatViewModel()
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        messageChatViewModel.messageChatVC = self
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
         setupViews()
-        fetchData()
+        self.fetchData()
         
-        if let currentUser = Auth.auth().currentUser{
-            currentUserID = currentUser.uid
-        }
+        currentUserID = messageChatViewModel.getCurrentUserID()
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        if let currentUser = Auth.auth().currentUser{
-            let db = Firestore.firestore()
-            let users = db.collection("users")
-            let user = users.document(currentUser.uid)
-            
-            user.addSnapshotListener { userDocument, userError in
-                if let userDocument = userDocument, userDocument.exists{
-                    let userData = userDocument.data()
-                    var unreadMessages = userData?["unreadMessages"] as? [String:[String]] ?? [:]
-                    if let userUnreadmessages = unreadMessages[self.remoteUser.uid] {
-                        for userUnreadMessage in userUnreadmessages{
-                            self.saveData(userUnreadMessage, isRemote: true)
-                            self.tableView.reloadData()
-                        }
-                        unreadMessages.removeValue(forKey: self.remoteUser.uid)
-                        user.updateData([
-                            "unreadMessages": unreadMessages
-                        ]) { err in
-                            if let err = err {
-                                print("Hata oluştu: \(err)")
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        messageChatViewModel.getUnreadMessages()
     }
 
     private func setupViews(){
@@ -224,33 +198,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     @objc private func btnSendTarget(){
-        if txtFieldMessage.text != ""{
-            let db = Firestore.firestore()
-            let users = db.collection("users")
-            let user = users.document(remoteUser.uid)
-            user.getDocument { userDocument, userError in
-                if let userDocument = userDocument, userDocument.exists{
-                    let userData = userDocument.data()
-                    var unreadMessages = userData?["unreadMessages"] as? [String:[String]] ?? [:]
-                    if var messages = unreadMessages[Auth.auth().currentUser!.uid] {
-                        messages.append(self.txtFieldMessage.text!)
-                        unreadMessages[Auth.auth().currentUser!.uid] = messages
-                    } else {
-                        unreadMessages[Auth.auth().currentUser!.uid] = [self.txtFieldMessage.text!]
-                    }
-                    user.updateData([
-                        "unreadMessages": unreadMessages
-                    ]) { err in
-                        if let err = err {
-                            print("Hata oluştu: \(err)")
-                        } else{
-                            self.saveData()
-                            self.txtFieldMessage.text = ""
-                        }
-                    }
-                }
-            }
-        }
+        messageChatViewModel.sendMessage()
     }
     
     private func scrollToBottomMessage() {
@@ -261,17 +209,17 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         tableView.scrollToRow(at: bottomMessageIndex, at: .bottom, animated: true)
     }
     
-    private func saveData(_ message: String = "", isRemote: Bool = false){
+    func saveData(_ message: String = "", isRemote: Bool = false){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let context = appDelegate.persistentContainer.viewContext
         
         let messages = NSEntityDescription.insertNewObject(forEntityName: "Messages", into: context)
-        messages.setValue(Auth.auth().currentUser?.uid, forKey: "senderID")
+        messages.setValue(currentUserID, forKey: "senderID")
         messages.setValue(remoteUser.uid, forKey: "remoteID")
         if isRemote{
             messages.setValue(remoteUser.uid, forKey: "publisherID")
         } else{
-            messages.setValue(Auth.auth().currentUser?.uid, forKey: "publisherID")
+            messages.setValue(currentUserID, forKey: "publisherID")
         }
         messages.setValue(remoteUser.userName, forKey: "remoteUsername")
         if message == ""{
@@ -314,6 +262,10 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         } catch{
             print("error")
         }
+    }
+    
+    func reloadTableData(){
+        self.tableView.reloadData()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

@@ -6,8 +6,6 @@
 //
 
 import UIKit
-import FirebaseFirestore
-import FirebaseAuth
 
 class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
@@ -34,13 +32,13 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
         return btn
     }()
     
-    private var userFriendsRequests = [String](){
+    var userFriendsRequests = [String](){
         didSet{
-            setRequests()
+            friendRequestsViewModel.setRequests()
         }
     }
     
-    private var users = [User](){
+    var users = [User](){
         didSet{
             self.tableView.reloadData()
         }
@@ -62,12 +60,15 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
         return lbl
     }()
     
+    let friendRequestsViewModel = FriendRequestsViewModel()
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        friendRequestsViewModel.friendRequestVC = self
         
-        getUserData()
+        friendRequestsViewModel.getUserData()
         setupViews()
     }
     
@@ -86,39 +87,6 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
         lblEmptyData.isHidden = true
         
         btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
-    }
-    
-    private func getUserData(){
-        if let currentUser = Auth.auth().currentUser{
-            let userID = currentUser.uid
-            let db = Firestore.firestore()
-            let userCollection = db.collection("users").document(userID)
-            userCollection.getDocument { userDocument, userError in
-                if let userDocument = userDocument, userDocument.exists{
-                    let userData = userDocument.data()
-                    let friendsRequests = userData?["friendsRequests"] as? [String] ?? []
-                    self.userFriendsRequests = friendsRequests
-                }
-            }
-        }
-    }
-    
-    private func setRequests(){
-        if userFriendsRequests.count != 0{
-            let db = Firestore.firestore()
-            let users = db.collection("users")
-            for userID in userFriendsRequests{
-                let user = users.document(userID)
-                user.getDocument { userDocument, userError in
-                    if let userDocument = userDocument, userDocument.exists{
-                        let userData = userDocument.data()
-                        let name = userData?["name"] as! String
-                        self.users.append(User(userName: name, uid: userID))
-                        
-                    }
-                }
-            }
-        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -150,72 +118,11 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
     }
     
     @objc private func btnConfirmTarget(sender: UIButton){
-        if let currentUser = Auth.auth().currentUser{
-            let userID = currentUser.uid
-            let db = Firestore.firestore()
-            let userCollection = db.collection("users").document(userID)
-            userCollection.getDocument { userDocument, userError in
-                if let userDocument = userDocument, userDocument.exists{
-                    let userData = userDocument.data()
-                    var userFriends = userData?["friends"] as? [String] ?? []
-                    userFriends.append(self.users[sender.tag].uid)
-                    userCollection.updateData([
-                        "friends": userFriends
-                    ]) { err in
-                        if let err = err {
-                            print("Hata oluştu: \(err)")
-                        } else {
-                            let remoteUserCollection = db.collection("users").document(self.users[sender.tag].uid)
-                            remoteUserCollection.getDocument { userDocument, userError in
-                                if let userDocument = userDocument, userDocument.exists{
-                                    let userData = userDocument.data()
-                                    var userFriends = userData?["friends"] as? [String] ?? []
-                                    userFriends.append(userID)
-                                    remoteUserCollection.updateData([
-                                        "friends": userFriends
-                                    ]) { err in
-                                        if let err = err {
-                                            print("Hata oluştu: \(err)")
-                                        } else{
-                                            self.removeRequest(userCollection, index: sender.tag)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    func removeRequest(_ userCollection: DocumentReference, index: Int){
-        userCollection.getDocument { userDocument, userError in
-            if let userDocument = userDocument, userDocument.exists{
-                let userData = userDocument.data()
-                var friendsRequests = userData?["friendsRequests"] as? [String] ?? []
-                friendsRequests.removeAll(where: { $0 == self.users[index].uid})
-                userCollection.updateData([
-                    "friendsRequests": friendsRequests
-                ]) { err in
-                    if let err = err {
-                        print("Hata oluştu: \(err)")
-                    } else{
-                        self.users.remove(at: index)
-                        self.tableView.reloadData()
-                    }
-                }
-            }
-        }
+        friendRequestsViewModel.confirmRequest(sender)
     }
     
     @objc private func btnDeleteTarget(sender: UIButton){
-        if let currentUser = Auth.auth().currentUser{
-            let userID = currentUser.uid
-            let db = Firestore.firestore()
-            let userCollection = db.collection("users").document(userID)
-            removeRequest(userCollection, index: sender.tag)
-        }
+        friendRequestsViewModel.removeRequest(sender)
     }
     
     @objc private func btnBackTarget(){

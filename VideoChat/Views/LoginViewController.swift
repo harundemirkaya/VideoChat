@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import FirebaseAuth
 
 class LoginViewController: UIViewController {
 
@@ -83,10 +82,13 @@ class LoginViewController: UIViewController {
         return btn
     }()
     
+    let loginViewModel = LoginViewModel()
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        loginViewModel.loginVC = self
         
         stackView.stackViewConstraints(view)
         imgViewBG.imgViewBGConstraints(stackView)
@@ -109,16 +111,7 @@ class LoginViewController: UIViewController {
     }
     
     @objc private func btnLoginTarget(){
-        Auth.auth().signIn(withEmail: txtFieldEmail.text ?? "", password: txtFieldPassword.text ?? "") { [weak self] authResult, error in
-            guard self != nil else { return }
-            if error != nil {
-                self?.alertMessage(title: "Error", description: error?.localizedDescription ?? "Error")
-                return
-            }
-            let appTabBar = AppTabBarController()
-            appTabBar.modalPresentationStyle = .fullScreen
-            self?.present(appTabBar, animated: true)
-        }
+        loginViewModel.login()
     }
     
     @objc private func textFieldDidChange(_ textField: UITextField) {
@@ -130,7 +123,7 @@ class LoginViewController: UIViewController {
     }
     
     // MARK: -Show Alert Message
-    private func alertMessage(title: String, description: String){
+    func alertMessage(title: String, description: String){
         let alertMessage = UIAlertController(title: title, message: description, preferredStyle: UIAlertController.Style.alert)
         let okButton = UIAlertAction(title: "Okey", style: UIAlertAction.Style.default)
         alertMessage.addAction(okButton)
