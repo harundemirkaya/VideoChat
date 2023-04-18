@@ -172,8 +172,14 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
         btnSend.addTarget(self, action: #selector(btnSendTarget), for: .touchUpInside)
         
+        btnVideoCall.addTarget(self, action: #selector(btnVideoCallTarget), for: .touchUpInside)
+        
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc func btnVideoCallTarget(){
+        messageChatViewModel.sendVideoCall(remoteUser.uid, currentUserID: currentUserID)
     }
     
     @objc func keyboardWillShow(sender: NSNotification) {

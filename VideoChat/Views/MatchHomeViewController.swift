@@ -50,6 +50,23 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         return view
     }()
     
+    var friendRequestView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 16
+        view.backgroundColor = .white
+        return view
+    }()
+    
+    private var lblFriendRequestViewTitle: UIView = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Friend Request"
+        label.font = UIFont(name: "Futura", size: 16)
+        label.textColor = .black
+        return label
+    }()
+    
     var panGestureRecognizer = UIGestureRecognizer()
 
     // MARK: -Buttons Defined
@@ -90,6 +107,28 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         return btn
     }()
     
+    private var btnFriendRequestDelete = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setTitle("Delete", for: .normal)
+        btn.backgroundColor = UIColor(red: 0.92, green: 0.22, blue: 0.21, alpha: 1.00)
+        btn.layer.borderColor = UIColor.black.cgColor
+        btn.layer.borderWidth = 0.2
+        btn.layer.cornerRadius = 16
+        return btn
+    }()
+    
+    private var btnFriendRequestConfirm = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setTitle("Confirm", for: .normal)
+        btn.backgroundColor = UIColor(red: 0.13, green: 0.63, blue: 0.56, alpha: 1.00)
+        btn.layer.borderColor = UIColor.black.cgColor
+        btn.layer.borderWidth = 0.2
+        btn.layer.cornerRadius = 16
+        return btn
+    }()
+    
     var joined: Bool = false
     
     var userIDforChannel: UInt?
@@ -121,12 +160,18 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     let matchHomeViewModel = MatchHomeViewModel()
     
     var channelName = ""
+    
+    var remoteUserIDForFriendRequest = ""
 
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         matchHomeViewModel.matchHomeVC = self
+        NotificationCenter.default.addObserver(self, selector: #selector(handleCustomCallNotification(_:)), name: NSNotification.Name("customCall"), object: nil)
+        
+        self.matchHomeViewModel.listenMatchRequest()
+        self.btnAddFriend.isHidden = true
         setupViews()
         
         panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
@@ -156,9 +201,20 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         initializeAgoraEngine()
         setupLocalVideo()
         btnLeave.btnLeaveConstraints(remoteView)
+        
         btnLeave.addTarget(self, action: #selector(leaveChannel), for: .touchUpInside)
         btnAddFriend.btnAddFriendConstraints(remoteView)
         btnAddFriend.addTarget(self, action: #selector(btnAddFriendTarget), for: .touchUpInside)
+    }
+    
+    @objc func handleCustomCallNotification(_ notification: Notification) {
+        if let remoteUserID = notification.userInfo?["remoteUserID"] as? String {
+            print("Bildirimde gönderilen remoteUserID: \(remoteUserID)")
+            dismiss(animated: true)
+            tabBarController?.selectedIndex = 1
+            localView.isHidden = true
+            matchHomeViewModel.listenerFilters(0, isCustomChannel: true, customChannelName: "\(remoteUserID)CHANNEL")
+        }
     }
 
     // MARK: -Gesture Recognizer
@@ -250,13 +306,14 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         videoCanvas.view = remoteViewVideo
         agoraEngine.setupRemoteVideo(videoCanvas)
         
+        btnAddFriend.isHidden = false
         matchHomeViewModel.setRemoteUserID(isListener, listenerJoinedUID: listenerJoinedUID ?? "")
         matchHomeViewModel.listenChatState(channelName)
+        matchHomeViewModel.listenFriendRequest(channelName)
     }
 
     // MARK: -Setup Local Video with Agora
     func setupLocalVideo() {
-        self.btnAddFriend.isHidden = false
         agoraEngine.enableVideo()
         agoraEngine.startPreview()
         let videoCanvas = AgoraRtcVideoCanvas()
@@ -295,14 +352,57 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         localView.removeFromSuperview()
         localView.viewsConstraints(view)
         setupLocalVideo()
-        self.btnAddFriend.isHidden = false
+        btnAddFriend.isHidden = true
         if channelName != ""{
             matchHomeViewModel.deleteChannel()
         }
     }
     
     @objc func btnAddFriendTarget(){
+        btnAddFriend.isHidden = true
         matchHomeViewModel.addFriends()
+    }
+    
+    func friendRequestViewTarget(remoteUserID: String){
+        self.remoteUserIDForFriendRequest = remoteUserID
+        friendRequestView.alpha = 1.0
+        friendRequestView.friendRequestViewConstraints(remoteView, mainView: view)
+        btnFriendRequestDelete.btnFriendRequestDeleteConstraints(friendRequestView)
+        btnFriendRequestConfirm.btnFriendRequestConfirmConstraints(friendRequestView)
+        lblFriendRequestViewTitle.lblFriendRequestViewTitleConstraints(friendRequestView, btnConfirm: btnFriendRequestConfirm)
+        
+        btnFriendRequestConfirm.addTarget(self, action: #selector(btnFriendRequestConfirmTarget), for: .touchUpInside)
+        btnFriendRequestDelete.addTarget(self, action: #selector(btnFriendRequestDeleteTarget), for: .touchUpInside)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            UIView.animate(withDuration: 1.0, animations: {
+                self.friendRequestView.alpha = 0.0
+            }, completion: { finished in
+                self.friendRequestView.removeFromSuperview()
+            })
+        }
+    }
+    
+    @objc func btnFriendRequestConfirmTarget(){
+        UIView.animate(withDuration: 1.0, animations: {
+            self.friendRequestView.alpha = 0.0
+        }, completion: { finished in
+            self.friendRequestView.removeFromSuperview()
+        })
+        btnAddFriend.isHidden = true
+        matchHomeViewModel.confirmRequest(remoteUserIDForFriendRequest)
+    }
+    
+    @objc func btnFriendRequestDeleteTarget(){
+        UIView.animate(withDuration: 1.0, animations: {
+            self.friendRequestView.alpha = 0.0
+        }, completion: { finished in
+            self.friendRequestView.removeFromSuperview()
+        })
+        matchHomeViewModel.removeRequest(remoteUserIDForFriendRequest)
+    }
+    
+    func createCustomChannel(_ userID: UInt){
+        matchHomeViewModel.getTokenPublisher(userID)
     }
 
     // MARK: -Show Message
@@ -349,5 +449,35 @@ private extension UIView{
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
         trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+    }
+    
+    func friendRequestViewConstraints(_ view: UIView, mainView: UIView){
+        view.addSubview(self)
+        heightAnchor.constraint(equalToConstant: mainView.frame.size.height * 0.15).isActive = true
+        bottomAnchor.constraint(equalTo: mainView.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+    }
+    
+    func btnFriendRequestDeleteConstraints(_ view: UIView){
+        view.addSubview(self)
+        widthAnchor.constraint(equalToConstant: 150).isActive = true
+        heightAnchor.constraint(equalToConstant: 50).isActive = true
+        centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -100).isActive = true
+        bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10).isActive = true
+    }
+    
+    func btnFriendRequestConfirmConstraints(_ view: UIView){
+        view.addSubview(self)
+        widthAnchor.constraint(equalToConstant: 150).isActive = true
+        heightAnchor.constraint(equalToConstant: 50).isActive = true
+        centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 100).isActive = true
+        bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10).isActive = true
+    }
+    
+    func lblFriendRequestViewTitleConstraints(_ view: UIView, btnConfirm: UIButton){
+        view.addSubview(self)
+        centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        bottomAnchor.constraint(equalTo: btnConfirm.topAnchor, constant: -20).isActive = true
     }
 }

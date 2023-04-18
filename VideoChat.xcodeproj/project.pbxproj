@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		48BA038A644C2862DB0E9708 /* Pods_VideoChat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05C4EB91BE85C1D8D4B38FFE /* Pods_VideoChat.framework */; };
+		4F05C8CE29EAC1C600D4420A /* MatchNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F05C8CD29EAC1C600D4420A /* MatchNotification.swift */; };
 		4F404CB729D4914500164DBF /* MessageChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F404CB629D4914500164DBF /* MessageChatTableViewCell.swift */; };
 		4F6766EA29B0EC2000DC3BD6 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */; };
 		4F6766EC29B0F02E00DC3BD6 /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6766EB29B0F02E00DC3BD6 /* RegisterViewController.swift */; };
@@ -49,6 +50,7 @@
 /* Begin PBXFileReference section */
 		05C4EB91BE85C1D8D4B38FFE /* Pods_VideoChat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VideoChat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		47E83595787715E0B70923CD /* Pods-VideoChat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoChat.release.xcconfig"; path = "Target Support Files/Pods-VideoChat/Pods-VideoChat.release.xcconfig"; sourceTree = "<group>"; };
+		4F05C8CD29EAC1C600D4420A /* MatchNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchNotification.swift; sourceTree = "<group>"; };
 		4F404CB629D4914500164DBF /* MessageChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageChatTableViewCell.swift; sourceTree = "<group>"; };
 		4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		4F6766EB29B0F02E00DC3BD6 /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
@@ -111,6 +113,14 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		4F05C8CC29EAC1A500D4420A /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				4F05C8CD29EAC1C600D4420A /* MatchNotification.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		4F6766E229B0DC9B00DC3BD6 /* assets */ = {
 			isa = PBXGroup;
 			children = (
@@ -143,6 +153,7 @@
 		4F680C5529B0CD4600081B51 /* VideoChat */ = {
 			isa = PBXGroup;
 			children = (
+				4F05C8CC29EAC1A500D4420A /* Helpers */,
 				4FA6348729BD47F600F7C75E /* Models */,
 				4F680C6A29B0CDE900081B51 /* Views */,
 				4FC6250729BD184200698116 /* ViewModels */,
@@ -165,13 +176,13 @@
 				4FCA50AE29C5F08900E0DC8E /* TableViewCell */,
 				4FA2967429C5D56300398BFE /* TabBar */,
 				4F680C5A29B0CD4600081B51 /* ViewController.swift */,
-				4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */,
 				4F6766EB29B0F02E00DC3BD6 /* RegisterViewController.swift */,
-				4F944E6229B35D3500B7AC14 /* MatchHomeViewController.swift */,
+				4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */,
 				4FA2967729C5D5B100398BFE /* ProfileViewController.swift */,
+				4F944E6229B35D3500B7AC14 /* MatchHomeViewController.swift */,
 				4FA2967929C5D5C000398BFE /* MessagesViewController.swift */,
-				4FCA50BC29C6159B00E0DC8E /* FriendsViewController.swift */,
 				4F87C10829C73B100059EC6F /* MessageChatViewController.swift */,
+				4FCA50BC29C6159B00E0DC8E /* FriendsViewController.swift */,
 				4FE3723229CCACB90095EDAD /* FriendRequestsViewController.swift */,
 			);
 			path = Views;
@@ -206,14 +217,14 @@
 		4FC6250729BD184200698116 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				4FC6250829BD185C00698116 /* MatchHomeViewModel.swift */,
 				4FF30B2229E30DE6006AA02C /* RegisterViewModel.swift */,
-				4FF30B2429E30FED006AA02C /* ProfileViewModel.swift */,
-				4FF30B2629E31127006AA02C /* MessagesViewModel.swift */,
-				4FF30B2829E312A1006AA02C /* FriendsViewModel.swift */,
-				4FF30B2A29E3137D006AA02C /* MessageChatViewModel.swift */,
-				4FF30B2C29E315E9006AA02C /* FriendRequestsViewModel.swift */,
 				4FF30B2E29E31879006AA02C /* LoginViewModel.swift */,
+				4FF30B2429E30FED006AA02C /* ProfileViewModel.swift */,
+				4FC6250829BD185C00698116 /* MatchHomeViewModel.swift */,
+				4FF30B2629E31127006AA02C /* MessagesViewModel.swift */,
+				4FF30B2A29E3137D006AA02C /* MessageChatViewModel.swift */,
+				4FF30B2829E312A1006AA02C /* FriendsViewModel.swift */,
+				4FF30B2C29E315E9006AA02C /* FriendRequestsViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -364,6 +375,7 @@
 				4FE3723729CCBB700095EDAD /* FriendsRequestsTableViewCell.swift in Sources */,
 				4FE3723329CCACB90095EDAD /* FriendRequestsViewController.swift in Sources */,
 				4FF30B2529E30FED006AA02C /* ProfileViewModel.swift in Sources */,
+				4F05C8CE29EAC1C600D4420A /* MatchNotification.swift in Sources */,
 				4FC6250629BD17AF00698116 /* NetworkManager.swift in Sources */,
 				4FDB18AC29D0894A009E246E /* Messages.xcdatamodeld in Sources */,
 				4FF30B2B29E3137D006AA02C /* MessageChatViewModel.swift in Sources */,

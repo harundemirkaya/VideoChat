@@ -23,8 +23,11 @@ class MatchHomeViewModel{
     
     private let db = Firestore.firestore()
     
+    private let notification = MatchNotification()
+    
+    
     // MARK: -Get Token Funcs
-    func getTokenPublisher(_ userID: UInt){
+    func getTokenPublisher(_ userID: UInt, isCustom: Bool = false){
         urlString = "http://213.238.190.166:3169/rte/\(userID)CHANNEL/publisher/userAccount/\(userID)/?expiry=3600"
         networkManager.tokenURL = urlString
         networkManager.fetchToken { [weak self] result in
@@ -156,20 +159,26 @@ class MatchHomeViewModel{
         }
     }
     
-    func listenerFilters(_ userID: UInt){
-        let channelsCollection = db.collection("channels")
-        channelsCollection.getDocuments{ (snapshot, error) in
-            if let error = error {
-                print("Error getting documents: \(error.localizedDescription)")
-            } else {
-                guard let documents = snapshot?.documents else { return }
-                for document in documents {
-                    let gender = document.data()["gender"] as? String ?? ""
-                    if gender == "female" {
-                        let data = document.data()
-                        self.matchHomeVC?.filteredChannelName = data["channelName"] as? String ?? ""
-                        self.getTokenListener(userID, channelName: self.matchHomeVC?.filteredChannelName ?? "")
-                        self.matchHomeVC?.listenerJoinedUID = document.documentID
+    func listenerFilters(_ userID: UInt, isCustomChannel: Bool = false, customChannelName: String = ""){
+        if isCustomChannel{
+            self.matchHomeVC?.filteredChannelName = customChannelName
+            guard let userUID = Auth.auth().currentUser?.uid else { return }
+            self.getTokenListener(UInt(userUID) ?? UInt(), channelName: customChannelName)
+        } else{
+            let channelsCollection = db.collection("channels")
+            channelsCollection.getDocuments{ (snapshot, error) in
+                if let error = error {
+                    print("Error getting documents: \(error.localizedDescription)")
+                } else {
+                    guard let documents = snapshot?.documents else { return }
+                    for document in documents {
+                        let gender = document.data()["gender"] as? String ?? ""
+                        if gender == "female" {
+                            let data = document.data()
+                            self.matchHomeVC?.filteredChannelName = data["channelName"] as? String ?? ""
+                            self.getTokenListener(userID, channelName: self.matchHomeVC?.filteredChannelName ?? "")
+                            self.matchHomeVC?.listenerJoinedUID = document.documentID
+                        }
                     }
                 }
             }
@@ -257,6 +266,133 @@ class MatchHomeViewModel{
                 }
             } else {
                 print(error?.localizedDescription as Any)
+            }
+        }
+    }
+    
+    func listenFriendRequest(_ channelName: String){
+        var remoteID = ""
+        let channel = db.collection("channels").document(channelName)
+        channel.getDocument { (document, error) in
+            if let document = document, document.exists {
+                let data = document.data()
+                let publisherUID = data?["publisherUID"] as! String
+                let listenerUID = data?["listenerUID"] as! String
+                if self.matchHomeVC?.isListener == true{
+                    remoteID = publisherUID
+                } else{
+                    remoteID = listenerUID
+                }
+            } else {
+                print(error?.localizedDescription as Any)
+            }
+        }
+        if let currentUser = Auth.auth().currentUser{
+            let userDocument = db.collection("users").document(currentUser.uid)
+            userDocument.addSnapshotListener { [self] userDocument, userError in
+                if let userDocument = userDocument, userDocument.exists{
+                    let userData = userDocument.data()
+                    let friendRequests = userData?["friendsRequests"] as? [String]
+                    if let friendRequests = friendRequests{
+                        for request in friendRequests{
+                            if request == remoteID{
+                                self.matchHomeVC?.friendRequestViewTarget(remoteUserID: remoteID)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func listenMatchRequest(){
+        if let currentUser = Auth.auth().currentUser{
+            let userDocument = db.collection("users").document(currentUser.uid)
+            userDocument.addSnapshotListener { userDocument, userError in
+                if let userDocument = userDocument, userDocument.exists{
+                    let userData = userDocument.data()
+                    let matchRequest = userData?["matchRequest"] as? [String]
+                    if let matchRequest = matchRequest{
+                        if matchRequest[0] != ""{
+                            DispatchQueue.global().async {
+                                self.db.collection("users").document(matchRequest[0]).getDocument { userDocument, userError in
+                                    if let userDocument = userDocument, userDocument.exists{
+                                        let userData = userDocument.data()
+                                        let profilePhoto = userData?["profilePhoto"] as? String
+                                        let name = userData?["name"] as? String
+                                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                           let sceneDelegate = windowScene.delegate as? SceneDelegate,
+                                           let window = sceneDelegate.window {
+                                            self.notification.matchNotification(name: name, view: window, url: URL(string: profilePhoto ?? ""), id: matchRequest[1])
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func removeRequest(_ uid: String){
+        if let currentUser = Auth.auth().currentUser{
+            let userID = currentUser.uid
+            let userCollection = db.collection("users").document(userID)
+            userCollection.getDocument { userDocument, userError in
+                if let userDocument = userDocument, userDocument.exists{
+                    let userData = userDocument.data()
+                    var friendsRequests = userData?["friendsRequests"] as? [String] ?? []
+                    friendsRequests.removeAll(where: { $0 == uid})
+                    userCollection.updateData([
+                        "friendsRequests": friendsRequests
+                    ]) { err in
+                        if let err = err {
+                            print("Hata oluştu: \(err)")
+                        } else{
+                            
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func confirmRequest(_ uid: String){
+        if let currentUser = Auth.auth().currentUser{
+            let userID = currentUser.uid
+            let userCollection = db.collection("users").document(userID)
+            userCollection.getDocument { userDocument, userError in
+                if let userDocument = userDocument, userDocument.exists{
+                    let userData = userDocument.data()
+                    var userFriends = userData?["friends"] as? [String] ?? []
+                    userFriends.append(uid)
+                    userCollection.updateData([
+                        "friends": userFriends
+                    ]) { err in
+                        if let err = err {
+                            print("Hata oluştu: \(err)")
+                        } else {
+                            let remoteUserCollection = self.db.collection("users").document(uid)
+                            remoteUserCollection.getDocument { userDocument, userError in
+                                if let userDocument = userDocument, userDocument.exists{
+                                    let userData = userDocument.data()
+                                    var userFriends = userData?["friends"] as? [String] ?? []
+                                    userFriends.append(userID)
+                                    remoteUserCollection.updateData([
+                                        "friends": userFriends
+                                    ]) { err in
+                                        if let err = err {
+                                            print("Hata oluştu: \(err)")
+                                        } else{
+                                            self.removeRequest(uid)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
