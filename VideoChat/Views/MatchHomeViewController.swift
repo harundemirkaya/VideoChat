@@ -22,7 +22,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         option.channelProfile = .communication
         return option
     }()
-
+    
     // MARK: -Views Defined
     var localView: UIView = {
         let view = UIView()
@@ -68,7 +68,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     }()
     
     var panGestureRecognizer = UIGestureRecognizer()
-
+    
     // MARK: -Buttons Defined
     var btnLeave: UIButton = {
         let btn = UIButton()
@@ -168,7 +168,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     var customChannelName: String = "0CHANNEL"
     
     var customChannelID: UInt = UInt(0)
-
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -185,10 +185,11 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         panGestureRecognizer.delegate = self
         localView.addGestureRecognizer(panGestureRecognizer)
     }
-
+    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         leaveChannel()
+        removeAllVariable()
         DispatchQueue.global(qos: .userInitiated).async {AgoraRtcEngineKit.destroy()}
     }
     
@@ -196,7 +197,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         initializeAgoraEngine()
         setupLocalVideo()
     }
-
+    
     // MARK: -Views Config
     func setupViews(){
         remoteView.viewsConstraints(view)
@@ -216,12 +217,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     @objc func handleCustomCallNotification(_ notification: Notification) {
         if let remoteUserID = notification.userInfo?["remoteUserID"] as? UInt {
-            print(remoteUserID)
             dismiss(animated: true)
             tabBarController?.selectedIndex = 1
             localView.isHidden = true
             isCustomChannel = true
-            print(remoteUserID)
             customChannelID = UInt(remoteUserID)
             customChannelName = "\(remoteUserID)CHANNEL"
             matchHomeViewModel.listenerFilters(0, isCustomChannel: true, customChannelName: "\(remoteUserID)CHANNEL")
@@ -235,24 +234,23 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         isCustomChannel = true
         self.matchHomeViewModel.getUserIDForChannel(completion: { [weak self] value in
             if let value = value{
-                print(value)
                 self?.customChannelID = value
                 self?.customChannelName = "\(value)CHANNEL"
                 self?.matchHomeViewModel.getTokenPublisher(0, isCustom: true, customChannelID: value)
             }
         })
     }
-
+    
     // MARK: -Gesture Recognizer
     @objc func handlePanGesture(_ recognizer: UIPanGestureRecognizer) {
         guard let view = recognizer.view else {
             return
         }
         let translation = recognizer.translation(in: view.superview)
-
+        
         view.center.x = max(view.center.x + translation.x, view.bounds.width / 2.0)
         recognizer.setTranslation(CGPoint.zero, in: view.superview)
-
+        
         if recognizer.state == .ended {
             if view.center.x <= view.bounds.width / 2.0 {
                 dismissView(view)
@@ -269,14 +267,14 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
             recognizer.isEnabled = true
         }
     }
-
+    
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         if gestureRecognizer == panGestureRecognizer {
             return true
         }
         return false
     }
-
+    
     func dismissView(_ view: UIView) {
         UIView.animate(withDuration: 0.3, animations: {
             view.center.x = -view.bounds.width / 2.0
@@ -284,7 +282,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
             view.removeFromSuperview()
         }
     }
-
+    
     @objc func gestureAction() {
         if !joined {
             Task {
@@ -302,7 +300,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         hasPermissions = await self.avAuthorization(mediaType: .audio)
         return hasPermissions
     }
-
+    
     func avAuthorization(mediaType: AVMediaType) async -> Bool {
         let mediaAuthorizationStatus = AVCaptureDevice.authorizationStatus(for: mediaType)
         switch mediaAuthorizationStatus {
@@ -317,14 +315,14 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         @unknown default: return false
         }
     }
-
+    
     // MARK: -Agora Config
     func initializeAgoraEngine() {
         let config = AgoraRtcEngineConfig()
         config.appId = appID
         agoraEngine = AgoraRtcEngineKit.sharedEngine(with: config, delegate: self)
     }
-
+    
     func rtcEngine(_ engine: AgoraRtcEngineKit, didJoinedOfUid uid: UInt, elapsed: Int) {
         let videoCanvas = AgoraRtcVideoCanvas()
         videoCanvas.uid = uid
@@ -333,13 +331,14 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         agoraEngine.setupRemoteVideo(videoCanvas)
         
         btnAddFriend.isHidden = false
-        matchHomeViewModel.setRemoteUserID(isListener, channelName: isCustomChannel ? customChannelName : self.filteredChannelName ?? "0CHANNEL")
-       
+        
         let channelName = isCustomChannel ? customChannelName : self.filteredChannelName ?? "0CHANNEL"
+        matchHomeViewModel.setRemoteUserID(isListener, channelName: channelName)
+        
         matchHomeViewModel.listenChatState(channelName)
         matchHomeViewModel.listenFriendRequest(channelName)
     }
-
+    
     // MARK: -Setup Local Video with Agora
     func setupLocalVideo() {
         agoraEngine.enableVideo()
@@ -350,7 +349,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         videoCanvas.view = localViewVideo
         agoraEngine.setupLocalVideo(videoCanvas)
     }
-
+    
     // MARK: -Join Channels Funcs
     func joinChannel() async {
         if await !self.checkForPermissions() {
@@ -359,14 +358,12 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         }
         matchHomeViewModel.joinChannel()
     }
-
+    
     func joinListener(){
         let channelName = isCustomChannel ? customChannelName : self.filteredChannelName ?? "0CHANNEL"
-        let channelID = isCustomChannel ? customChannelID : self.userIDforChannel
-        print(channelID)
-        print(channelName)
+        let channelID = isCustomChannel ? 0 : self.userIDforChannel
         let result = self.agoraEngine.joinChannel(
-            byToken: self.listenerToken, channelId: channelName, uid: isCustomChannel ? 0 : channelID, mediaOptions: self.option,
+            byToken: self.listenerToken, channelId: channelName, uid: channelID, mediaOptions: self.option,
             joinSuccess: { (channel, uid, elapsed) in }
         )
         if result == 0 {
@@ -374,7 +371,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
             matchHomeViewModel.setListenerToken()
         }
     }
-
+    
     // MARK: -Leave Channel
     @objc func leaveChannel() {
         agoraEngine.stopPreview()
@@ -388,9 +385,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
             isCustomChannel = false
         }
         btnAddFriend.isHidden = true
-        if channelName != ""{
-            matchHomeViewModel.deleteChannel()
-        }
+        let channelName = isCustomChannel ? customChannelName : self.filteredChannelName ?? "0CHANNEL"
+        matchHomeViewModel.deleteChannel(channelName)
     }
     
     @objc func btnAddFriendTarget(){
@@ -439,7 +435,33 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     func createCustomChannel(_ userID: UInt){
         matchHomeViewModel.getTokenPublisher(userID)
     }
-
+    
+    func removeAllVariable(){
+        joined = false
+        
+        userIDforChannel = UInt()
+        
+        publisherToken = ""
+        
+        listenerToken = ""
+        
+        listenerJoinedUID = ""
+        
+        filteredChannelName = ""
+        
+        isListener = false
+        
+        channelName = ""
+        
+        remoteUserIDForFriendRequest = ""
+        
+        isCustomChannel = false
+        
+        customChannelName = "0CHANNEL"
+        
+        customChannelID = UInt(0)
+    }
+    
     // MARK: -Show Message
     func showMessage(title: String, text: String, delay: Int = 2) -> Void {
         let deadlineTime = DispatchTime.now() + .seconds(delay)
@@ -459,7 +481,7 @@ private extension UIView{
         trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
     }
-
+    
     func btnLeaveConstraints(_ view: UIView){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true

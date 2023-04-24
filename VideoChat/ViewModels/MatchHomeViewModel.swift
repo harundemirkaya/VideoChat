@@ -80,6 +80,7 @@ class MatchHomeViewModel{
     
     func listenChatState(_ channelName: String){
         guard let matchHomeVC = matchHomeVC else { return }
+        print(channelName)
         let channelCollection = db.collection("channels").document(channelName)
         channelCollection.addSnapshotListener { documentSnapshot, error in
             guard let document = documentSnapshot else {
@@ -212,9 +213,8 @@ class MatchHomeViewModel{
         }
     }
     
-    func deleteChannel(){
-        guard let matchHomeVC = matchHomeVC else { return }
-        let channelCollection = db.collection("channels").document(matchHomeVC.channelName)
+    func deleteChannel(_ channelName: String){
+        let channelCollection = db.collection("channels").document(channelName)
         channelCollection.delete() { error in
             if let error = error {
                 print("Error removing document: \(error)")
