@@ -48,9 +48,9 @@ class MatchHomeViewModel{
         }
     }
     
-    func setRemoteUserID(_ isListener: Bool, listenerJoinedUID: String){
+    func setRemoteUserID(_ isListener: Bool, channelName: String){
         if isListener{
-            let channelDocument = db.collection("channels").document(listenerJoinedUID)
+            let channelDocument = db.collection("channels").document(channelName)
             channelDocument.getDocument { (document, error) in
                 if let document = document, document.exists {
                     let data = document.data()

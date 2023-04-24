@@ -333,7 +333,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         agoraEngine.setupRemoteVideo(videoCanvas)
         
         btnAddFriend.isHidden = false
-        matchHomeViewModel.setRemoteUserID(isListener, listenerJoinedUID: listenerJoinedUID ?? "")
+        matchHomeViewModel.setRemoteUserID(isListener, channelName: isCustomChannel ? customChannelName : self.filteredChannelName ?? "0CHANNEL")
        
         let channelName = isCustomChannel ? customChannelName : self.filteredChannelName ?? "0CHANNEL"
         matchHomeViewModel.listenChatState(channelName)
@@ -362,12 +362,11 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
 
     func joinListener(){
         let channelName = isCustomChannel ? customChannelName : self.filteredChannelName ?? "0CHANNEL"
-        print(channelName)
-        print(channelName)
         let channelID = isCustomChannel ? customChannelID : self.userIDforChannel
         print(channelID)
+        print(channelName)
         let result = self.agoraEngine.joinChannel(
-            byToken: self.listenerToken, channelId: channelName, uid: channelID, mediaOptions: self.option,
+            byToken: self.listenerToken, channelId: channelName, uid: isCustomChannel ? 0 : channelID, mediaOptions: self.option,
             joinSuccess: { (channel, uid, elapsed) in }
         )
         if result == 0 {
