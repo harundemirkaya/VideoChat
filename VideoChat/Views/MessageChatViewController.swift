@@ -179,6 +179,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     @objc func btnVideoCallTarget(){
+        NotificationCenter.default.post(name: NSNotification.Name("sendCall"), object: nil)
         messageChatViewModel.sendVideoCall(remoteUser.uid, currentUserID: currentUserID)
     }
     

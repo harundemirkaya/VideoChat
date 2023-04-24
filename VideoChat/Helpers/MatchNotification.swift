@@ -69,11 +69,11 @@ class MatchNotification{
     
     private let db = Firestore.firestore()
     
-    private var remoteID = ""
+    private var remoteID = UInt(0)
     
     public func matchNotification(name: String?, view: UIView?, url: URL?, id: String?){
         if let name = name, let view = view, let url = url, let id = id{
-            self.remoteID = id
+            self.remoteID = UInt(id) ?? UInt(0)
             
             lblRemoteUserName.text = name
             

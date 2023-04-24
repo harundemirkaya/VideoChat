@@ -136,7 +136,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     var publisherToken: String?{
         didSet{
             if publisherToken != nil{
-                matchHomeViewModel.createChannel()
+                matchHomeViewModel.createChannel(isCustomChannel ? true : false)
             }
         }
     }
@@ -162,6 +162,12 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     var channelName = ""
     
     var remoteUserIDForFriendRequest = ""
+    
+    var isCustomChannel: Bool = false
+    
+    var customChannelName: String = "0CHANNEL"
+    
+    var customChannelID: UInt = UInt(0)
 
     // MARK: -LifeCycle
     override func viewDidLoad() {
@@ -169,6 +175,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         view.backgroundColor = .white
         matchHomeViewModel.matchHomeVC = self
         NotificationCenter.default.addObserver(self, selector: #selector(handleCustomCallNotification(_:)), name: NSNotification.Name("customCall"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleSendCallNotification(_:)), name: NSNotification.Name("sendCall"), object: nil)
         
         self.matchHomeViewModel.listenMatchRequest()
         self.btnAddFriend.isHidden = true
@@ -208,13 +215,32 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     }
     
     @objc func handleCustomCallNotification(_ notification: Notification) {
-        if let remoteUserID = notification.userInfo?["remoteUserID"] as? String {
-            print("Bildirimde gönderilen remoteUserID: \(remoteUserID)")
+        if let remoteUserID = notification.userInfo?["remoteUserID"] as? UInt {
+            print(remoteUserID)
             dismiss(animated: true)
             tabBarController?.selectedIndex = 1
             localView.isHidden = true
+            isCustomChannel = true
+            print(remoteUserID)
+            customChannelID = UInt(remoteUserID)
+            customChannelName = "\(remoteUserID)CHANNEL"
             matchHomeViewModel.listenerFilters(0, isCustomChannel: true, customChannelName: "\(remoteUserID)CHANNEL")
         }
+    }
+    
+    @objc func handleSendCallNotification(_ notification: Notification) {
+        dismiss(animated: true)
+        tabBarController?.selectedIndex = 1
+        localView.isHidden = true
+        isCustomChannel = true
+        self.matchHomeViewModel.getUserIDForChannel(completion: { [weak self] value in
+            if let value = value{
+                print(value)
+                self?.customChannelID = value
+                self?.customChannelName = "\(value)CHANNEL"
+                self?.matchHomeViewModel.getTokenPublisher(0, isCustom: true, customChannelID: value)
+            }
+        })
     }
 
     // MARK: -Gesture Recognizer
@@ -333,9 +359,11 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     }
 
     func joinListener(){
-        channelName = self.filteredChannelName!
+        let channelName = isCustomChannel ? customChannelName : self.filteredChannelName ?? "0CHANNEL"
+        print(channelName)
+        let channelID = isCustomChannel ? customChannelID : self.userIDforChannel ?? UInt(0)
         let result = self.agoraEngine.joinChannel(
-            byToken: self.listenerToken, channelId: channelName, uid: self.userIDforChannel!, mediaOptions: self.option,
+            byToken: self.listenerToken, channelId: channelName, uid: channelID, mediaOptions: self.option,
             joinSuccess: { (channel, uid, elapsed) in }
         )
         if result == 0 {
@@ -352,6 +380,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         localView.removeFromSuperview()
         localView.viewsConstraints(view)
         setupLocalVideo()
+        if isCustomChannel{
+            localView.isHidden = false
+            isCustomChannel = false
+        }
         btnAddFriend.isHidden = true
         if channelName != ""{
             matchHomeViewModel.deleteChannel()

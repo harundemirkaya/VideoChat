@@ -86,6 +86,7 @@ class MessageChatViewModel{
     
     func sendVideoCall(_ remoteUserID: String, currentUserID: String){
         let remoteUserCollection = db.collection("users").document(remoteUserID)
+        print(remoteUserID)
         remoteUserCollection.getDocument { userDocument, userError in
             if let userDocument = userDocument, userDocument.exists{
                 let userData = userDocument.data()

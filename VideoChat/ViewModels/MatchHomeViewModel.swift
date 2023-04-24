@@ -27,8 +27,9 @@ class MatchHomeViewModel{
     
     
     // MARK: -Get Token Funcs
-    func getTokenPublisher(_ userID: UInt, isCustom: Bool = false){
-        urlString = "http://213.238.190.166:3169/rte/\(userID)CHANNEL/publisher/userAccount/\(userID)/?expiry=3600"
+    func getTokenPublisher(_ userID: UInt, isCustom: Bool = false, customChannelID: UInt = UInt(0)){
+        let id = isCustom ? customChannelID : userID
+        urlString = "http://213.238.190.166:3169/rte/\(id)CHANNEL/publisher/userAccount/\(id)/?expiry=3600"
         networkManager.tokenURL = urlString
         networkManager.fetchToken { [weak self] result in
             if result.response?.statusCode == 200{
@@ -121,28 +122,34 @@ class MatchHomeViewModel{
         }
     }
     
-    func createChannel(){
+    func createChannel(_ isCustomChannel: Bool = false){
         let channelsCollection = db.collection("channels")
         let getCurrentUser = db.collection("users").document(Auth.auth().currentUser!.uid)
         var currentUserGender = ""
+        var channelName = "\(String(describing: self.matchHomeVC?.userIDforChannel))CHANNEL"
+        var channelID = self.matchHomeVC?.userIDforChannel
+        if isCustomChannel{
+            channelName = self.matchHomeVC?.customChannelName ?? "0CHANNEL"
+            channelID = self.matchHomeVC?.customChannelID ?? UInt(0)
+        }
         getCurrentUser.getDocument { (document, error) in
             if let document = document, document.exists {
                 currentUserGender = document.data()?["gender"] as! String
                 let data: [String: Any] = [
-                    "channelName": "\(self.matchHomeVC?.userIDforChannel! ?? 0)CHANNEL",
+                    "channelName": channelName,
                     "publisherToken": self.matchHomeVC?.publisherToken! ?? "",
                     "publisherUID": Auth.auth().currentUser!.uid as String,
                     "gender": currentUserGender,
                     "listenerToken": ""
                 ]
-                let docRefChannel = channelsCollection.document("\(self.matchHomeVC?.userIDforChannel! ?? 0)CHANNEL")
+                let docRefChannel = channelsCollection.document(channelName)
                 docRefChannel.setData(data){ error in
                     if let error = error {
                         print("Error adding document: \(error)")
                     } else{
-                        self.matchHomeVC?.channelName = "\(self.matchHomeVC?.userIDforChannel! ?? 0)CHANNEL"
+                        self.matchHomeVC?.channelName = channelName
                         let result = self.matchHomeVC?.agoraEngine.joinChannel(
-                            byToken: self.matchHomeVC?.publisherToken ?? "", channelId: self.matchHomeVC?.channelName ?? "", uid: self.matchHomeVC?.userIDforChannel ?? 0, mediaOptions: self.matchHomeVC?.option ?? AgoraRtcChannelMediaOptions() ,
+                            byToken: self.matchHomeVC?.publisherToken ?? "", channelId: self.matchHomeVC?.channelName ?? "", uid: channelID ?? UInt(0), mediaOptions: self.matchHomeVC?.option ?? AgoraRtcChannelMediaOptions() ,
                             joinSuccess: { (channel, uid, elapsed) in }
                         )
                         if result == 0 {
@@ -186,7 +193,9 @@ class MatchHomeViewModel{
     }
     
     func setListenerToken(){
-        let channelsCollectionDocument = db.collection("channels").document(self.matchHomeVC?.listenerJoinedUID ?? "")
+        guard let matchHomeVC = matchHomeVC else { return }
+        let documentName = matchHomeVC.isCustomChannel ? matchHomeVC.customChannelName : self.matchHomeVC?.listenerJoinedUID ?? ""
+        let channelsCollectionDocument = db.collection("channels").document(documentName)
         channelsCollectionDocument.updateData([
             "listenerToken": self.matchHomeVC?.listenerToken! ?? "",
             "listenerUID": String(Auth.auth().currentUser!.uid)
@@ -394,6 +403,24 @@ class MatchHomeViewModel{
                     }
                 }
             }
+        }
+    }
+    
+    func getUserIDForChannel(completion: @escaping (UInt?) -> Void) {
+        if let currentUser = Auth.auth().currentUser {
+            let docRef = db.collection("users").document(currentUser.uid)
+            print(currentUser.uid)
+            docRef.getDocument { (document, error) in
+                if let document = document, document.exists {
+                    let data = document.data()
+                    let userID = data!["id"] as! UInt
+                    completion(userID)
+                } else {
+                    completion(nil)
+                }
+            }
+        } else {
+            completion(nil)
         }
     }
 }
