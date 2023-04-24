@@ -118,6 +118,8 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     
     var currentUserID = ""
     
+    var currentUserUID = UInt()
+    
     let messageChatViewModel = MessageChatViewModel()
     
     // MARK: -LifeCycle
@@ -133,6 +135,10 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         self.fetchData()
         
         currentUserID = messageChatViewModel.getCurrentUserID()
+        messageChatViewModel.getUserUDID(completion: { [weak self] value in
+            guard let value = value else { return }
+            self?.currentUserUID = value
+        })
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -180,7 +186,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     
     @objc func btnVideoCallTarget(){
         NotificationCenter.default.post(name: NSNotification.Name("sendCall"), object: nil)
-        messageChatViewModel.sendVideoCall(remoteUser.uid, currentUserID: currentUserID)
+        messageChatViewModel.sendVideoCall(remoteUser.uid, currentUserID: currentUserID, currentUserUID: currentUserUID)
     }
     
     @objc func keyboardWillShow(sender: NSNotification) {

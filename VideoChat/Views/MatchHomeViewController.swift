@@ -131,7 +131,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     var joined: Bool = false
     
-    var userIDforChannel: UInt?
+    var userIDforChannel = UInt()
     
     var publisherToken: String?{
         didSet{
@@ -334,6 +334,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         
         btnAddFriend.isHidden = false
         matchHomeViewModel.setRemoteUserID(isListener, listenerJoinedUID: listenerJoinedUID ?? "")
+       
+        let channelName = isCustomChannel ? customChannelName : self.filteredChannelName ?? "0CHANNEL"
         matchHomeViewModel.listenChatState(channelName)
         matchHomeViewModel.listenFriendRequest(channelName)
     }
@@ -361,7 +363,9 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     func joinListener(){
         let channelName = isCustomChannel ? customChannelName : self.filteredChannelName ?? "0CHANNEL"
         print(channelName)
-        let channelID = isCustomChannel ? customChannelID : self.userIDforChannel ?? UInt(0)
+        print(channelName)
+        let channelID = isCustomChannel ? customChannelID : self.userIDforChannel
+        print(channelID)
         let result = self.agoraEngine.joinChannel(
             byToken: self.listenerToken, channelId: channelName, uid: channelID, mediaOptions: self.option,
             joinSuccess: { (channel, uid, elapsed) in }

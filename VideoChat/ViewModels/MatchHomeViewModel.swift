@@ -79,6 +79,7 @@ class MatchHomeViewModel{
     }
     
     func listenChatState(_ channelName: String){
+        guard let matchHomeVC = matchHomeVC else { return }
         let channelCollection = db.collection("channels").document(channelName)
         channelCollection.addSnapshotListener { documentSnapshot, error in
             guard let document = documentSnapshot else {
@@ -86,12 +87,13 @@ class MatchHomeViewModel{
                 return
             }
             if !document.exists {
-                self.matchHomeVC?.leaveChannel()
+                matchHomeVC.leaveChannel()
             }
         }
     }
     
     func joinChannel(){
+        guard let matchHomeVC = matchHomeVC else { return }
         if let currentUser = Auth.auth().currentUser {
             // MARK: Set User ID
             let docRef = db.collection("users").document(currentUser.uid)
@@ -99,7 +101,7 @@ class MatchHomeViewModel{
                 if let document = document, document.exists {
                     let data = document.data()
                     let userID = data!["id"] as! UInt
-                    self.matchHomeVC?.userIDforChannel = userID
+                    matchHomeVC.userIDforChannel = userID
                     let isEmptyChannelDB = self.db.collection("channels")
                     isEmptyChannelDB.getDocuments { (querySnapshot, error) in
                         if let error = error {
@@ -123,21 +125,23 @@ class MatchHomeViewModel{
     }
     
     func createChannel(_ isCustomChannel: Bool = false){
+        guard let matchHomeVC = matchHomeVC else { return }
         let channelsCollection = db.collection("channels")
         let getCurrentUser = db.collection("users").document(Auth.auth().currentUser!.uid)
         var currentUserGender = ""
-        var channelName = "\(String(describing: self.matchHomeVC?.userIDforChannel))CHANNEL"
-        var channelID = self.matchHomeVC?.userIDforChannel
+        var channelName = "\(matchHomeVC.userIDforChannel)CHANNEL"
+        print(channelName)
+        var channelID = matchHomeVC.userIDforChannel
         if isCustomChannel{
-            channelName = self.matchHomeVC?.customChannelName ?? "0CHANNEL"
-            channelID = self.matchHomeVC?.customChannelID ?? UInt(0)
+            channelName = matchHomeVC.customChannelName
+            channelID = matchHomeVC.customChannelID
         }
         getCurrentUser.getDocument { (document, error) in
             if let document = document, document.exists {
                 currentUserGender = document.data()?["gender"] as! String
                 let data: [String: Any] = [
                     "channelName": channelName,
-                    "publisherToken": self.matchHomeVC?.publisherToken! ?? "",
+                    "publisherToken": matchHomeVC.publisherToken ?? "",
                     "publisherUID": Auth.auth().currentUser!.uid as String,
                     "gender": currentUserGender,
                     "listenerToken": ""
@@ -147,16 +151,14 @@ class MatchHomeViewModel{
                     if let error = error {
                         print("Error adding document: \(error)")
                     } else{
-                        self.matchHomeVC?.channelName = channelName
-                        let result = self.matchHomeVC?.agoraEngine.joinChannel(
-                            byToken: self.matchHomeVC?.publisherToken ?? "", channelId: self.matchHomeVC?.channelName ?? "", uid: channelID ?? UInt(0), mediaOptions: self.matchHomeVC?.option ?? AgoraRtcChannelMediaOptions() ,
+                        matchHomeVC.channelName = channelName
+                        let result = matchHomeVC.agoraEngine.joinChannel(
+                            byToken: matchHomeVC.publisherToken, channelId: matchHomeVC.channelName, uid: channelID, mediaOptions: matchHomeVC.option,
                             joinSuccess: { (channel, uid, elapsed) in }
                         )
                         if result == 0 {
-                            self.matchHomeVC?.joined = true
-                            if let userRole = self.matchHomeVC?.userRole{
-                                self.matchHomeVC?.showMessage(title: "Success", text: "Successfully joined the channel as \(userRole)")
-                            }
+                            matchHomeVC.joined = true
+                            matchHomeVC.showMessage(title: "Success", text: "Successfully joined the channel as \(matchHomeVC.userRole)")
                         }
                     }
                 }
@@ -167,8 +169,9 @@ class MatchHomeViewModel{
     }
     
     func listenerFilters(_ userID: UInt, isCustomChannel: Bool = false, customChannelName: String = ""){
+        guard let matchHomeVC = matchHomeVC else { return }
         if isCustomChannel{
-            self.matchHomeVC?.filteredChannelName = customChannelName
+            matchHomeVC.filteredChannelName = customChannelName
             guard let userUID = Auth.auth().currentUser?.uid else { return }
             self.getTokenListener(UInt(userUID) ?? UInt(), channelName: customChannelName)
         } else{
@@ -182,9 +185,9 @@ class MatchHomeViewModel{
                         let gender = document.data()["gender"] as? String ?? ""
                         if gender == "female" {
                             let data = document.data()
-                            self.matchHomeVC?.filteredChannelName = data["channelName"] as? String ?? ""
-                            self.getTokenListener(userID, channelName: self.matchHomeVC?.filteredChannelName ?? "")
-                            self.matchHomeVC?.listenerJoinedUID = document.documentID
+                            matchHomeVC.filteredChannelName = data["channelName"] as? String
+                            self.getTokenListener(userID, channelName: matchHomeVC.filteredChannelName ?? "")
+                            matchHomeVC.listenerJoinedUID = document.documentID
                         }
                     }
                 }
@@ -194,25 +197,24 @@ class MatchHomeViewModel{
     
     func setListenerToken(){
         guard let matchHomeVC = matchHomeVC else { return }
-        let documentName = matchHomeVC.isCustomChannel ? matchHomeVC.customChannelName : self.matchHomeVC?.listenerJoinedUID ?? ""
+        let documentName = matchHomeVC.isCustomChannel ? matchHomeVC.customChannelName : matchHomeVC.listenerJoinedUID ?? ""
         let channelsCollectionDocument = db.collection("channels").document(documentName)
         channelsCollectionDocument.updateData([
-            "listenerToken": self.matchHomeVC?.listenerToken! ?? "",
+            "listenerToken": (matchHomeVC.listenerToken ?? "") as String,
             "listenerUID": String(Auth.auth().currentUser!.uid)
         ]) { err in
             if let err = err {
                 print("Error updating document: \(err)")
             } else {
-                self.matchHomeVC?.isListener = true
-                if let userRole = self.matchHomeVC?.userRole{
-                    self.matchHomeVC?.showMessage(title: "Success", text: "Successfully joined the channel as \(userRole)")
-                }
+                matchHomeVC.isListener = true
+                matchHomeVC.showMessage(title: "Success", text: "Successfully joined the channel as \(matchHomeVC.userRole)")
             }
         }
     }
     
     func deleteChannel(){
-        let channelCollection = db.collection("channels").document(self.matchHomeVC?.channelName ?? "")
+        guard let matchHomeVC = matchHomeVC else { return }
+        let channelCollection = db.collection("channels").document(matchHomeVC.channelName)
         channelCollection.delete() { error in
             if let error = error {
                 print("Error removing document: \(error)")
@@ -223,28 +225,29 @@ class MatchHomeViewModel{
     }
     
     func addFriends(){
-        let channel = db.collection("channels").document(self.matchHomeVC?.channelName ?? "")
+        guard let matchHomeVC = matchHomeVC else { return }
+        let channel = db.collection("channels").document(matchHomeVC.channelName)
         channel.getDocument { (document, error) in
             if let document = document, document.exists {
                 let data = document.data()
                 let publisherUID = data?["publisherUID"] as! String
                 let listenerUID = data?["listenerUID"] as! String
-                if self.matchHomeVC?.isListener == true{
+                if matchHomeVC.isListener == true{
                     let user = self.db.collection("users").document(publisherUID)
                     user.getDocument { userDocument, userError in
                         if let userDocument = userDocument, userDocument.exists{
                             let userData = userDocument.data()
                             var friendsRequests = userData?["friendsRequests"] as? [String] ?? []
                             if friendsRequests.contains(listenerUID){
-                                self.matchHomeVC?.showMessage(title: "Failed", text: "You have already sent a request to the user")
+                                matchHomeVC.showMessage(title: "Failed", text: "You have already sent a request to the user")
                             } else{
                                 friendsRequests.append(listenerUID)
                                 user.updateData(["friendsRequests": friendsRequests]) { error in
                                     if let error = error {
                                         print("Hata oluştu: \(error.localizedDescription)")
                                     } else{
-                                        self.matchHomeVC?.showMessage(title: "Success", text: "Friendship Request Success")
-                                        self.matchHomeVC?.btnAddFriend.isHidden = true
+                                        matchHomeVC.showMessage(title: "Success", text: "Friendship Request Success")
+                                        matchHomeVC.btnAddFriend.isHidden = true
                                     }
                                 }
                             }
@@ -257,15 +260,15 @@ class MatchHomeViewModel{
                             let userData = userDocument.data()
                             var friendsRequests = userData?["friendsRequests"] as? [String] ?? []
                             if friendsRequests.contains(publisherUID){
-                                self.matchHomeVC?.showMessage(title: "Failed", text: "You have already sent a request to the user")
+                                matchHomeVC.showMessage(title: "Failed", text: "You have already sent a request to the user")
                             } else{
                                 friendsRequests.append(publisherUID)
                                 user.updateData(["friendsRequests": friendsRequests]) { error in
                                     if let error = error {
                                         print("Hata oluştu: \(error.localizedDescription)")
                                     } else{
-                                        self.matchHomeVC?.showMessage(title: "Success", text: "Friendship Request Success")
-                                        self.matchHomeVC?.btnAddFriend.isHidden = true
+                                        matchHomeVC.showMessage(title: "Success", text: "Friendship Request Success")
+                                        matchHomeVC.btnAddFriend.isHidden = true
                                     }
                                 }
                             }
@@ -280,6 +283,7 @@ class MatchHomeViewModel{
     }
     
     func listenFriendRequest(_ channelName: String){
+        guard let matchHomeVC = matchHomeVC else { return }
         var remoteID = ""
         let channel = db.collection("channels").document(channelName)
         channel.getDocument { (document, error) in
@@ -287,7 +291,7 @@ class MatchHomeViewModel{
                 let data = document.data()
                 let publisherUID = data?["publisherUID"] as! String
                 let listenerUID = data?["listenerUID"] as! String
-                if self.matchHomeVC?.isListener == true{
+                if matchHomeVC.isListener == true{
                     remoteID = publisherUID
                 } else{
                     remoteID = listenerUID
@@ -298,14 +302,14 @@ class MatchHomeViewModel{
         }
         if let currentUser = Auth.auth().currentUser{
             let userDocument = db.collection("users").document(currentUser.uid)
-            userDocument.addSnapshotListener { [self] userDocument, userError in
+            userDocument.addSnapshotListener { userDocument, userError in
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
                     let friendRequests = userData?["friendsRequests"] as? [String]
                     if let friendRequests = friendRequests{
                         for request in friendRequests{
                             if request == remoteID{
-                                self.matchHomeVC?.friendRequestViewTarget(remoteUserID: remoteID)
+                                matchHomeVC.friendRequestViewTarget(remoteUserID: remoteID)
                             }
                         }
                     }
