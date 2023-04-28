@@ -84,21 +84,6 @@ class MessageChatViewModel{
         return ""
     }
     
-    func sendVideoCall(_ remoteUserID: String, currentUserID: String, currentUserUID: UInt){
-        let remoteUserCollection = db.collection("users").document(remoteUserID)
-        remoteUserCollection.getDocument { userDocument, userError in
-            if let userDocument = userDocument, userDocument.exists{
-                remoteUserCollection.updateData([
-                    "matchRequest": [currentUserID,String(currentUserUID)]
-                ]) { err in
-                    if let err = err {
-                        print("Hata oluştu: \(err)")
-                    }
-                }
-            }
-        }
-    }
-    
     func getUserUDID(completion: @escaping (UInt?) -> Void) {
         if let currentUser = Auth.auth().currentUser {
             let docRef = db.collection("users").document(currentUser.uid)

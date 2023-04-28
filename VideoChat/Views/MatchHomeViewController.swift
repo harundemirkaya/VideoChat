@@ -169,6 +169,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     var customChannelID: UInt = UInt(0)
     
+    var userInfo = [AnyHashable : Any]()
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -206,6 +208,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         btnPremium.btnPremiumConstraints(localView)
         btnGender.btnGenderConstraints(localView)
         remoteViewVideo.viewsConstraints(remoteView)
+        remoteViewVideo.viewsConstraints(remoteView)
         initializeAgoraEngine()
         setupLocalVideo()
         btnLeave.btnLeaveConstraints(remoteView)
@@ -228,17 +231,20 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     }
     
     @objc func handleSendCallNotification(_ notification: Notification) {
-        dismiss(animated: true)
-        tabBarController?.selectedIndex = 1
-        localView.isHidden = true
-        isCustomChannel = true
-        self.matchHomeViewModel.getUserIDForChannel(completion: { [weak self] value in
-            if let value = value{
-                self?.customChannelID = value
-                self?.customChannelName = "\(value)CHANNEL"
-                self?.matchHomeViewModel.getTokenPublisher(0, isCustom: true, customChannelID: value)
-            }
-        })
+        if let userInfo = notification.userInfo{
+            self.userInfo = userInfo
+            dismiss(animated: true)
+            tabBarController?.selectedIndex = 1
+            localView.isHidden = true
+            isCustomChannel = true
+            self.matchHomeViewModel.getUserIDForChannel(completion: { [weak self] value in
+                if let value = value{
+                    self?.customChannelID = value
+                    self?.customChannelName = "\(value)CHANNEL"
+                    self?.matchHomeViewModel.getTokenPublisher(0, isCustom: true, customChannelID: value)
+                }
+            })
+        }
     }
     
     // MARK: -Gesture Recognizer
@@ -332,7 +338,12 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         
         btnAddFriend.isHidden = false
         
-        let channelName = isCustomChannel ? customChannelName : self.filteredChannelName ?? "0CHANNEL"
+        var channelName = ""
+        if isListener{
+            channelName = isCustomChannel ? customChannelName : self.filteredChannelName ?? "ERRORCHANNEL"
+        } else{
+            channelName = isCustomChannel ? customChannelName : String("\(self.userIDforChannel)CHANNEL")
+        }
         matchHomeViewModel.setRemoteUserID(isListener, channelName: channelName)
         
         matchHomeViewModel.listenChatState(channelName)
@@ -380,13 +391,18 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         localView.removeFromSuperview()
         localView.viewsConstraints(view)
         setupLocalVideo()
+        btnAddFriend.isHidden = true
+        
+        if let channelName = isCustomChannel ? customChannelName : self.filteredChannelName{
+            if channelName != ""{
+                matchHomeViewModel.deleteChannel(channelName)
+            }
+        }
+    
         if isCustomChannel{
             localView.isHidden = false
             isCustomChannel = false
         }
-        btnAddFriend.isHidden = true
-        let channelName = isCustomChannel ? customChannelName : self.filteredChannelName ?? "0CHANNEL"
-        matchHomeViewModel.deleteChannel(channelName)
     }
     
     @objc func btnAddFriendTarget(){
@@ -438,27 +454,14 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     func removeAllVariable(){
         joined = false
-        
         userIDforChannel = UInt()
-        
-        publisherToken = ""
-        
-        listenerToken = ""
-        
         listenerJoinedUID = ""
-        
         filteredChannelName = ""
-        
         isListener = false
-        
         channelName = ""
-        
         remoteUserIDForFriendRequest = ""
-        
         isCustomChannel = false
-        
         customChannelName = "0CHANNEL"
-        
         customChannelID = UInt(0)
     }
     

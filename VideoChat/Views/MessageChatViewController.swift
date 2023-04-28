@@ -185,8 +185,8 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     @objc func btnVideoCallTarget(){
-        NotificationCenter.default.post(name: NSNotification.Name("sendCall"), object: nil)
-        messageChatViewModel.sendVideoCall(remoteUser.uid, currentUserID: currentUserID, currentUserUID: currentUserUID)
+        let userInfo: [AnyHashable : Any] = ["remoteUserUID": remoteUser.uid, "currentUserID": currentUserID, "currentUserUID": currentUserUID]
+        NotificationCenter.default.post(name: NSNotification.Name("sendCall"), object: nil, userInfo: userInfo)
     }
     
     @objc func keyboardWillShow(sender: NSNotification) {

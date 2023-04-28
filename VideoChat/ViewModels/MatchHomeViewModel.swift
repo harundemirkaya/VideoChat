@@ -131,7 +131,6 @@ class MatchHomeViewModel{
         let getCurrentUser = db.collection("users").document(Auth.auth().currentUser!.uid)
         var currentUserGender = ""
         var channelName = "\(matchHomeVC.userIDforChannel)CHANNEL"
-        print(channelName)
         var channelID = matchHomeVC.userIDforChannel
         if isCustomChannel{
             channelName = matchHomeVC.customChannelName
@@ -160,6 +159,14 @@ class MatchHomeViewModel{
                         if result == 0 {
                             matchHomeVC.joined = true
                             matchHomeVC.showMessage(title: "Success", text: "Successfully joined the channel as \(matchHomeVC.userRole)")
+                        }
+                        if isCustomChannel{
+                            let userInfo = matchHomeVC.userInfo
+                            if let remoteUserUID = userInfo["remoteUserUID"] as? String, let currentUserID = userInfo["currentUserID"] as? String, let currentUserUID = userInfo["currentUserUID"] as? UInt {
+                                self.sendVideoCall(remoteUserUID, currentUserID: currentUserID, currentUserUID: currentUserUID)
+                            } else{
+                                print("aa")
+                            }
                         }
                     }
                 }
@@ -425,6 +432,21 @@ class MatchHomeViewModel{
             }
         } else {
             completion(nil)
+        }
+    }
+    
+    func sendVideoCall(_ remoteUserID: String, currentUserID: String, currentUserUID: UInt){
+        let remoteUserCollection = db.collection("users").document(remoteUserID)
+        remoteUserCollection.getDocument { userDocument, userError in
+            if let userDocument = userDocument, userDocument.exists{
+                remoteUserCollection.updateData([
+                    "matchRequest": [currentUserID,String(currentUserUID)]
+                ]) { err in
+                    if let err = err {
+                        print("Hata oluştu: \(err)")
+                    }
+                }
+            }
         }
     }
 }
