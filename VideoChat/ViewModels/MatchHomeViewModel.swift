@@ -58,14 +58,20 @@ class MatchHomeViewModel{
                     let listenerUID = data?["listenerUID"] as! String
                     if let userID = Auth.auth().currentUser?.uid{
                         let docListenerUser = self.db.collection("users").document(userID)
-                        docListenerUser.updateData(["remoteUserID": publisherUID]) { error in
+                        docListenerUser.updateData([
+                            "remoteUserID": publisherUID,
+                            "isBusy": true
+                        ]) { error in
                             if let error = error {
                                 print("Hata oluştu: \(error.localizedDescription)")
                             }
                         }
                         
                         let docPublisherUser = self.db.collection("users").document(publisherUID)
-                        docPublisherUser.updateData(["remoteUserID": listenerUID]) { error in
+                        docPublisherUser.updateData([
+                            "remoteUserID": listenerUID,
+                            "isBusy": true
+                        ]) { error in
                             if let error = error {
                                 print("Hata oluştu: \(error.localizedDescription)")
                             }
@@ -80,7 +86,6 @@ class MatchHomeViewModel{
     
     func listenChatState(_ channelName: String){
         guard let matchHomeVC = matchHomeVC else { return }
-        print(channelName)
         let channelCollection = db.collection("channels").document(channelName)
         channelCollection.addSnapshotListener { documentSnapshot, error in
             guard let document = documentSnapshot else {
@@ -164,8 +169,6 @@ class MatchHomeViewModel{
                             let userInfo = matchHomeVC.userInfo
                             if let remoteUserUID = userInfo["remoteUserUID"] as? String, let currentUserID = userInfo["currentUserID"] as? String, let currentUserUID = userInfo["currentUserUID"] as? UInt {
                                 self.sendVideoCall(remoteUserUID, currentUserID: currentUserID, currentUserUID: currentUserUID)
-                            } else{
-                                print("aa")
                             }
                         }
                     }
@@ -233,7 +236,8 @@ class MatchHomeViewModel{
     
     func addFriends(){
         guard let matchHomeVC = matchHomeVC else { return }
-        let channel = db.collection("channels").document(matchHomeVC.channelName)
+        var channelName = matchHomeVC.isListener ? matchHomeVC.filteredChannelName : matchHomeVC.channelName
+        let channel = db.collection("channels").document(channelName ?? "ERRORCHANNEL")
         channel.getDocument { (document, error) in
             if let document = document, document.exists {
                 let data = document.data()
@@ -420,7 +424,6 @@ class MatchHomeViewModel{
     func getUserIDForChannel(completion: @escaping (UInt?) -> Void) {
         if let currentUser = Auth.auth().currentUser {
             let docRef = db.collection("users").document(currentUser.uid)
-            print(currentUser.uid)
             docRef.getDocument { (document, error) in
                 if let document = document, document.exists {
                     let data = document.data()
@@ -445,6 +448,19 @@ class MatchHomeViewModel{
                     if let err = err {
                         print("Hata oluştu: \(err)")
                     }
+                }
+            }
+        }
+    }
+    
+    func setBusyFalse(){
+        if let currentUser = Auth.auth().currentUser{
+            let channelsCollectionDocument = db.collection("users").document(currentUser.uid)
+            channelsCollectionDocument.updateData([
+                "isBusy": false
+            ]) { err in
+                if let err = err {
+                    print("Error updating document: \(err)")
                 }
             }
         }

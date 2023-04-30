@@ -393,7 +393,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         setupLocalVideo()
         btnAddFriend.isHidden = true
         
-        if let channelName = isCustomChannel ? customChannelName : self.filteredChannelName{
+        if let channelName = isCustomChannel ? customChannelName : (self.isListener ? self.filteredChannelName : self.channelName){
             if channelName != ""{
                 matchHomeViewModel.deleteChannel(channelName)
             }
@@ -403,6 +403,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
             localView.isHidden = false
             isCustomChannel = false
         }
+        
+        matchHomeViewModel.setBusyFalse()
     }
     
     @objc func btnAddFriendTarget(){

@@ -87,7 +87,6 @@ class MessageChatViewModel{
     func getUserUDID(completion: @escaping (UInt?) -> Void) {
         if let currentUser = Auth.auth().currentUser {
             let docRef = db.collection("users").document(currentUser.uid)
-            print(currentUser.uid)
             docRef.getDocument { (document, error) in
                 if let document = document, document.exists {
                     let data = document.data()
@@ -99,6 +98,23 @@ class MessageChatViewModel{
             }
         } else {
             completion(nil)
+        }
+    }
+    
+    func busyControl(_ remoteUserUID: String){
+        guard let messageChatVC = messageChatVC else { return }
+        let docRef = db.collection("users").document(remoteUserUID)
+        docRef.getDocument { (document, error) in
+            if let document = document, document.exists {
+                let data = document.data()
+                if let isBusy = data?["isBusy"] as? Bool{
+                    if isBusy{
+                        print("MEŞGUL BROOO")
+                    } else{
+                        messageChatVC.sendCallWithNotification()
+                    }
+                }
+            }
         }
     }
 }

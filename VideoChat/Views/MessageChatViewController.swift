@@ -185,8 +185,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     @objc func btnVideoCallTarget(){
-        let userInfo: [AnyHashable : Any] = ["remoteUserUID": remoteUser.uid, "currentUserID": currentUserID, "currentUserUID": currentUserUID]
-        NotificationCenter.default.post(name: NSNotification.Name("sendCall"), object: nil, userInfo: userInfo)
+        messageChatViewModel.busyControl(remoteUser.uid)
     }
     
     @objc func keyboardWillShow(sender: NSNotification) {
@@ -301,6 +300,11 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     
     @objc func dismissKeyboard() {
         view.endEditing(true)
+    }
+    
+    func sendCallWithNotification(){
+        let userInfo: [AnyHashable : Any] = ["remoteUserUID": remoteUser.uid, "currentUserID": currentUserID, "currentUserUID": currentUserUID]
+        NotificationCenter.default.post(name: NSNotification.Name("sendCall"), object: nil, userInfo: userInfo)
     }
 }
 
