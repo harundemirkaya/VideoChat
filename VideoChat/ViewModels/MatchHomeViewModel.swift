@@ -187,14 +187,15 @@ class MatchHomeViewModel{
             self.getTokenListener(UInt(userUID) ?? UInt(), channelName: customChannelName)
         } else{
             let channelsCollection = db.collection("channels")
-            channelsCollection.getDocuments{ (snapshot, error) in
+            channelsCollection.addSnapshotListener{ (snapshot, error) in
                 if let error = error {
                     print("Error getting documents: \(error.localizedDescription)")
                 } else {
                     guard let documents = snapshot?.documents else { return }
                     for document in documents {
                         let gender = document.data()["gender"] as? String ?? ""
-                        if gender == "female" {
+                        let isFull = document.data()["isFull"] as? Bool ?? false
+                        if gender == "female", !isFull{
                             let data = document.data()
                             matchHomeVC.filteredChannelName = data["channelName"] as? String
                             self.getTokenListener(userID, channelName: matchHomeVC.filteredChannelName ?? "")
@@ -212,7 +213,8 @@ class MatchHomeViewModel{
         let channelsCollectionDocument = db.collection("channels").document(documentName)
         channelsCollectionDocument.updateData([
             "listenerToken": (matchHomeVC.listenerToken ?? "") as String,
-            "listenerUID": String(Auth.auth().currentUser!.uid)
+            "listenerUID": String(Auth.auth().currentUser!.uid),
+            "isFull": true
         ]) { err in
             if let err = err {
                 print("Error updating document: \(err)")
