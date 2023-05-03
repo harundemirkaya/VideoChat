@@ -171,6 +171,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     var userInfo = [AnyHashable : Any]()
     
+    private let matchNotification = MatchNotification()
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -244,6 +246,14 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                     self?.matchHomeViewModel.getTokenPublisher(0, isCustom: true, customChannelID: value)
                 }
             })
+        }
+    }
+    
+    func handleMatchNotification(name: String?, url: URL?, matchRequestID: String?){
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let sceneDelegate = windowScene.delegate as? SceneDelegate,
+           let window = sceneDelegate.window {
+            self.matchNotification.matchNotification(name: name, view: window, url: url, id: matchRequestID)
         }
     }
     

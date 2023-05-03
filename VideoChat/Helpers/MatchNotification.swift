@@ -90,7 +90,7 @@ class MatchNotification{
             notificationView.notificationViewConstraints(view)
             imgProfilePhoto.imgProfilePhotoConstraints(notificationView)
             lblRemoteUserName.lblRemoteUserNameConstraints(notificationView, imgView: imgProfilePhoto)
-            lblDescription.lblDescriptionConstraints(view, lblUsername: lblRemoteUserName)
+            lblDescription.lblDescriptionConstraints(notificationView, lblUsername: lblRemoteUserName)
             btnMatchReject.btnMatchRejectConstraints(notificationView, lblDescription: lblDescription)
             btnMatchConfirm.btnMatchConfirmConstraints(notificationView, btnMatchReject: btnMatchReject)
             

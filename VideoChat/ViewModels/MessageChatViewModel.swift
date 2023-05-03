@@ -109,7 +109,7 @@ class MessageChatViewModel{
                 let data = document.data()
                 if let isBusy = data?["isBusy"] as? Bool{
                     if isBusy{
-                        print("MEŞGUL BROOO")
+                        messageChatVC.busyChannelNotification()
                     } else{
                         messageChatVC.sendCallWithNotification()
                     }

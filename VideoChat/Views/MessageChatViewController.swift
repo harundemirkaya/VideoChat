@@ -122,6 +122,8 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     
     let messageChatViewModel = MessageChatViewModel()
     
+    private let busyNotification = BusyNotification()
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -305,6 +307,10 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     func sendCallWithNotification(){
         let userInfo: [AnyHashable : Any] = ["remoteUserUID": remoteUser.uid, "currentUserID": currentUserID, "currentUserUID": currentUserUID]
         NotificationCenter.default.post(name: NSNotification.Name("sendCall"), object: nil, userInfo: userInfo)
+    }
+    
+    func busyChannelNotification(){
+        self.busyNotification.busyNotification(view: self.view)
     }
 }
 

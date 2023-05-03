@@ -23,9 +23,6 @@ class MatchHomeViewModel{
     
     private let db = Firestore.firestore()
     
-    private let notification = MatchNotification()
-    
-    
     // MARK: -Get Token Funcs
     func getTokenPublisher(_ userID: UInt, isCustom: Bool = false, customChannelID: UInt = UInt(0)){
         let id = isCustom ? customChannelID : userID
@@ -346,11 +343,7 @@ class MatchHomeViewModel{
                                         let userData = userDocument.data()
                                         let profilePhoto = userData?["profilePhoto"] as? String
                                         let name = userData?["name"] as? String
-                                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                                           let sceneDelegate = windowScene.delegate as? SceneDelegate,
-                                           let window = sceneDelegate.window {
-                                            self.notification.matchNotification(name: name, view: window, url: URL(string: profilePhoto ?? ""), id: matchRequest[1])
-                                        }
+                                        self.matchHomeVC?.handleMatchNotification(name: name, url: URL(string: profilePhoto ?? ""), matchRequestID: matchRequest[1])
                                     }
                                 }
                             }
