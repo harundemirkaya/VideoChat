@@ -81,16 +81,20 @@ class MatchHomeViewModel{
         }
     }
     
-    func listenChatState(_ channelName: String){
+    func listenChatState(_ channelName: String) {
         guard let matchHomeVC = matchHomeVC else { return }
         let channelCollection = db.collection("channels").document(channelName)
-        channelCollection.addSnapshotListener { documentSnapshot, error in
+        var listener: ListenerRegistration? = nil
+        listener = channelCollection.addSnapshotListener { documentSnapshot, error in
             guard let document = documentSnapshot else {
                 print("Error fetching document: \(error!)")
                 return
             }
             if !document.exists {
+                print(channelName)
                 matchHomeVC.leaveChannel()
+                guard let listener = listener else { return }
+                listener.remove()
             }
         }
     }
@@ -184,7 +188,8 @@ class MatchHomeViewModel{
             self.getTokenListener(UInt(userUID) ?? UInt(), channelName: customChannelName)
         } else{
             let channelsCollection = db.collection("channels")
-            channelsCollection.addSnapshotListener{ (snapshot, error) in
+            var listener: ListenerRegistration? = nil
+            listener = channelsCollection.addSnapshotListener{ (snapshot, error) in
                 if let error = error {
                     print("Error getting documents: \(error.localizedDescription)")
                 } else {
@@ -197,6 +202,8 @@ class MatchHomeViewModel{
                             matchHomeVC.filteredChannelName = data["channelName"] as? String
                             self.getTokenListener(userID, channelName: matchHomeVC.filteredChannelName ?? "")
                             matchHomeVC.listenerJoinedUID = document.documentID
+                            guard let listener = listener else { return }
+                            listener.remove()
                         }
                     }
                 }
@@ -235,7 +242,7 @@ class MatchHomeViewModel{
     
     func addFriends(){
         guard let matchHomeVC = matchHomeVC else { return }
-        var channelName = matchHomeVC.isListener ? matchHomeVC.filteredChannelName : matchHomeVC.channelName
+        let channelName = matchHomeVC.isListener ? matchHomeVC.filteredChannelName : matchHomeVC.channelName
         let channel = db.collection("channels").document(channelName ?? "ERRORCHANNEL")
         channel.getDocument { (document, error) in
             if let document = document, document.exists {
