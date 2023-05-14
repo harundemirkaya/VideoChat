@@ -209,7 +209,9 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
                         if error == nil{
                             let imageUrl = url?.absoluteString
                             if let imageUrl = imageUrl{
-                                self.profileViewModel.updateProfilePhoto(imageUrl)
+                                self.profileViewModel.getUserProfilePhotoURL { oldPhotoURL in
+                                    self.profileViewModel.updateProfilePhoto(imageUrl, oldImageURL: oldPhotoURL)
+                                }
                             }
                         }
                     }

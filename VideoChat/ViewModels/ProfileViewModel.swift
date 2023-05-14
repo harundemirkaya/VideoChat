@@ -27,14 +27,14 @@ class ProfileViewModel{
                     let urlString = data!["profilePhoto"] as? String
                     if let urlstring = urlString, let url = URL(string: urlstring){
                         URLSession.shared.dataTask(with: url) { (data, response, error) in
-                                guard let data = data, error == nil else {
-                                    print("Error loading image: \(error?.localizedDescription ?? "unknown error")")
-                                    return
-                                }
-                                DispatchQueue.main.async {
-                                    self.profileVC?.imgProfilePhoto.image = UIImage(data: data)
-                                }
-                            }.resume()
+                            guard let data = data, error == nil else {
+                                print("Error loading image: \(error?.localizedDescription ?? "unknown error")")
+                                return
+                            }
+                            DispatchQueue.main.async {
+                                self.profileVC?.imgProfilePhoto.image = UIImage(data: data)
+                            }
+                        }.resume()
                     }
                 } else {
                     print("Belge mevcut değil")
@@ -51,28 +51,35 @@ class ProfileViewModel{
                     print(error.localizedDescription)
                 } else {
                     currentUser.updatePassword(to: newPassword) { error in
-                      if let error = error {
-                        print(error.localizedDescription)
-                      } else {
-                          self.profileVC?.txtFieldOldPassword.text = ""
-                          self.profileVC?.txtFieldNewPassword.text = ""
-                          self.profileVC?.txtFieldNewPasswordAgain.text = ""
-                      }
+                        if let error = error {
+                            print(error.localizedDescription)
+                        } else {
+                            self.profileVC?.txtFieldOldPassword.text = ""
+                            self.profileVC?.txtFieldNewPassword.text = ""
+                            self.profileVC?.txtFieldNewPasswordAgain.text = ""
+                        }
                     }
                 }
             }
         }
     }
     
-    func updateProfilePhoto(_ imageUrl: String){
+    func updateProfilePhoto(_ imageUrl: String, oldImageURL: String){
         if let currentUser = Auth.auth().currentUser{
-            db.collection("users").document(currentUser.uid).updateData([
+            self.db.collection("users").document(currentUser.uid).updateData([
                 "profilePhoto": imageUrl
             ]) { err in
                 if let err = err {
                     print("Hata oluştu: \(err)")
                 } else {
-                    print("Veri başarıyla güncellendi")
+                    let storageRef = Storage.storage().reference(forURL: oldImageURL)
+                    storageRef.delete { error in
+                        if let error = error {
+                            print(error.localizedDescription)
+                        } else {
+                            
+                        }
+                    }
                 }
             }
         }
@@ -96,21 +103,21 @@ class ProfileViewModel{
             if profileVC?.txtFieldEmail.text != ""{
                 if let email = profileVC?.txtFieldEmail.text{
                     currentUser.updateEmail(to: email) { error in
-                      if let error = error {
-                        print(error.localizedDescription)
-                      } else {
-                          self.db.collection("users").document(currentUser.uid).updateData([
-                            "email": email
-                          ]) { err in
-                              if let err = err {
-                                  print("Hata oluştu: \(err)")
-                              } else {
-                                  self.profileVC?.txtFieldEmail.placeholder = self.profileVC?.txtFieldEmail.text
-                                  self.profileVC?.txtFieldEmail.text = ""
-                                  print("Veri başarıyla güncellendi")
-                              }
-                          }
-                      }
+                        if let error = error {
+                            print(error.localizedDescription)
+                        } else {
+                            self.db.collection("users").document(currentUser.uid).updateData([
+                                "email": email
+                            ]) { err in
+                                if let err = err {
+                                    print("Hata oluştu: \(err)")
+                                } else {
+                                    self.profileVC?.txtFieldEmail.placeholder = self.profileVC?.txtFieldEmail.text
+                                    self.profileVC?.txtFieldEmail.text = ""
+                                    print("Veri başarıyla güncellendi")
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -125,6 +132,19 @@ class ProfileViewModel{
             profileVC?.present(homeVC, animated: true)
         } catch let signOutError as NSError {
             print(signOutError.localizedDescription)
+        }
+    }
+    
+    func getUserProfilePhotoURL(completion: @escaping (String) -> Void) {
+        if let currentUser = Auth.auth().currentUser{
+            let documentRef = db.collection("users").document(currentUser.uid)
+            documentRef.getDocument { (document, error) in
+                if let document = document, document.exists {
+                    let userData = document.data()
+                    var profilePhoto = userData?["profilePhoto"] as? String ?? ""
+                    completion(profilePhoto)
+                }
+            }
         }
     }
 }
