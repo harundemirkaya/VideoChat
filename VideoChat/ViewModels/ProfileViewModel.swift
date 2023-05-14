@@ -9,6 +9,7 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
+import CoreData
 
 class ProfileViewModel{
     
@@ -125,13 +126,17 @@ class ProfileViewModel{
     }
     
     func logout(){
-        do {
-            try Auth.auth().signOut()
-            let homeVC = ViewController()
-            homeVC.modalPresentationStyle = .fullScreen
-            profileVC?.present(homeVC, animated: true)
-        } catch let signOutError as NSError {
-            print(signOutError.localizedDescription)
+        deleteUserData(entityName: "Messages") { isSuccess in
+            if isSuccess{
+                do {
+                    try Auth.auth().signOut()
+                    let homeVC = ViewController()
+                    homeVC.modalPresentationStyle = .fullScreen
+                    self.profileVC?.present(homeVC, animated: true)
+                } catch let signOutError as NSError {
+                    print(signOutError.localizedDescription)
+                }
+            }
         }
     }
     
@@ -141,10 +146,26 @@ class ProfileViewModel{
             documentRef.getDocument { (document, error) in
                 if let document = document, document.exists {
                     let userData = document.data()
-                    var profilePhoto = userData?["profilePhoto"] as? String ?? ""
+                    let profilePhoto = userData?["profilePhoto"] as? String ?? ""
                     completion(profilePhoto)
                 }
             }
         }
     }
+    
+    func deleteUserData(entityName: String, completion: @escaping (Bool) -> Void) {
+        let persistentContainer = (UIApplication.shared.delegate as! AppDelegate).persistentContainer
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        persistentContainer.viewContext.perform {
+            do {
+                try persistentContainer.viewContext.execute(batchDeleteRequest)
+                completion(true)
+            } catch {
+                print("Hata oluştu: \(error.localizedDescription)")
+                completion(false)
+            }
+        }
+    }
+
 }
