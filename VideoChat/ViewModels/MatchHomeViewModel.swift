@@ -23,6 +23,9 @@ class MatchHomeViewModel{
     
     private let db = Firestore.firestore()
     
+    var friendRequestListener: ListenerRegistration? = nil
+    var channelsListener: ListenerRegistration? = nil
+    
     // MARK: -Get Token Funcs
     func getTokenPublisher(_ userID: UInt, isCustom: Bool = false, customChannelID: UInt = UInt(0)){
         let id = isCustom ? customChannelID : userID
@@ -84,17 +87,21 @@ class MatchHomeViewModel{
     func listenChatState(_ channelName: String) {
         guard let matchHomeVC = matchHomeVC else { return }
         let channelCollection = db.collection("channels").document(channelName)
-        var listener: ListenerRegistration? = nil
-        listener = channelCollection.addSnapshotListener { documentSnapshot, error in
+        channelsListener = channelCollection.addSnapshotListener { documentSnapshot, error in
             guard let document = documentSnapshot else {
-                print("Error fetching document: \(error!)")
+                print("Error fetching document: \(error!    )")
                 return
             }
             if !document.exists {
-                print(channelName)
-                matchHomeVC.leaveChannel()
-                guard let listener = listener else { return }
-                listener.remove()
+                self.doesDocumentExist(documentID: channelName) { value in
+                    if !value{
+                        matchHomeVC.leaveChannel()
+                        guard let channelsListener = self.channelsListener else { return }
+                        channelsListener.remove()
+                        guard let friendRequestListener = self.friendRequestListener else { return }
+                        friendRequestListener.remove()
+                    }
+                }
             }
         }
     }
@@ -319,7 +326,7 @@ class MatchHomeViewModel{
         }
         if let currentUser = Auth.auth().currentUser{
             let userDocument = db.collection("users").document(currentUser.uid)
-            userDocument.addSnapshotListener { userDocument, userError in
+            friendRequestListener = userDocument.addSnapshotListener { userDocument, userError in
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
                     let friendRequests = userData?["friendsRequests"] as? [String]
@@ -464,6 +471,17 @@ class MatchHomeViewModel{
                 if let err = err {
                     print("Error updating document: \(err)")
                 }
+            }
+        }
+    }
+    
+    func doesDocumentExist(documentID: String, completion: @escaping (Bool) -> Void) {
+        let documentRef = db.collection("channels").document(documentID)
+        documentRef.getDocument { (document, error) in
+            if let document = document, document.exists {
+                completion(true)
+            } else {
+                completion(false)
             }
         }
     }

@@ -9,7 +9,7 @@ import UIKit
 import AVFoundation
 import AgoraRtcKit
 
-class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, UIGestureRecognizerDelegate {
+class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, UIGestureRecognizerDelegate, UITabBarControllerDelegate {
     
     // MARK: -Agora Config
     var agoraEngine: AgoraRtcEngineKit!
@@ -178,6 +178,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         super.viewDidLoad()
         view.backgroundColor = .white
         matchHomeViewModel.matchHomeVC = self
+        self.tabBarController?.delegate = self
+        
         NotificationCenter.default.addObserver(self, selector: #selector(handleCustomCallNotification(_:)), name: NSNotification.Name("customCall"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleSendCallNotification(_:)), name: NSNotification.Name("sendCall"), object: nil)
         
@@ -192,8 +194,6 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        leaveChannel()
-        removeAllVariable()
         DispatchQueue.global(qos: .userInitiated).async {AgoraRtcEngineKit.destroy()}
     }
     
@@ -415,6 +415,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         }
         
         matchHomeViewModel.setBusyFalse()
+        removeAllVariable()
     }
     
     @objc func btnAddFriendTarget(){
@@ -475,6 +476,11 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         isCustomChannel = false
         customChannelName = "0CHANNEL"
         customChannelID = UInt(0)
+    }
+    
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        leaveChannel()
+        removeAllVariable()
     }
     
     // MARK: -Show Message
