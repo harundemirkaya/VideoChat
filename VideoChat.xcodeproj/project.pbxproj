@@ -46,6 +46,7 @@
 		4FF30B2B29E3137D006AA02C /* MessageChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF30B2A29E3137D006AA02C /* MessageChatViewModel.swift */; };
 		4FF30B2D29E315E9006AA02C /* FriendRequestsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF30B2C29E315E9006AA02C /* FriendRequestsViewModel.swift */; };
 		4FF30B2F29E31879006AA02C /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF30B2E29E31879006AA02C /* LoginViewModel.swift */; };
+		4FFED1112A13AED100A43FC0 /* MatchNotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFED1102A13AED100A43FC0 /* MatchNotificationViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -91,6 +92,7 @@
 		4FF30B2A29E3137D006AA02C /* MessageChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageChatViewModel.swift; sourceTree = "<group>"; };
 		4FF30B2C29E315E9006AA02C /* FriendRequestsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRequestsViewModel.swift; sourceTree = "<group>"; };
 		4FF30B2E29E31879006AA02C /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		4FFED1102A13AED100A43FC0 /* MatchNotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchNotificationViewModel.swift; sourceTree = "<group>"; };
 		70FB35DC56DC30E5258C59A5 /* Pods-VideoChat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoChat.debug.xcconfig"; path = "Target Support Files/Pods-VideoChat/Pods-VideoChat.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -113,15 +115,6 @@
 				47E83595787715E0B70923CD /* Pods-VideoChat.release.xcconfig */,
 			);
 			path = Pods;
-			sourceTree = "<group>";
-		};
-		4F05C8CC29EAC1A500D4420A /* Helpers */ = {
-			isa = PBXGroup;
-			children = (
-				4F05C8CD29EAC1C600D4420A /* MatchNotification.swift */,
-				4F40F1922A02E23100E8C1BC /* BusyNotification.swift */,
-			);
-			path = Helpers;
 			sourceTree = "<group>";
 		};
 		4F6766E229B0DC9B00DC3BD6 /* assets */ = {
@@ -156,7 +149,6 @@
 		4F680C5529B0CD4600081B51 /* VideoChat */ = {
 			isa = PBXGroup;
 			children = (
-				4F05C8CC29EAC1A500D4420A /* Helpers */,
 				4FA6348729BD47F600F7C75E /* Models */,
 				4F680C6A29B0CDE900081B51 /* Views */,
 				4FC6250729BD184200698116 /* ViewModels */,
@@ -187,6 +179,8 @@
 				4F87C10829C73B100059EC6F /* MessageChatViewController.swift */,
 				4FCA50BC29C6159B00E0DC8E /* FriendsViewController.swift */,
 				4FE3723229CCACB90095EDAD /* FriendRequestsViewController.swift */,
+				4F05C8CD29EAC1C600D4420A /* MatchNotification.swift */,
+				4F40F1922A02E23100E8C1BC /* BusyNotification.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -228,6 +222,7 @@
 				4FF30B2A29E3137D006AA02C /* MessageChatViewModel.swift */,
 				4FF30B2829E312A1006AA02C /* FriendsViewModel.swift */,
 				4FF30B2C29E315E9006AA02C /* FriendRequestsViewModel.swift */,
+				4FFED1102A13AED100A43FC0 /* MatchNotificationViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -392,6 +387,7 @@
 				4F404CB729D4914500164DBF /* MessageChatTableViewCell.swift in Sources */,
 				4FF30B2729E31127006AA02C /* MessagesViewModel.swift in Sources */,
 				4F680C5729B0CD4600081B51 /* AppDelegate.swift in Sources */,
+				4FFED1112A13AED100A43FC0 /* MatchNotificationViewModel.swift in Sources */,
 				4FF30B2F29E31879006AA02C /* LoginViewModel.swift in Sources */,
 				4FE3723529CCB6BA0095EDAD /* User.swift in Sources */,
 				4F680C5929B0CD4600081B51 /* SceneDelegate.swift in Sources */,
