@@ -7,13 +7,11 @@
 
 import Foundation
 import UIKit
-import FirebaseAuth
-import FirebaseFirestore
 
 class MatchNotification{
     
     // MARK: Define
-    private let notificationView: UIView = {
+    let notificationView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .black.withAlphaComponent(0.8)
@@ -67,12 +65,14 @@ class MatchNotification{
         return btn
     }()
     
-    private let db = Firestore.firestore()
+    let matchNotificationViewModel = MatchNotificationViewModel()
     
     private var remoteID = UInt(0)
     
     public func matchNotification(name: String?, view: UIView?, url: URL?, id: String?){
         if let name = name, let view = view, let url = url, let id = id{
+            matchNotificationViewModel.matchNotificationView = self
+            
             self.remoteID = UInt(id) ?? UInt(0)
             
             lblRemoteUserName.text = name
@@ -101,45 +101,12 @@ class MatchNotification{
     
     @objc func btnMatchConfirmTarget(){
         NotificationCenter.default.post(name: NSNotification.Name("customCall"), object: nil, userInfo: ["remoteUserID":remoteID])
-        self.closeNotification()
+        matchNotificationViewModel.closeNotification()
     }
     
     @objc func btnMatchRejectTarget(){
-        self.removeChannel()
-        self.closeNotification()
-    }
-    
-    private func removeChannel(){
-        let channelCollection = db.collection("channels").document("\(remoteID)CHANNEL")
-        channelCollection.delete() { error in
-            if let error = error {
-                print("Error removing document: \(error)")
-            } else {
-                print("Document successfully removed!")
-            }
-        }
-    }
-    
-    private func closeNotification(){
-        notificationView.removeFromSuperview()
-        if let currentUser = Auth.auth().currentUser{
-            let userCollection = db.collection("users").document(currentUser.uid)
-            userCollection.getDocument { (document, error) in
-                if let document = document, document.exists {
-                    userCollection.updateData([
-                        "matchRequest": FieldValue.delete()
-                    ]) { err in
-                        if let err = err {
-                            print("Error updating document: \(err)")
-                        } else {
-                            print("Document successfully updated")
-                        }
-                    }
-                } else {
-                    print("Document does not exist")
-                }
-            }
-        }
+        matchNotificationViewModel.removeChannel(remoteID)
+        matchNotificationViewModel.closeNotification()
     }
 }
 
