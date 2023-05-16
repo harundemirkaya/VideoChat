@@ -84,17 +84,20 @@ class MatchHomeViewModel{
         }
     }
     
-    func listenChatState(_ channelName: String) {
+    func listenChatState(_ channelName: String, isCustomListener: Bool = false) {
         guard let matchHomeVC = matchHomeVC else { return }
         let channelCollection = db.collection("channels").document(channelName)
         channelsListener = channelCollection.addSnapshotListener { documentSnapshot, error in
             guard let document = documentSnapshot else {
-                print("Error fetching document: \(error!    )")
+                print("Error fetching document: \(error!)")
                 return
             }
             if !document.exists {
                 self.doesDocumentExist(documentID: channelName) { value in
                     if !value{
+                        if isCustomListener{
+                            matchHomeVC.matchNotification.btnMatchRejectTarget()
+                        }
                         matchHomeVC.leaveChannel()
                         guard let channelsListener = self.channelsListener else { return }
                         channelsListener.remove()
@@ -177,6 +180,7 @@ class MatchHomeViewModel{
                             let userInfo = matchHomeVC.userInfo
                             if let remoteUserUID = userInfo["remoteUserUID"] as? String, let currentUserID = userInfo["currentUserID"] as? String, let currentUserUID = userInfo["currentUserUID"] as? UInt {
                                 self.sendVideoCall(remoteUserUID, currentUserID: currentUserID, currentUserUID: currentUserUID)
+                                self.listenChatState(channelName)
                             }
                         }
                     }
@@ -358,6 +362,7 @@ class MatchHomeViewModel{
                                         let profilePhoto = userData?["profilePhoto"] as? String
                                         let name = userData?["name"] as? String
                                         self.matchHomeVC?.handleMatchNotification(name: name, url: URL(string: profilePhoto ?? ""), matchRequestID: matchRequest[1])
+                                        self.listenChatState("\(matchRequest[1])CHANNEL", isCustomListener: true)
                                     }
                                 }
                             }

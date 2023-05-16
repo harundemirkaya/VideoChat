@@ -101,10 +101,26 @@ class MatchNotification{
     
     @objc func btnMatchConfirmTarget(){
         NotificationCenter.default.post(name: NSNotification.Name("customCall"), object: nil, userInfo: ["remoteUserID":remoteID])
-        self.btnMatchRejectTarget()
+        self.closeNotification()
     }
     
     @objc func btnMatchRejectTarget(){
+        self.removeChannel()
+        self.closeNotification()
+    }
+    
+    private func removeChannel(){
+        let channelCollection = db.collection("channels").document("\(remoteID)CHANNEL")
+        channelCollection.delete() { error in
+            if let error = error {
+                print("Error removing document: \(error)")
+            } else {
+                print("Document successfully removed!")
+            }
+        }
+    }
+    
+    private func closeNotification(){
         notificationView.removeFromSuperview()
         if let currentUser = Auth.auth().currentUser{
             let userCollection = db.collection("users").document(currentUser.uid)

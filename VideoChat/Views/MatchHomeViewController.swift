@@ -165,13 +165,17 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     var isCustomChannel: Bool = false
     
+    var isCustomPublisher: Bool = false
+    
+    var isCustomListener: Bool = false
+    
     var customChannelName: String = "0CHANNEL"
     
     var customChannelID: UInt = UInt(0)
     
     var userInfo = [AnyHashable : Any]()
     
-    private let matchNotification = MatchNotification()
+    let matchNotification = MatchNotification()
     
     // MARK: -LifeCycle
     override func viewDidLoad() {
@@ -239,6 +243,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
             tabBarController?.selectedIndex = 1
             localView.isHidden = true
             isCustomChannel = true
+            isCustomPublisher = true
             self.matchHomeViewModel.getUserIDForChannel(completion: { [weak self] value in
                 if let value = value{
                     self?.customChannelID = value
@@ -356,8 +361,12 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         }
         matchHomeViewModel.setRemoteUserID(isListener, channelName: channelName)
         
-        matchHomeViewModel.listenChatState(channelName)
+        if !isCustomChannel{
+            matchHomeViewModel.listenChatState(channelName)
+        }
+        
         matchHomeViewModel.listenFriendRequest(channelName)
+        
     }
     
     // MARK: -Setup Local Video with Agora
@@ -412,6 +421,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         if isCustomChannel{
             localView.isHidden = false
             isCustomChannel = false
+            isCustomPublisher = false
         }
         
         matchHomeViewModel.setBusyFalse()
@@ -474,6 +484,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         channelName = ""
         remoteUserIDForFriendRequest = ""
         isCustomChannel = false
+        isCustomPublisher = false
         customChannelName = "0CHANNEL"
         customChannelID = UInt(0)
     }
