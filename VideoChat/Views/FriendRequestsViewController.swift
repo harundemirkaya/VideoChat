@@ -111,8 +111,8 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
         if users.count != 0{
             friendRequestsViewModel.getProfileImage(withURL: users[indexPath.row].userPhoto) { image in
                 DispatchQueue.main.async {
-                    cell.imageView?.image = image
-                    cell.imageView?.contentMode = .scaleAspectFit
+                    cell.userImageView.image = image
+                    cell.userImageView.contentMode = .scaleAspectFit
                 }
             }
             cell.userNameLabel.text = users[indexPath.row].userName

@@ -143,8 +143,8 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         
         messagesViewModel.getProfileImage(withURL: recentlyChat[indexPath.row].userPhoto) { image in
             DispatchQueue.main.async {
-                cell.imageView?.image = image
-                cell.imageView?.contentMode = .scaleAspectFit
+                cell.userImageView.image = image
+                cell.userImageView.contentMode = .scaleAspectFit
             }
         }
         

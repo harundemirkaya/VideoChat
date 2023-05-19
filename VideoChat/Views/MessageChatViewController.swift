@@ -335,8 +335,8 @@ private extension UIView{
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
         leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 45).isActive = true
         bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10).isActive = true
-        widthAnchor.constraint(equalToConstant: 40).isActive = true
-        heightAnchor.constraint(equalToConstant: 40).isActive = true
+        widthAnchor.constraint(equalToConstant: 50).isActive = true
+        heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
     
     func btnBackConstraints(_ view: UIView, imgViewUserPhoto: UIImageView){
