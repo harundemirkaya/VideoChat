@@ -14,15 +14,15 @@ class LoginViewModel{
     var loginVC: LoginViewController?
     
     func login(){
-        Auth.auth().signIn(withEmail: loginVC?.txtFieldEmail.text ?? "", password: loginVC?.txtFieldPassword.text ?? "") { [weak self] authResult, error in
-            guard self != nil else { return }
+        guard let loginVC = loginVC else { return }
+        Auth.auth().signIn(withEmail: loginVC.txtFieldEmail.text ?? "", password: loginVC.txtFieldPassword.text ?? "") { authResult, error in
             if error != nil {
-                self?.loginVC?.alertMessage(title: "Error", description: error?.localizedDescription ?? "Error")
+                loginVC.alertMessage(title: "Error", description: error?.localizedDescription ?? "Error")
                 return
             }
             let appTabBar = AppTabBarController()
             appTabBar.modalPresentationStyle = .fullScreen
-            self?.loginVC?.present(appTabBar, animated: true)
+            loginVC.present(appTabBar, animated: true)
         }
     }
 }

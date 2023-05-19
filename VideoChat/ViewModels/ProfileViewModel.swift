@@ -19,23 +19,18 @@ class ProfileViewModel{
     private let db = Firestore.firestore()
     
     func fetchData(){
+        guard let profileVC = profileVC else { return }
         if let currentUser = Auth.auth().currentUser{
             db.collection("users").document(currentUser.uid).getDocument { (document, error) in
                 if let document = document, document.exists {
                     let data = document.data()
-                    self.profileVC?.txtFieldName.placeholder = data!["name"] as? String
-                    self.profileVC?.txtFieldEmail.placeholder = data!["email"] as? String
-                    let urlString = data!["profilePhoto"] as? String
-                    if let urlstring = urlString, let url = URL(string: urlstring){
-                        URLSession.shared.dataTask(with: url) { (data, response, error) in
-                            guard let data = data, error == nil else {
-                                print("Error loading image: \(error?.localizedDescription ?? "unknown error")")
-                                return
-                            }
-                            DispatchQueue.main.async {
-                                self.profileVC?.imgProfilePhoto.image = UIImage(data: data)
-                            }
-                        }.resume()
+                    profileVC.txtFieldName.placeholder = data!["name"] as? String
+                    profileVC.txtFieldEmail.placeholder = data!["email"] as? String
+                    guard let profilePhoto = data!["profilePhoto"] as? String else { return }
+                    self.getProfileImage(withURL: profilePhoto) { image in
+                        DispatchQueue.main.async {
+                            profileVC.imgProfilePhoto.image = image
+                        }
                     }
                 } else {
                     print("Belge mevcut değil")
@@ -45,7 +40,8 @@ class ProfileViewModel{
     }
     
     func updatePassword(){
-        if let currentUser = Auth.auth().currentUser, let oldPassword = profileVC?.txtFieldOldPassword.text, let newPassword = profileVC?.txtFieldNewPassword.text{
+        guard let profileVC = profileVC else { return }
+        if let currentUser = Auth.auth().currentUser, let oldPassword = profileVC.txtFieldOldPassword.text, let newPassword = profileVC.txtFieldNewPassword.text{
             let credential = EmailAuthProvider.credential(withEmail: currentUser.email!, password: oldPassword)
             currentUser.reauthenticate(with: credential) { authResult, error in
                 if let error = error {
@@ -55,9 +51,9 @@ class ProfileViewModel{
                         if let error = error {
                             print(error.localizedDescription)
                         } else {
-                            self.profileVC?.txtFieldOldPassword.text = ""
-                            self.profileVC?.txtFieldNewPassword.text = ""
-                            self.profileVC?.txtFieldNewPasswordAgain.text = ""
+                            profileVC.txtFieldOldPassword.text = ""
+                            profileVC.txtFieldNewPassword.text = ""
+                            profileVC.txtFieldNewPasswordAgain.text = ""
                         }
                     }
                 }
@@ -87,22 +83,23 @@ class ProfileViewModel{
     }
     
     func updateNameOrEmail(){
+        guard let profileVC = profileVC else { return }
         if let currentUser = Auth.auth().currentUser{
-            if profileVC?.txtFieldName.text != ""{
+            if profileVC.txtFieldName.text != ""{
                 db.collection("users").document(currentUser.uid).updateData([
-                    "name": profileVC?.txtFieldName.text as Any
+                    "name": profileVC.txtFieldName.text as Any
                 ]) { err in
                     if let err = err {
                         print("Hata oluştu: \(err)")
                     } else {
-                        self.profileVC?.txtFieldName.placeholder = self.profileVC?.txtFieldName.text
-                        self.profileVC?.txtFieldName.text = ""
+                        profileVC.txtFieldName.placeholder = profileVC.txtFieldName.text
+                        profileVC.txtFieldName.text = ""
                         print("Veri başarıyla güncellendi")
                     }
                 }
             }
-            if profileVC?.txtFieldEmail.text != ""{
-                if let email = profileVC?.txtFieldEmail.text{
+            if profileVC.txtFieldEmail.text != ""{
+                if let email = profileVC.txtFieldEmail.text{
                     currentUser.updateEmail(to: email) { error in
                         if let error = error {
                             print(error.localizedDescription)
@@ -113,8 +110,8 @@ class ProfileViewModel{
                                 if let err = err {
                                     print("Hata oluştu: \(err)")
                                 } else {
-                                    self.profileVC?.txtFieldEmail.placeholder = self.profileVC?.txtFieldEmail.text
-                                    self.profileVC?.txtFieldEmail.text = ""
+                                    profileVC.txtFieldEmail.placeholder = profileVC.txtFieldEmail.text
+                                    profileVC.txtFieldEmail.text = ""
                                     print("Veri başarıyla güncellendi")
                                 }
                             }
@@ -126,13 +123,14 @@ class ProfileViewModel{
     }
     
     func logout(){
+        guard let profileVC = profileVC else { return }
         deleteUserData(entityName: "Messages") { isSuccess in
             if isSuccess{
                 do {
                     try Auth.auth().signOut()
                     let homeVC = ViewController()
                     homeVC.modalPresentationStyle = .fullScreen
-                    self.profileVC?.present(homeVC, animated: true)
+                    profileVC.present(homeVC, animated: true)
                 } catch let signOutError as NSError {
                     print(signOutError.localizedDescription)
                 }
@@ -168,4 +166,35 @@ class ProfileViewModel{
         }
     }
 
+    func getProfileImage(withURL imageURL: String, completion: @escaping (UIImage?) -> Void) {
+        guard let profileVC = profileVC else { return }
+        if let cachedImage = ImageCache.shared.getImage(forKey: imageURL) {
+            completion(cachedImage)
+        } else {
+            downloadImage(from: imageURL) { image in
+                if let image = image {
+                    ImageCache.shared.setImage(image, forKey: imageURL)
+                }
+                completion(image)
+                ///
+            }
+        }
+    }
+    
+    private func downloadImage(from imageURL: String, completion: @escaping (UIImage?) -> Void) {
+        guard let url = URL(string: imageURL) else {
+            completion(nil)
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data, error == nil else {
+                completion(nil)
+                return
+            }
+            
+            let image = UIImage(data: data)
+            completion(image)
+        }.resume()
+    }
 }

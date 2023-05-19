@@ -17,6 +17,7 @@ class MessageChatViewModel{
     private let db = Firestore.firestore()
     
     func getUnreadMessages(){
+        guard let messageChatVC = messageChatVC else { return }
         if let currentUser = Auth.auth().currentUser{
             let users = db.collection("users")
             let user = users.document(currentUser.uid)
@@ -25,10 +26,11 @@ class MessageChatViewModel{
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
                     var unreadMessages = userData?["unreadMessages"] as? [String:[String]] ?? [:]
-                    if let remoteUserID = self.messageChatVC?.remoteUser.uid, let userUnreadmessages = unreadMessages[remoteUserID] {
+                    let remoteUserID = messageChatVC.remoteUser.uid
+                    if let userUnreadmessages = unreadMessages[remoteUserID] {
                         for userUnreadMessage in userUnreadmessages{
-                            self.messageChatVC?.saveData(userUnreadMessage, isRemote: true)
-                            self.messageChatVC?.reloadTableData()
+                            messageChatVC.saveData(userUnreadMessage, isRemote: true)
+                            messageChatVC.reloadTableData()
                         }
                         unreadMessages.removeValue(forKey: remoteUserID)
                         user.updateData([
@@ -45,31 +47,31 @@ class MessageChatViewModel{
     }
     
     func sendMessage(){
-        if messageChatVC?.txtFieldMessage.text != ""{
+        guard let messageChatVC = messageChatVC else { return }
+        if messageChatVC.txtFieldMessage.text != ""{
             let users = db.collection("users")
-            if let remoteUserID = messageChatVC?.remoteUser.uid{
-                let user = users.document(remoteUserID)
-                user.getDocument { userDocument, userError in
-                    if let userDocument = userDocument, userDocument.exists{
-                        let userData = userDocument.data()
-                        var unreadMessages = userData?["unreadMessages"] as? [String:[String]] ?? [:]
-                        if let message = self.messageChatVC?.txtFieldMessage.text{
-                            if var messages = unreadMessages[Auth.auth().currentUser!.uid] {
+            let remoteUserID = messageChatVC.remoteUser.uid
+            let user = users.document(remoteUserID)
+            user.getDocument { userDocument, userError in
+                if let userDocument = userDocument, userDocument.exists{
+                    let userData = userDocument.data()
+                    var unreadMessages = userData?["unreadMessages"] as? [String:[String]] ?? [:]
+                    if let message = messageChatVC.txtFieldMessage.text{
+                        if var messages = unreadMessages[Auth.auth().currentUser!.uid] {
                             messages.append(message)
                             unreadMessages[Auth.auth().currentUser!.uid] = messages
-                            } else {
-                                unreadMessages[Auth.auth().currentUser!.uid] = [message]
-                            }
+                        } else {
+                            unreadMessages[Auth.auth().currentUser!.uid] = [message]
                         }
-                        user.updateData([
-                            "unreadMessages": unreadMessages
-                        ]) { err in
-                            if let err = err {
-                                print("Hata oluştu: \(err)")
-                            } else{
-                                self.messageChatVC?.saveData()
-                                self.messageChatVC?.txtFieldMessage.text = ""
-                            }
+                    }
+                    user.updateData([
+                        "unreadMessages": unreadMessages
+                    ]) { err in
+                        if let err = err {
+                            print("Hata oluştu: \(err)")
+                        } else{
+                            messageChatVC.saveData()
+                            messageChatVC.txtFieldMessage.text = ""
                         }
                     }
                 }

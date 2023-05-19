@@ -76,16 +76,12 @@ class MatchNotification{
             self.remoteID = UInt(id) ?? UInt(0)
             
             lblRemoteUserName.text = name
-            
-            URLSession.shared.dataTask(with: url) { (data, response, error) in
-                    guard let data = data, error == nil else {
-                        print("Error loading image: \(error?.localizedDescription ?? "unknown error")")
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.imgProfilePhoto.image = UIImage(data: data)
-                    }
-                }.resume()
+            print(url.description)
+            matchNotificationViewModel.getProfileImage(withURL: url.description) { image in
+                DispatchQueue.main.async {
+                    self.imgProfilePhoto.image = image
+                }
+            }
             
             notificationView.notificationViewConstraints(view)
             imgProfilePhoto.imgProfilePhotoConstraints(notificationView)

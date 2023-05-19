@@ -17,6 +17,7 @@ class FriendsViewModel{
     let db = Firestore.firestore()
     
     func getFriendsID(){
+        guard let friendsVC = friendsVC else { return }
         if let currentUser = Auth.auth().currentUser{
             let userID = currentUser.uid
             let userCollection = db.collection("users").document(userID)
@@ -24,26 +25,26 @@ class FriendsViewModel{
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
                     let friendsRequests = userData?["friends"] as? [String] ?? []
-                    self.friendsVC?.userFriendsID = friendsRequests
+                    friendsVC.userFriendsID = friendsRequests
                 }
             }
         }
     }
     
     func getFriends(){
-        if friendsVC?.userFriendsID != []{
+        guard let friendsVC = friendsVC else { return }
+        if friendsVC.userFriendsID != []{
             let users = db.collection("users")
-            if let userFriendsID = friendsVC?.userFriendsID{
-                for userID in userFriendsID{
-                    let user = users.document(userID)
-                    user.getDocument { userDocument, userError in
-                        if let userDocument = userDocument, userDocument.exists{
-                            let userData = userDocument.data()
-                            let name = userData?["name"] as! String
-                            let profilePhoto = userData?["profilePhoto"] as! String
-                            self.friendsVC?.userFriends.append(User(userName: name, uid: userID, userPhoto: profilePhoto))
-                            
-                        }
+            let userFriendsID = friendsVC.userFriendsID
+            for userID in userFriendsID{
+                let user = users.document(userID)
+                user.getDocument { userDocument, userError in
+                    if let userDocument = userDocument, userDocument.exists{
+                        let userData = userDocument.data()
+                        let name = userData?["name"] as! String
+                        let profilePhoto = userData?["profilePhoto"] as! String
+                        friendsVC.userFriends.append(User(userName: name, uid: userID, userPhoto: profilePhoto))
+                        
                     }
                 }
             }

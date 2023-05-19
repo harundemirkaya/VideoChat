@@ -16,11 +16,12 @@ class RegisterViewModel{
     private let db = Firestore.firestore()
     
     func register(){
-        if let email = registerVC?.txtFieldEmail.text, let password = registerVC?.txtFieldPassword.text, let name = registerVC?.txtFieldName.text{
+        guard let registerVC = registerVC else { return }
+        if let email = registerVC.txtFieldEmail.text, let password = registerVC.txtFieldPassword.text, let name = registerVC.txtFieldName.text{
             var id = 0
             Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
                 if let error = error {
-                    self.registerVC?.alertMessage(title: "Error", description: error.localizedDescription)
+                    registerVC.alertMessage(title: "Error", description: error.localizedDescription)
                 } else {
                     let db = Firestore.firestore()
                     db.collection("usersID").document("XnRPhVQEm9NtD8vHuQ8b").getDocument { (document, error) in
@@ -36,7 +37,7 @@ class RegisterViewModel{
                                     "email": email
                                 ]) { error in
                                     if let error = error {
-                                        self.registerVC?.alertMessage(title: "Error", description: error.localizedDescription)
+                                        registerVC.alertMessage(title: "Error", description: error.localizedDescription)
                                     } else {
                                         db.collection("usersID").document("XnRPhVQEm9NtD8vHuQ8b").updateData([
                                             "id": id + 1
@@ -49,7 +50,7 @@ class RegisterViewModel{
                                         }
                                         let appTabBar = AppTabBarController()
                                         appTabBar.modalPresentationStyle = .fullScreen
-                                        self.registerVC?.present(appTabBar, animated: true)
+                                        registerVC.present(appTabBar, animated: true)
                                     }
                                 }
                             }

@@ -17,6 +17,7 @@ class FriendRequestsViewModel{
     private let db = Firestore.firestore()
     
     func getUserData(){
+        guard let friendRequestVC = friendRequestVC else { return }
         if let currentUser = Auth.auth().currentUser{
             let userID = currentUser.uid
             let userCollection = db.collection("users").document(userID)
@@ -24,25 +25,25 @@ class FriendRequestsViewModel{
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
                     let friendsRequests = userData?["friendsRequests"] as? [String] ?? []
-                    self.friendRequestVC?.userFriendsRequests = friendsRequests
+                    friendRequestVC.userFriendsRequests = friendsRequests
                 }
             }
         }
     }
     
     func setRequests(){
-        if friendRequestVC?.userFriendsRequests.count != 0{
+        guard let friendRequestVC = friendRequestVC else { return }
+        if friendRequestVC.userFriendsRequests.count != 0{
             let users = db.collection("users")
-            if let userFriendsRequests = friendRequestVC?.userFriendsRequests{
-                for userID in userFriendsRequests{
-                    let user = users.document(userID)
-                    user.getDocument { userDocument, userError in
-                        if let userDocument = userDocument, userDocument.exists{
-                            let userData = userDocument.data()
-                            let name = userData?["name"] as! String
-                            let profilePhoto = userData?["profilePhoto"] as! String
-                            self.friendRequestVC?.users.append(User(userName: name, uid: userID, userPhoto: profilePhoto))
-                        }
+            let userFriendsRequests = friendRequestVC.userFriendsRequests
+            for userID in userFriendsRequests{
+                let user = users.document(userID)
+                user.getDocument { userDocument, userError in
+                    if let userDocument = userDocument, userDocument.exists{
+                        let userData = userDocument.data()
+                        let name = userData?["name"] as! String
+                        let profilePhoto = userData?["profilePhoto"] as! String
+                        friendRequestVC.users.append(User(userName: name, uid: userID, userPhoto: profilePhoto))
                     }
                 }
             }
@@ -93,6 +94,7 @@ class FriendRequestsViewModel{
     }
     
     func removeRequest(_ sender: UIButton){
+        guard let friendRequestVC = friendRequestVC else { return }
         if let currentUser = Auth.auth().currentUser{
             let userID = currentUser.uid
             let userCollection = db.collection("users").document(userID)
@@ -100,16 +102,15 @@ class FriendRequestsViewModel{
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
                     var friendsRequests = userData?["friendsRequests"] as? [String] ?? []
-                    if let uid = self.friendRequestVC?.users[sender.tag].uid{
-                        friendsRequests.removeAll(where: { $0 == uid})
-                        userCollection.updateData([
-                            "friendsRequests": friendsRequests
-                        ]) { err in
-                            if let err = err {
-                                print("Hata oluştu: \(err)")
-                            } else{
-                                self.friendRequestVC?.users.remove(at: sender.tag)
-                            }
+                    let uid = friendRequestVC.users[sender.tag].uid
+                    friendsRequests.removeAll(where: { $0 == uid})
+                    userCollection.updateData([
+                        "friendsRequests": friendsRequests
+                    ]) { err in
+                        if let err = err {
+                            print("Hata oluştu: \(err)")
+                        } else{
+                            friendRequestVC.users.remove(at: sender.tag)
                         }
                     }
                 }

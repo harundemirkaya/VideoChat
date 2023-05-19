@@ -28,22 +28,24 @@ class MatchHomeViewModel{
     
     // MARK: -Get Token Funcs
     func getTokenPublisher(_ userID: UInt, isCustom: Bool = false, customChannelID: UInt = UInt(0)){
+        guard let matchHomeVC = matchHomeVC else { return }
         let id = isCustom ? customChannelID : userID
         urlString = "http://213.238.190.166:3169/rte/\(id)CHANNEL/publisher/userAccount/\(id)/?expiry=3600"
         networkManager.tokenURL = urlString
-        networkManager.fetchToken { [weak self] result in
+        networkManager.fetchToken { result in
             if result.response?.statusCode == 200{
-                self?.matchHomeVC?.publisherToken = result.value?.rtcToken
+                matchHomeVC.publisherToken = result.value?.rtcToken
             }
         }
     }
     
     func getTokenListener(_ userID: UInt, channelName: String){
+        guard let matchHomeVC = matchHomeVC else { return }
         urlString = "http://213.238.190.166:3169/rte/\(channelName)/publisher/userAccount/\(userID)/?expiry=3600"
         networkManager.tokenURL = urlString
-        networkManager.fetchToken { [weak self] result in
+        networkManager.fetchToken { result in
             if result.response?.statusCode == 200{
-                self?.matchHomeVC?.listenerToken = result.value?.rtcToken
+                matchHomeVC.listenerToken = result.value?.rtcToken
             }
         }
     }
@@ -347,6 +349,7 @@ class MatchHomeViewModel{
     }
     
     func listenMatchRequest(){
+        guard let matchHomeVC = matchHomeVC else { return }
         if let currentUser = Auth.auth().currentUser{
             let userDocument = db.collection("users").document(currentUser.uid)
             userDocument.addSnapshotListener { userDocument, userError in
@@ -361,7 +364,7 @@ class MatchHomeViewModel{
                                         let userData = userDocument.data()
                                         let profilePhoto = userData?["profilePhoto"] as? String
                                         let name = userData?["name"] as? String
-                                        self.matchHomeVC?.handleMatchNotification(name: name, url: URL(string: profilePhoto ?? ""), matchRequestID: matchRequest[1])
+                                        matchHomeVC.handleMatchNotification(name: name, url: URL(string: profilePhoto ?? ""), matchRequestID: matchRequest[1])
                                         self.listenChatState("\(matchRequest[1])CHANNEL", isCustomListener: true)
                                     }
                                 }
