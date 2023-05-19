@@ -40,12 +40,47 @@ class FriendsViewModel{
                         if let userDocument = userDocument, userDocument.exists{
                             let userData = userDocument.data()
                             let name = userData?["name"] as! String
-                            self.friendsVC?.userFriends.append(User(userName: name, uid: userID))
+                            let profilePhoto = userData?["profilePhoto"] as! String
+                            self.friendsVC?.userFriends.append(User(userName: name, uid: userID, userPhoto: profilePhoto))
                             
                         }
                     }
                 }
             }
         }
+    }
+    
+    func getProfileImage(withURL imageURL: String, completion: @escaping (UIImage?) -> Void) {
+        guard let friendsVC = friendsVC else { return }
+        if let cachedImage = ImageCache.shared.getImage(forKey: imageURL) {
+            completion(cachedImage)
+        } else {
+            downloadImage(from: imageURL) { image in
+                if let image = image {
+                    ImageCache.shared.setImage(image, forKey: imageURL)
+                }
+                completion(image)
+                DispatchQueue.main.async {
+                    friendsVC.reloadTableData()
+                }
+            }
+        }
+    }
+    
+    private func downloadImage(from imageURL: String, completion: @escaping (UIImage?) -> Void) {
+        guard let url = URL(string: imageURL) else {
+            completion(nil)
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data, error == nil else {
+                completion(nil)
+                return
+            }
+            
+            let image = UIImage(data: data)
+            completion(image)
+        }.resume()
     }
 }

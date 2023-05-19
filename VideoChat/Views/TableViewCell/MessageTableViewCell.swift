@@ -11,10 +11,8 @@ class MessageTableViewCell: UITableViewCell {
     
     let userImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
-        imageView.layer.cornerRadius = 25
-        imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
         return imageView
     }()
 
@@ -49,31 +47,38 @@ class MessageTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        addSubview(userImageView)
-        addSubview(userNameLabel)
-        addSubview(messageLabel)
-        addSubview(btnUnread)
+        contentView.addSubview(userImageView)
+        contentView.addSubview(userNameLabel)
+        contentView.addSubview(messageLabel)
+        contentView.addSubview(btnUnread)
         
         NSLayoutConstraint.activate([
-            userImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            userImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            userImageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            userImageView.widthAnchor.constraint(equalToConstant: 50),
-            userImageView.heightAnchor.constraint(equalToConstant: 50)
+            userImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            userImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            userImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            userImageView.widthAnchor.constraint(lessThanOrEqualToConstant: 50),
+            userImageView.heightAnchor.constraint(lessThanOrEqualToConstant: 50)
         ])
         
         NSLayoutConstraint.activate([
-            userNameLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            userNameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             userNameLabel.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 10),
-            userNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            userNameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             messageLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: 0),
             messageLabel.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 10),
-            messageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            messageLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            btnUnread.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            btnUnread.centerYAnchor.constraint(equalTo: centerYAnchor)
+            messageLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            messageLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            btnUnread.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            btnUnread.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
     }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        userImageView.layer.cornerRadius = userImageView.bounds.height / 2
+        userImageView.layer.masksToBounds = true
+    }
+
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

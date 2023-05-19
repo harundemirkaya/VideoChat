@@ -10,10 +10,11 @@ import Foundation
 class User{
     var uid: String
     var userName: String
-    // var userPhoto
+    var userPhoto: String
     
-    init(userName: String, uid: String) {
+    init(userName: String, uid: String, userPhoto: String) {
         self.userName = userName
         self.uid = uid
+        self.userPhoto = userPhoto
     }
 }

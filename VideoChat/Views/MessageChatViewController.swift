@@ -71,7 +71,6 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     private let imgViewUserPhoto: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.image = UIImage(named: "profile-photo")
         imageView.contentMode = .scaleAspectFit
         imageView.layer.cornerRadius = 25
         imageView.clipsToBounds = true
@@ -112,7 +111,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     
     var stackViewBottomAnchor = NSLayoutConstraint()
     
-    var remoteUser = User(userName: "", uid: "")
+    var remoteUser = User(userName: "", uid: "", userPhoto: "")
     
     var messages = [Message]()
     
@@ -184,6 +183,14 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
+        
+        self.profilePhotoCheck()
+    }
+    
+    private func profilePhotoCheck(){
+        messageChatViewModel.getProfileImage(withURL: remoteUser.userPhoto) { image in
+            self.imgViewUserPhoto.image = image
+        }
     }
     
     @objc func btnVideoCallTarget(){

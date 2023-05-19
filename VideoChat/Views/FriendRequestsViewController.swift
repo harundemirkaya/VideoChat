@@ -89,6 +89,10 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
         btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
     }
     
+    func reloadTableData(){
+        self.tableView.reloadData()
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1){
             if self.users.count == 0{
@@ -105,7 +109,12 @@ class FriendRequestsViewController: UIViewController, UITableViewDelegate, UITab
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FriendsRequestsTableViewCell", for: indexPath) as! FriendsRequestsTableViewCell
         if users.count != 0{
-            cell.userImageView.image = UIImage(named: "profile-photo")
+            friendRequestsViewModel.getProfileImage(withURL: users[indexPath.row].userPhoto) { image in
+                DispatchQueue.main.async {
+                    cell.imageView?.image = image
+                    cell.imageView?.contentMode = .scaleAspectFit
+                }
+            }
             cell.userNameLabel.text = users[indexPath.row].userName
             cell.btnConfirm.tag = indexPath.row
             cell.btnDelete.tag = indexPath.row

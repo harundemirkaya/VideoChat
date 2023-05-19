@@ -68,6 +68,10 @@ class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewD
         btnBack.addTarget(self, action: #selector(btnBackTarget), for: .touchUpInside)
     }
     
+    func reloadTableData(){
+        self.tableView.reloadData()
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return userFriends.count
     }
@@ -77,7 +81,12 @@ class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         cell.selectedBackgroundView = UIView()
         cell.selectedBackgroundView?.backgroundColor = .clear
-        cell.userImageView.image = UIImage(named: "profile-photo")
+        friendsViewModel.getProfileImage(withURL: userFriends[indexPath.row].userPhoto) { image in
+            DispatchQueue.main.async {
+                cell.userImageView.image = image
+                cell.userImageView.contentMode = .scaleAspectFit
+            }
+        }
         cell.userNameLabel.text = userFriends[indexPath.row].userName
         
         return cell
@@ -92,6 +101,7 @@ class FriendsViewController: UIViewController, UITableViewDelegate, UITableViewD
         messageChatVC.modalPresentationStyle = .fullScreen
         messageChatVC.remoteUser.userName = userFriends[indexPath.row].userName
         messageChatVC.remoteUser.uid = userFriends[indexPath.row].uid
+        messageChatVC.remoteUser.userPhoto = userFriends[indexPath.row].userPhoto
         present(messageChatVC, animated: true)
     }
     

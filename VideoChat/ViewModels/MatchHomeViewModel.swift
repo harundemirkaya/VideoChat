@@ -397,6 +397,8 @@ class MatchHomeViewModel{
     }
     
     func confirmRequest(_ uid: String){
+        ImageCache.shared.getProfilePhotoURL(uid)
+        
         if let currentUser = Auth.auth().currentUser{
             let userID = currentUser.uid
             let userCollection = db.collection("users").document(userID)

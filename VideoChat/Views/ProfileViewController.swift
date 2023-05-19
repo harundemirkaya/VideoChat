@@ -191,7 +191,9 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        imgProfilePhoto.image = info[.editedImage] as? UIImage
+        guard var image = info[.editedImage] as? UIImage else { return }
+        image = cropImageToCircle(image)
+        imgProfilePhoto.image = image
         let storage = Storage.storage()
         let storageReference = storage.reference()
         
@@ -199,7 +201,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         
         let id = UUID().uuidString
         
-        if let data = imgProfilePhoto.image?.jpegData(compressionQuality: 0.5){
+        if let data = image.jpegData(compressionQuality: 0.5){
             let imageReference = mediaFolder.child("\(id).jpg")
             imageReference.putData(data) { StorageMetadata, error in
                 if error != nil{
@@ -207,7 +209,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
                 } else{
                     imageReference.downloadURL { url, error in
                         if error == nil{
-                            let imageUrl = url?.absoluteString
+                            let imageUrl = url?.absoluteString  
                             if let imageUrl = imageUrl{
                                 self.profileViewModel.getUserProfilePhotoURL { oldPhotoURL in
                                     self.profileViewModel.updateProfilePhoto(imageUrl, oldImageURL: oldPhotoURL)
@@ -219,6 +221,22 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
             }
         }
         picker.dismiss(animated: true)
+    }
+    
+    func cropImageToCircle(_ image: UIImage) -> UIImage {
+        let imageView = UIImageView(image: image)
+        imageView.frame = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = image.size.width / 2.0
+        
+        UIGraphicsBeginImageContextWithOptions(image.size, false, 0.0)
+        let context = UIGraphicsGetCurrentContext()!
+        imageView.layer.render(in: context)
+        let croppedImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        
+        return croppedImage
     }
     
     @objc func btnUpdateNameOrEmailTarget(){

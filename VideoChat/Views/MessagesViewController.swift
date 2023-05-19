@@ -104,14 +104,17 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
                 for result in results as! [NSManagedObject]{
                     if let remoteUser = result.value(forKey: "remoteUsername"){
                         if let remoteUserID = result.value(forKey: "remoteID"){
-                            let newUser = User(userName: remoteUser as! String, uid: remoteUserID as! String)
-                            if !recentlyChat.contains(where: { $0.uid == newUser.uid }) {
-                                recentlyChat.append(newUser)
+                            messagesViewModel.getProfilePhotoURL(remoteUserID as? String ?? "") { profilePhoto in
+                                guard let profilePhoto = profilePhoto else { return }
+                                let newUser = User(userName: remoteUser as! String, uid: remoteUserID as! String, userPhoto: profilePhoto)
+                                if !self.recentlyChat.contains(where: { $0.uid == newUser.uid }) {
+                                    self.recentlyChat.append(newUser)
+                                    self.tableView.reloadData()
+                                }
                             }
                         }
                     }
                 }
-                tableView.reloadData()
             }
         } catch{
             print("error")
@@ -137,8 +140,15 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         }
         cell.selectedBackgroundView = UIView()
         cell.selectedBackgroundView?.backgroundColor = .clear
-        cell.userImageView.image = UIImage(named: "profile-photo")
-        cell.userNameLabel.text = recentlyChat[indexPath.row].userName
+        
+        messagesViewModel.getProfileImage(withURL: recentlyChat[indexPath.row].userPhoto) { image in
+            DispatchQueue.main.async {
+                cell.imageView?.image = image
+                cell.imageView?.contentMode = .scaleAspectFit
+            }
+        }
+        
+        cell.userNameLabel.text = self.recentlyChat[indexPath.row].userName
         cell.messageLabel.text = "Recently Chat"
         
         return cell
@@ -149,6 +159,7 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         messageChatVC.modalPresentationStyle = .fullScreen
         messageChatVC.remoteUser.userName = recentlyChat[indexPath.row].userName
         messageChatVC.remoteUser.uid = recentlyChat[indexPath.row].uid
+        messageChatVC.remoteUser.userPhoto = recentlyChat[indexPath.row].userPhoto
         present(messageChatVC, animated: true)
         recentlyChatCount.removeValue(forKey: recentlyChat[indexPath.row].uid)
     }

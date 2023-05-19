@@ -40,7 +40,8 @@ class FriendRequestsViewModel{
                         if let userDocument = userDocument, userDocument.exists{
                             let userData = userDocument.data()
                             let name = userData?["name"] as! String
-                            self.friendRequestVC?.users.append(User(userName: name, uid: userID))
+                            let profilePhoto = userData?["profilePhoto"] as! String
+                            self.friendRequestVC?.users.append(User(userName: name, uid: userID, userPhoto: profilePhoto))
                         }
                     }
                 }
@@ -49,6 +50,8 @@ class FriendRequestsViewModel{
     }
     
     func confirmRequest(_ sender: UIButton){
+        guard let friendRequestVC = friendRequestVC else { return }
+        ImageCache.shared.getProfilePhotoURL(friendRequestVC.users[sender.tag].uid)
         if let currentUser = Auth.auth().currentUser{
             let userID = currentUser.uid
             let userCollection = db.collection("users").document(userID)
@@ -56,34 +59,34 @@ class FriendRequestsViewModel{
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
                     var userFriends = userData?["friends"] as? [String] ?? []
-                    if let uid = self.friendRequestVC?.users[sender.tag].uid{
-                        userFriends.append(uid)
-                        userCollection.updateData([
-                            "friends": userFriends
-                        ]) { err in
-                            if let err = err {
-                                print("Hata oluştu: \(err)")
-                            } else {
-                                let remoteUserCollection = self.db.collection("users").document(uid)
-                                remoteUserCollection.getDocument { userDocument, userError in
-                                    if let userDocument = userDocument, userDocument.exists{
-                                        let userData = userDocument.data()
-                                        var userFriends = userData?["friends"] as? [String] ?? []
-                                        userFriends.append(userID)
-                                        remoteUserCollection.updateData([
-                                            "friends": userFriends
-                                        ]) { err in
-                                            if let err = err {
-                                                print("Hata oluştu: \(err)")
-                                            } else{
-                                                self.removeRequest(sender)
-                                            }
+                    let uid = friendRequestVC.users[sender.tag].uid
+                    userFriends.append(uid)
+                    userCollection.updateData([
+                        "friends": userFriends
+                    ]) { err in
+                        if let err = err {
+                            print("Hata oluştu: \(err)")
+                        } else {
+                            let remoteUserCollection = self.db.collection("users").document(uid)
+                            remoteUserCollection.getDocument { userDocument, userError in
+                                if let userDocument = userDocument, userDocument.exists{
+                                    let userData = userDocument.data()
+                                    var userFriends = userData?["friends"] as? [String] ?? []
+                                    userFriends.append(userID)
+                                    remoteUserCollection.updateData([
+                                        "friends": userFriends
+                                    ]) { err in
+                                        if let err = err {
+                                            print("Hata oluştu: \(err)")
+                                        } else{
+                                            self.removeRequest(sender)
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                    
                 }
             }
         }
@@ -112,5 +115,39 @@ class FriendRequestsViewModel{
                 }
             }
         }
+    }
+    
+    func getProfileImage(withURL imageURL: String, completion: @escaping (UIImage?) -> Void) {
+        guard let friendRequestVC = friendRequestVC else { return }
+        if let cachedImage = ImageCache.shared.getImage(forKey: imageURL) {
+            completion(cachedImage)
+        } else {
+            downloadImage(from: imageURL) { image in
+                if let image = image {
+                    ImageCache.shared.setImage(image, forKey: imageURL)
+                }
+                completion(image)
+                DispatchQueue.main.async {
+                    friendRequestVC.reloadTableData()
+                }
+            }
+        }
+    }
+    
+    private func downloadImage(from imageURL: String, completion: @escaping (UIImage?) -> Void) {
+        guard let url = URL(string: imageURL) else {
+            completion(nil)
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data, error == nil else {
+                completion(nil)
+                return
+            }
+            
+            let image = UIImage(data: data)
+            completion(image)
+        }.resume()
     }
 }
