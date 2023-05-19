@@ -132,14 +132,18 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
-        setupViews()
-        self.fetchData()
-        
-        currentUserID = messageChatViewModel.getCurrentUserID()
-        messageChatViewModel.getUserUDID(completion: { [weak self] value in
-            guard let value = value else { return }
-            self?.currentUserUID = value
-        })
+        messageChatViewModel.getCurrentUserID { [weak self] userID in
+            guard let self = self, let userID = userID else { return }
+            self.currentUserID = userID
+            
+            self.setupViews()
+            self.fetchData()
+            
+            self.messageChatViewModel.getUserUDID(completion: { value in
+                guard let value = value else { return }
+                self.currentUserUID = value
+            })
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {

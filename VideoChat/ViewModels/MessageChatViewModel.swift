@@ -86,11 +86,10 @@ class MessageChatViewModel{
         }
     }
     
-    func getCurrentUserID() -> String{
+    func getCurrentUserID(completion: @escaping (String?) -> Void) {
         if let currentUser = Auth.auth().currentUser{
-            return currentUser.uid
+            completion(currentUser.uid)
         }
-        return ""
     }
     
     func getUserUDID(completion: @escaping (UInt?) -> Void) {

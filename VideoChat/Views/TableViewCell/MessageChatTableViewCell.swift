@@ -36,7 +36,7 @@ class MessageChatTableViewCell: UITableViewCell {
     var leadingConstraint: NSLayoutConstraint!
     var trailingConstraint: NSLayoutConstraint!
     
-    var isCurrentUser: Bool = false
+    var isCurrentUser = Bool()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
