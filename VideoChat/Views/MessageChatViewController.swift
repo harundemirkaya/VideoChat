@@ -145,6 +145,11 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     override func viewWillAppear(_ animated: Bool) {
         messageChatViewModel.getUnreadMessages()
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        messages = [Message]()
+        messageChatViewModel.removeMessagesListener()
+    }
 
     private func setupViews(){
         // MARK: for Remote User
@@ -189,7 +194,9 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     
     private func profilePhotoCheck(){
         messageChatViewModel.getProfileImage(withURL: remoteUser.userPhoto) { image in
-            self.imgViewUserPhoto.image = image
+            DispatchQueue.main.async {
+                self.imgViewUserPhoto.image = image
+            }
         }
     }
     

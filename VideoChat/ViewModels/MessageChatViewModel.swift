@@ -16,13 +16,15 @@ class MessageChatViewModel{
     
     private let db = Firestore.firestore()
     
+    var messagesListener: ListenerRegistration? = nil
+    
     func getUnreadMessages(){
         guard let messageChatVC = messageChatVC else { return }
         if let currentUser = Auth.auth().currentUser{
             let users = db.collection("users")
             let user = users.document(currentUser.uid)
             
-            user.addSnapshotListener { userDocument, userError in
+            messagesListener = user.addSnapshotListener { userDocument, userError in
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
                     var unreadMessages = userData?["unreadMessages"] as? [String:[String]] ?? [:]
@@ -44,6 +46,11 @@ class MessageChatViewModel{
                 }
             }
         }
+    }
+    
+    func removeMessagesListener(){
+        guard let messagesListener = self.messagesListener else { return }
+        messagesListener.remove()
     }
     
     func sendMessage(){

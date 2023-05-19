@@ -63,6 +63,7 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
     
     override func viewDidDisappear(_ animated: Bool) {
         recentlyChat = [User]()
+        messagesViewModel.removeMessagesListener()
     }
         
     private func setupViews(){

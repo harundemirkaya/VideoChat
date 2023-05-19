@@ -17,11 +17,13 @@ class MessagesViewModel{
     
     let db = Firestore.firestore()
     
+    var messagesListener: ListenerRegistration? = nil
+    
     func getUnreadMessags(){
         guard let messagesVC = messagesVC else { return }
         if let currentUser = Auth.auth().currentUser{
             let usersCollection = db.collection("users").document(currentUser.uid)
-            usersCollection.addSnapshotListener { [weak self] userDocument, userError in
+            messagesListener = usersCollection.addSnapshotListener { [weak self] userDocument, userError in
                 guard let self = self else { return }
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
@@ -44,6 +46,11 @@ class MessagesViewModel{
                 }
             }
         }
+    }
+    
+    func removeMessagesListener(){
+        guard let messagesListener = self.messagesListener else { return }
+        messagesListener.remove()
     }
     
     func getProfileImage(withURL imageURL: String, completion: @escaping (UIImage?) -> Void) {
