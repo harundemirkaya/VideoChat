@@ -8,6 +8,8 @@
 import UIKit
 import AVFoundation
 import AgoraRtcKit
+import CoreML
+import Vision
 
 class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, UIGestureRecognizerDelegate, UITabBarControllerDelegate {
     
@@ -373,6 +375,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     func setupLocalVideo() {
         agoraEngine.enableVideo()
         agoraEngine.startPreview()
+        agoraEngine.setVideoFrameDelegate(self)
         agoraEngine.setCameraFocusPositionInPreview(CGPoint(x: 0.5, y: 0.5))
         agoraEngine.setCameraExposurePosition(CGPoint(x: 0.5, y: 0.5))
         let config = AgoraVideoEncoderConfiguration(size: AgoraVideoDimension1280x720, frameRate: .fps30, bitrate: AgoraVideoBitrateStandard, orientationMode: .adaptative, mirrorMode: .disabled)
@@ -507,6 +510,73 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
             alert.dismiss(animated: true, completion: nil)
         })
     }
+    
+    // MARK: -AI
+    private func detectFace(image: CVPixelBuffer){
+        let faceDetectionRequest = VNDetectFaceLandmarksRequest { vnRequest, error in
+            DispatchQueue.main.async {
+                if let results = vnRequest.results as? [VNFaceObservation], results.count > 0{
+                    if let firstFaceObservation = results.first {
+                        // Tespit edilen ilk yüzü alın
+                        let faceImage = self.cropFaceImage(from: image, with: firstFaceObservation)
+                        // Tespit edilen yüzü detectGender fonksiyonuna gönder
+                        self.detectGender(image: faceImage)
+                    }
+                }
+            }
+        }
+        
+        let imageResultHander = VNImageRequestHandler(cvPixelBuffer: image, orientation: .leftMirrored, options: [:])
+        try? imageResultHander.perform([faceDetectionRequest])
+    }
+    
+    private func cropFaceImage(from image: CVPixelBuffer, with observation: VNFaceObservation) -> CIImage {
+        let ciImage = CIImage(cvPixelBuffer: image)
+        
+        let boundingBox = observation.boundingBox
+        let imageSize = ciImage.extent.size
+        
+        let faceRect = CGRect(x: boundingBox.origin.x * imageSize.width,
+                              y: (1 - boundingBox.origin.y - boundingBox.size.height) * imageSize.height,
+                              width: boundingBox.size.width * imageSize.width,
+                              height: boundingBox.size.height * imageSize.height)
+        
+        let faceImage = ciImage.cropped(to: faceRect)
+        
+        return faceImage
+    }
+    
+    func detectGender(image: CIImage) {
+        let config = MLModelConfiguration()
+        config.allowLowPrecisionAccumulationOnGPU = false
+        config.computeUnits = MLComputeUnits.cpuOnly
+        guard let model = try? VNCoreMLModel(for: GenderClass_1(configuration: config).model) else {
+            fatalError("can't load GenderNet model")
+        }
+        // Create request for Vision Core ML model created
+        let request = VNCoreMLRequest(model: model) { request, error in
+            guard let results = request.results as? [VNClassificationObservation], let topResult = results.first else {
+                fatalError("unexpected result type from VNCoreMLRequest")
+            }
+            
+            // Update UI on main queue
+            DispatchQueue.main.async {
+                if Double(topResult.confidence) > 0.99{
+                    print(topResult.identifier)
+                }
+            }
+        }
+        
+        // Run the Core ML AgeNet classifier on global dispatch queue
+        let handler = VNImageRequestHandler(ciImage: image)
+        DispatchQueue.global(qos: .userInteractive).async {
+            do {
+                try handler.perform([request])
+            } catch {
+                print(error)
+            }
+        }
+    }
 }
 
 private extension UIView{
@@ -572,5 +642,13 @@ private extension UIView{
         view.addSubview(self)
         centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         bottomAnchor.constraint(equalTo: btnConfirm.topAnchor, constant: -20).isActive = true
+    }
+}
+
+extension MatchHomeViewController: AgoraVideoFrameDelegate{
+    func onCapture(_ videoFrame: AgoraOutputVideoFrame) -> Bool {
+        guard let pixelBuffer = videoFrame.pixelBuffer else { return false }
+        detectFace(image: pixelBuffer)
+        return true
     }
 }
