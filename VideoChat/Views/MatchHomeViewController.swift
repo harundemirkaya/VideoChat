@@ -373,6 +373,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     func setupLocalVideo() {
         agoraEngine.enableVideo()
         agoraEngine.startPreview()
+        agoraEngine.setCameraFocusPositionInPreview(CGPoint(x: 0.5, y: 0.5))
+        agoraEngine.setCameraExposurePosition(CGPoint(x: 0.5, y: 0.5))
+        let config = AgoraVideoEncoderConfiguration(size: AgoraVideoDimension1280x720, frameRate: .fps30, bitrate: AgoraVideoBitrateStandard, orientationMode: .adaptative, mirrorMode: .disabled)
+        agoraEngine.setVideoEncoderConfiguration(config)
         let videoCanvas = AgoraRtcVideoCanvas()
         videoCanvas.uid = 0
         videoCanvas.renderMode = .hidden
