@@ -177,6 +177,24 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     var userInfo = [AnyHashable : Any]()
     
+    private lazy var captureCount = 0
+    private var genderPrediction: [String] = []{
+        didSet{
+            if genderPrediction.count == 99{
+                var maleCount = 0
+                var femaleCount = 0
+                for genderPredict in genderPrediction{
+                    if genderPredict == "male"{
+                        maleCount += 1
+                    } else if genderPredict == "female"{
+                        femaleCount += 1
+                    }
+                }
+                print((femaleCount > maleCount) ? "female" : "male")
+            }
+        }
+    }
+    
     let matchNotification = MatchNotification()
     
     // MARK: -LifeCycle
@@ -562,7 +580,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
             // Update UI on main queue
             DispatchQueue.main.async {
                 if Double(topResult.confidence) > 0.99{
-                    print(topResult.identifier)
+                    self.genderPrediction.append(topResult.identifier)
+                    self.captureCount += 1
                 }
             }
         }
@@ -647,6 +666,9 @@ private extension UIView{
 
 extension MatchHomeViewController: AgoraVideoFrameDelegate{
     func onCapture(_ videoFrame: AgoraOutputVideoFrame) -> Bool {
+        guard captureCount < 99 else {
+            return false
+        }
         guard let pixelBuffer = videoFrame.pixelBuffer else { return false }
         detectFace(image: pixelBuffer)
         return true
