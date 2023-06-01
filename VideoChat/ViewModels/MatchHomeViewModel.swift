@@ -495,4 +495,17 @@ class MatchHomeViewModel{
             }
         }
     }
+    
+    func setUserGender(_ gender: String){
+        if let currentUser = Auth.auth().currentUser{
+            let channelsCollectionDocument = db.collection("users").document(currentUser.uid)
+            channelsCollectionDocument.updateData([
+                "gender": gender
+            ]) { err in
+                if let err = err {
+                    print("Error updating document: \(err)")
+                }
+            }
+        }
+    }
 }

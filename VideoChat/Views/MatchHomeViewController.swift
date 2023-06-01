@@ -190,7 +190,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                         femaleCount += 1
                     }
                 }
-                print((femaleCount > maleCount) ? "female" : "male")
+                matchHomeViewModel.setUserGender((femaleCount > maleCount) ? "female" : "male")
             }
         }
     }
