@@ -11,5 +11,4 @@ target 'VideoChat' do
   pod 'FirebaseFirestore'
   pod 'FirebaseStorage'
   pod 'Alamofire'
-  pod 'VisionLab', git: 'https://github.com/cocoa-ai/VisionLab'
 end
