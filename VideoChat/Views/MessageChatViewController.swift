@@ -354,6 +354,8 @@ private extension UIView{
         view.addSubview(self)
         centerYAnchor.constraint(equalTo: imgViewUserPhoto.centerYAnchor).isActive = true
         leadingAnchor.constraint(equalTo: imgViewUserPhoto.leadingAnchor, constant: -30).isActive = true
+        widthAnchor.constraint(equalToConstant: 44).isActive = true
+        heightAnchor.constraint(equalToConstant: 44).isActive = true
     }
     
     func lblUsernameConstraints(_ view: UIView, imgViewUserPhoto: UIImageView){

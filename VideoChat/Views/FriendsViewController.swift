@@ -121,6 +121,8 @@ private extension UIView{
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
         leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
+        widthAnchor.constraint(equalToConstant: 44).isActive = true
+        heightAnchor.constraint(equalToConstant: 44).isActive = true
     }
     
     func tableViewConstraints(_ view: UIView, lblTitle: UILabel){

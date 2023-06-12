@@ -37,6 +37,8 @@
 		4FCA50B929C5F31E00E0DC8E /* gender.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FCA50B529C5F31E00E0DC8E /* gender.png */; };
 		4FCA50BD29C6159B00E0DC8E /* FriendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCA50BC29C6159B00E0DC8E /* FriendsViewController.swift */; };
 		4FCA50BF29C616B000E0DC8E /* FriendsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCA50BE29C616B000E0DC8E /* FriendsTableViewCell.swift */; };
+		4FCEF3AC2A37400A00E31378 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEF3AB2A37400A00E31378 /* UIColor+Extensions.swift */; };
+		4FCEF3AE2A37480000E31378 /* UILabel+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEF3AD2A37480000E31378 /* UILabel+Extensions.swift */; };
 		4FDB18AC29D0894A009E246E /* Messages.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4FDB18AA29D0894A009E246E /* Messages.xcdatamodeld */; };
 		4FE3723329CCACB90095EDAD /* FriendRequestsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE3723229CCACB90095EDAD /* FriendRequestsViewController.swift */; };
 		4FE3723529CCB6BA0095EDAD /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE3723429CCB6BA0095EDAD /* User.swift */; };
@@ -85,6 +87,8 @@
 		4FCA50B529C5F31E00E0DC8E /* gender.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gender.png; sourceTree = "<group>"; };
 		4FCA50BC29C6159B00E0DC8E /* FriendsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsViewController.swift; sourceTree = "<group>"; };
 		4FCA50BE29C616B000E0DC8E /* FriendsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsTableViewCell.swift; sourceTree = "<group>"; };
+		4FCEF3AB2A37400A00E31378 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
+		4FCEF3AD2A37480000E31378 /* UILabel+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+Extensions.swift"; sourceTree = "<group>"; };
 		4FDB18AB29D0894A009E246E /* Messages.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Messages.xcdatamodel; sourceTree = "<group>"; };
 		4FE3723229CCACB90095EDAD /* FriendRequestsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRequestsViewController.swift; sourceTree = "<group>"; };
 		4FE3723429CCB6BA0095EDAD /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -124,6 +128,7 @@
 		4F4691552A14CDCE00EF3F56 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				4FCEF3AA2A373FF600E31378 /* Extensions */,
 				4F4691562A14CDD600EF3F56 /* ImageCache.swift */,
 			);
 			path = Helpers;
@@ -258,6 +263,15 @@
 				4F404CB629D4914500164DBF /* MessageChatTableViewCell.swift */,
 			);
 			path = TableViewCell;
+			sourceTree = "<group>";
+		};
+		4FCEF3AA2A373FF600E31378 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				4FCEF3AB2A37400A00E31378 /* UIColor+Extensions.swift */,
+				4FCEF3AD2A37480000E31378 /* UILabel+Extensions.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 		5300D41ABFE6A96BBD39671F /* Frameworks */ = {
@@ -398,6 +412,7 @@
 				4FF30B2529E30FED006AA02C /* ProfileViewModel.swift in Sources */,
 				4F05C8CE29EAC1C600D4420A /* MatchNotification.swift in Sources */,
 				4FC6250629BD17AF00698116 /* NetworkManager.swift in Sources */,
+				4FCEF3AC2A37400A00E31378 /* UIColor+Extensions.swift in Sources */,
 				4FDB18AC29D0894A009E246E /* Messages.xcdatamodeld in Sources */,
 				4FF30B2B29E3137D006AA02C /* MessageChatViewModel.swift in Sources */,
 				4FCA50BD29C6159B00E0DC8E /* FriendsViewController.swift in Sources */,
@@ -420,6 +435,7 @@
 				4FA2967629C5D57200398BFE /* TabBar.swift in Sources */,
 				4FF30B2929E312A1006AA02C /* FriendsViewModel.swift in Sources */,
 				4FF30B2329E30DE6006AA02C /* RegisterViewModel.swift in Sources */,
+				4FCEF3AE2A37480000E31378 /* UILabel+Extensions.swift in Sources */,
 				4F40F1932A02E23100E8C1BC /* BusyNotification.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
