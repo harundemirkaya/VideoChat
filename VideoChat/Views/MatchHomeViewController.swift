@@ -46,6 +46,13 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         return view
     }()
     
+    var smallLocalViewVideo: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 60
+        return view
+    }()
+    
     var remoteViewVideo: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -82,30 +89,33 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     var btnPremium: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(named: "coin"), for: .normal)
+        btn.setImage(UIImage(systemName: "bitcoinsign.circle.fill"), for: .normal)
+        btn.tintColor = .primary()
         btn.setTitle("  0 Coin  ", for: .normal)
         btn.backgroundColor = .black.withAlphaComponent(0.8)
-        btn.layer.cornerRadius = 20
+        btn.layer.cornerRadius = 15
         return btn
     }()
     
     var btnGender: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(named: "gender"), for: .normal)
+        btn.setImage(UIImage(systemName: "person.crop.circle.dashed"), for: .normal)
+        btn.tintColor  = .primary()
         btn.setTitle("  Female  ", for: .normal)
         btn.backgroundColor = .black.withAlphaComponent(0.8)
-        btn.layer.cornerRadius = 20
+        btn.layer.cornerRadius = 15
         return btn
     }()
     
     var btnAddFriend: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(named: "add-friends"), for: .normal)
+        btn.setImage(UIImage(systemName: "person.fill.badge.plus"), for: .normal)
+        btn.tintColor = .primary()
         btn.setTitle("  Add Friend ", for: .normal)
         btn.backgroundColor = .black.withAlphaComponent(0.8)
-        btn.layer.cornerRadius = 20
+        btn.layer.cornerRadius = 15
         return btn
     }()
     
@@ -223,7 +233,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     override func viewWillAppear(_ animated: Bool) {
         initializeAgoraEngine()
-        setupLocalVideo()
+        setupLocalVideo(localViewVideo)
     }
     
     // MARK: -Views Config
@@ -231,12 +241,14 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         remoteView.viewsConstraints(view)
         localView.viewsConstraints(view)
         localViewVideo.viewsConstraints(localView)
+        smallLocalViewVideo.smallLocalViewVideoConstraints(remoteView)
+        
         btnPremium.btnPremiumConstraints(localView)
         btnGender.btnGenderConstraints(localView)
         remoteViewVideo.viewsConstraints(remoteView)
         remoteViewVideo.viewsConstraints(remoteView)
         initializeAgoraEngine()
-        setupLocalVideo()
+        setupLocalVideo(localViewVideo)
         btnLeave.btnLeaveConstraints(remoteView)
         
         btnLeave.addTarget(self, action: #selector(leaveChannel), for: .touchUpInside)
@@ -372,6 +384,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         agoraEngine.setupRemoteVideo(videoCanvas)
         
         btnAddFriend.isHidden = false
+        setupLocalVideo(smallLocalViewVideo)
         
         var channelName = ""
         if isListener{
@@ -390,7 +403,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     }
     
     // MARK: -Setup Local Video with Agora
-    func setupLocalVideo() {
+    func setupLocalVideo(_ localView: UIView) {
         agoraEngine.enableVideo()
         agoraEngine.startPreview()
         agoraEngine.setVideoFrameDelegate(self)
@@ -401,7 +414,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         let videoCanvas = AgoraRtcVideoCanvas()
         videoCanvas.uid = 0
         videoCanvas.renderMode = .hidden
-        videoCanvas.view = localViewVideo
+        videoCanvas.view = localView
         agoraEngine.setupLocalVideo(videoCanvas)
     }
     
@@ -433,8 +446,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         let result = agoraEngine.leaveChannel(nil)
         if result == 0 { joined = false }
         localView.removeFromSuperview()
+        smallLocalViewVideo.removeFromSuperview()
         localView.viewsConstraints(view)
-        setupLocalVideo()
+        smallLocalViewVideo.smallLocalViewVideoConstraints(remoteView)
+        setupLocalVideo(localViewVideo)
         btnAddFriend.isHidden = true
         
         if let channelName = isCustomChannel ? customChannelName : (self.isListener ? self.filteredChannelName : self.channelName){
@@ -619,18 +634,24 @@ private extension UIView{
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
         leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
+        widthAnchor.constraint(equalToConstant: 130).isActive = true
+        heightAnchor.constraint(equalToConstant: 30).isActive = true
     }
     
     func btnPremiumConstraints(_ view: UIView){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
         trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+        widthAnchor.constraint(equalToConstant: 130).isActive = true
+        heightAnchor.constraint(equalToConstant: 30).isActive = true
     }
     
     func btnAddFriendConstraints(_ view: UIView){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
         trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+        widthAnchor.constraint(equalToConstant: 130).isActive = true
+        heightAnchor.constraint(equalToConstant: 30).isActive = true
     }
     
     func friendRequestViewConstraints(_ view: UIView, mainView: UIView){
@@ -661,6 +682,14 @@ private extension UIView{
         view.addSubview(self)
         centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         bottomAnchor.constraint(equalTo: btnConfirm.topAnchor, constant: -20).isActive = true
+    }
+    
+    func smallLocalViewVideoConstraints(_ view: UIView){
+        view.addSubview(self)
+        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
+        topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 60).isActive = true
+        widthAnchor.constraint(equalToConstant: 150).isActive = true
+        heightAnchor.constraint(equalToConstant: 250).isActive = true
     }
 }
 
