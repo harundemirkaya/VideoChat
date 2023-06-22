@@ -34,7 +34,10 @@ class RegisterViewModel{
                                 db.collection("users").document(user.uid).setData([
                                     "id": id,
                                     "name": name,
-                                    "email": email
+                                    "email": email,
+                                    "gender": "male",
+                                    "coin": 0,
+                                    "target": "both"
                                 ]) { error in
                                     if let error = error {
                                         registerVC.alertMessage(title: "Error", description: error.localizedDescription)

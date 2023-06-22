@@ -105,6 +105,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         btn.setTitle("  Female  ", for: .normal)
         btn.backgroundColor = .black.withAlphaComponent(0.8)
         btn.layer.cornerRadius = 15
+        btn.addTarget(self, action: #selector(btnGenderTarget), for: .touchUpInside)
         return btn
     }()
     
@@ -206,6 +207,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     }
     
     let matchNotification = MatchNotification()
+    
+    private let selectGenderPopUp = SelectGenderPopUp()
     
     // MARK: -LifeCycle
     override func viewDidLoad() {
@@ -471,6 +474,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     @objc func btnAddFriendTarget(){
         btnAddFriend.isHidden = true
         matchHomeViewModel.addFriends()
+    }
+    
+    @objc func btnGenderTarget(){
+        self.selectGenderPopUp.selectGenderPopUpOpen(view: self.view)
     }
     
     func friendRequestViewTarget(remoteUserID: String){

@@ -21,6 +21,7 @@
 		4F680C6029B0CD4800081B51 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C5F29B0CD4800081B51 /* Assets.xcassets */; };
 		4F680C6329B0CD4800081B51 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C6129B0CD4800081B51 /* LaunchScreen.storyboard */; };
 		4F680C6C29B0CF5600081B51 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C6B29B0CF5500081B51 /* GoogleService-Info.plist */; };
+		4F8250652A44304B0084CEDC /* SelectGenderPopUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8250642A44304B0084CEDC /* SelectGenderPopUp.swift */; };
 		4F87C10929C73B100059EC6F /* MessageChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F87C10829C73B100059EC6F /* MessageChatViewController.swift */; };
 		4F944E6329B35D3500B7AC14 /* MatchHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F944E6229B35D3500B7AC14 /* MatchHomeViewController.swift */; };
 		4FA2967629C5D57200398BFE /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA2967529C5D57200398BFE /* TabBar.swift */; };
@@ -71,6 +72,7 @@
 		4F680C6229B0CD4800081B51 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4F680C6429B0CD4800081B51 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4F680C6B29B0CF5500081B51 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		4F8250642A44304B0084CEDC /* SelectGenderPopUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectGenderPopUp.swift; sourceTree = "<group>"; };
 		4F87C10829C73B100059EC6F /* MessageChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageChatViewController.swift; sourceTree = "<group>"; };
 		4F944E6229B35D3500B7AC14 /* MatchHomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchHomeViewController.swift; sourceTree = "<group>"; };
 		4FA2967529C5D57200398BFE /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
@@ -208,6 +210,7 @@
 				4FE3723229CCACB90095EDAD /* FriendRequestsViewController.swift */,
 				4F05C8CD29EAC1C600D4420A /* MatchNotification.swift */,
 				4F40F1922A02E23100E8C1BC /* BusyNotification.swift */,
+				4F8250642A44304B0084CEDC /* SelectGenderPopUp.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -426,6 +429,7 @@
 				4FF30B2729E31127006AA02C /* MessagesViewModel.swift in Sources */,
 				4F680C5729B0CD4600081B51 /* AppDelegate.swift in Sources */,
 				4FFED1112A13AED100A43FC0 /* MatchNotificationViewModel.swift in Sources */,
+				4F8250652A44304B0084CEDC /* SelectGenderPopUp.swift in Sources */,
 				4FF30B2F29E31879006AA02C /* LoginViewModel.swift in Sources */,
 				4FE3723529CCB6BA0095EDAD /* User.swift in Sources */,
 				4F680C5929B0CD4600081B51 /* SceneDelegate.swift in Sources */,
