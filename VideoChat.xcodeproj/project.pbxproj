@@ -10,7 +10,7 @@
 		48BA038A644C2862DB0E9708 /* Pods_VideoChat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05C4EB91BE85C1D8D4B38FFE /* Pods_VideoChat.framework */; };
 		4F05C8CE29EAC1C600D4420A /* MatchNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F05C8CD29EAC1C600D4420A /* MatchNotification.swift */; };
 		4F404CB729D4914500164DBF /* MessageChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F404CB629D4914500164DBF /* MessageChatTableViewCell.swift */; };
-		4F40F1932A02E23100E8C1BC /* BusyNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F40F1922A02E23100E8C1BC /* BusyNotification.swift */; };
+		4F40F1932A02E23100E8C1BC /* SmallNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F40F1922A02E23100E8C1BC /* SmallNotification.swift */; };
 		4F4691572A14CDD600EF3F56 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F4691562A14CDD600EF3F56 /* ImageCache.swift */; };
 		4F5393662A1D0B360079175F /* GenderClass 1.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 4F5393652A1D0B360079175F /* GenderClass 1.mlmodel */; };
 		4F6766EA29B0EC2000DC3BD6 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */; };
@@ -59,7 +59,7 @@
 		47E83595787715E0B70923CD /* Pods-VideoChat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoChat.release.xcconfig"; path = "Target Support Files/Pods-VideoChat/Pods-VideoChat.release.xcconfig"; sourceTree = "<group>"; };
 		4F05C8CD29EAC1C600D4420A /* MatchNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchNotification.swift; sourceTree = "<group>"; };
 		4F404CB629D4914500164DBF /* MessageChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageChatTableViewCell.swift; sourceTree = "<group>"; };
-		4F40F1922A02E23100E8C1BC /* BusyNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusyNotification.swift; sourceTree = "<group>"; };
+		4F40F1922A02E23100E8C1BC /* SmallNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallNotification.swift; sourceTree = "<group>"; };
 		4F4691562A14CDD600EF3F56 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		4F5393652A1D0B360079175F /* GenderClass 1.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = "GenderClass 1.mlmodel"; sourceTree = "<group>"; };
 		4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
@@ -209,7 +209,7 @@
 				4FCA50BC29C6159B00E0DC8E /* FriendsViewController.swift */,
 				4FE3723229CCACB90095EDAD /* FriendRequestsViewController.swift */,
 				4F05C8CD29EAC1C600D4420A /* MatchNotification.swift */,
-				4F40F1922A02E23100E8C1BC /* BusyNotification.swift */,
+				4F40F1922A02E23100E8C1BC /* SmallNotification.swift */,
 				4F8250642A44304B0084CEDC /* SelectGenderPopUp.swift */,
 			);
 			path = Views;
@@ -440,7 +440,7 @@
 				4FF30B2929E312A1006AA02C /* FriendsViewModel.swift in Sources */,
 				4FF30B2329E30DE6006AA02C /* RegisterViewModel.swift in Sources */,
 				4FCEF3AE2A37480000E31378 /* UILabel+Extensions.swift in Sources */,
-				4F40F1932A02E23100E8C1BC /* BusyNotification.swift in Sources */,
+				4F40F1932A02E23100E8C1BC /* SmallNotification.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

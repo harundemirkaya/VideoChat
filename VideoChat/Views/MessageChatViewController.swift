@@ -121,7 +121,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     
     let messageChatViewModel = MessageChatViewModel()
     
-    private let busyNotification = BusyNotification()
+    private let smallNotification = SmallNotification()
     
     // MARK: -LifeCycle
     override func viewDidLoad() {
@@ -328,7 +328,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func busyChannelNotification(){
-        self.busyNotification.busyNotification(view: self.view)
+        self.smallNotification.smallNotification(view: self.view, notificationText: "User Busy")
     }
 }
 

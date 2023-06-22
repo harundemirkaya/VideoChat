@@ -498,12 +498,25 @@ class MatchHomeViewModel{
     
     func setUserGender(_ gender: String){
         if let currentUser = Auth.auth().currentUser{
-            let channelsCollectionDocument = db.collection("users").document(currentUser.uid)
-            channelsCollectionDocument.updateData([
+            let userCollection = db.collection("users").document(currentUser.uid)
+            userCollection.updateData([
                 "gender": gender
             ]) { err in
                 if let err = err {
                     print("Error updating document: \(err)")
+                }
+            }
+        }
+    }
+    
+    func getTarget(completion: @escaping (String) -> Void){
+        if let currentUser = Auth.auth().currentUser{
+            let userCollection = db.collection("users").document(currentUser.uid)
+            userCollection.getDocument { userDocument, userError in
+                if let userDocument = userDocument, userDocument.exists{
+                    let userData = userDocument.data()
+                    var userTarget = userData?["target"] as? String ?? "both"
+                    completion(userTarget)
                 }
             }
         }

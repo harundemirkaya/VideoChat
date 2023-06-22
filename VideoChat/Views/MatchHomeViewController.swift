@@ -210,6 +210,8 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     private let selectGenderPopUp = SelectGenderPopUp()
     
+    private lazy var target = "both"
+    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -227,6 +229,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
         panGestureRecognizer.delegate = self
         localView.addGestureRecognizer(panGestureRecognizer)
+        
+        matchHomeViewModel.getTarget { target in
+            self.target = target
+        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -477,7 +483,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     }
     
     @objc func btnGenderTarget(){
-        self.selectGenderPopUp.selectGenderPopUpOpen(view: self.view)
+        self.selectGenderPopUp.selectGenderPopUpOpen(view: self.view, target: target)
     }
     
     func friendRequestViewTarget(remoteUserID: String){

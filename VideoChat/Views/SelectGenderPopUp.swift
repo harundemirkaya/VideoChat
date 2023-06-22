@@ -7,6 +7,8 @@
 
 import Foundation
 import UIKit
+import FirebaseAuth
+import FirebaseFirestore
 
 class SelectGenderPopUp{
     // MARK: -Define
@@ -190,9 +192,17 @@ class SelectGenderPopUp{
         return btn
     }()
     
+    private lazy var selectedTarget = "both"
+    
+    private lazy var smallNotification = SmallNotification()
+    
+    private var mainView: UIView?
+    
     // MARK: -Functions
-    public func selectGenderPopUpOpen(view: UIView?){
+    public func selectGenderPopUpOpen(view: UIView?, target: String){
         if let view = view{
+            self.mainView = view
+            
             selectGenderView.selectGenderViewConstraints(view)
             btnFemale.btnFemaleConstraints(selectGenderView)
             btnMale.btnMaleConstraints(selectGenderView, btnFemale: btnFemale)
@@ -205,6 +215,21 @@ class SelectGenderPopUp{
             UIView.animate(withDuration: 0.5, animations: {
                 self.selectGenderView.transform = CGAffineTransform(translationX: 0, y: -350)
             })
+            
+            self.changeButton(target)
+        }
+    }
+    
+    private func changeButton(_ target: String){
+        switch target{
+        case "both":
+            btnGenderTarget(btnBoth)
+        case "female":
+            btnGenderTarget(btnFemale)
+        case "male":
+            btnGenderTarget(btnMale)
+        default:
+            break
         }
     }
     
@@ -212,6 +237,7 @@ class SelectGenderPopUp{
         if sender == btnFemale{
             btnFemale.layer.borderWidth = 3
             btnFemale.layer.borderColor = UIColor.primary().cgColor
+            selectedTarget = "female"
             
             btnMale.layer.borderWidth = 1
             btnMale.layer.borderColor = UIColor.black.cgColor
@@ -220,6 +246,7 @@ class SelectGenderPopUp{
         } else if sender == btnMale{
             btnMale.layer.borderWidth = 3
             btnMale.layer.borderColor = UIColor.primary().cgColor
+            selectedTarget = "male"
             
             btnFemale.layer.borderWidth = 1
             btnFemale.layer.borderColor = UIColor.black.cgColor
@@ -228,6 +255,7 @@ class SelectGenderPopUp{
         } else{
             btnBoth.layer.borderWidth = 3
             btnBoth.layer.borderColor = UIColor.primary().cgColor
+            selectedTarget = "both"
             
             btnFemale.layer.borderWidth = 1
             btnFemale.layer.borderColor = UIColor.black.cgColor
@@ -237,6 +265,37 @@ class SelectGenderPopUp{
     }
     
     @objc private func btnSelectTarget(){
+        if let currentUser = Auth.auth().currentUser{
+            let userCollection = Firestore.firestore().collection("users").document(currentUser.uid)
+            userCollection.getDocument { userDocument, userError in
+                if let userDocument = userDocument, userDocument.exists{
+                    let userData = userDocument.data()
+                    var userCoin = userData?["coin"] as? Int ?? 0
+                    if let price = Int(self.lblFemalePrice.text ?? "0"){
+                        if userCoin >= price{
+                            userCollection.updateData([
+                                "target": self.selectedTarget
+                            ]) { err in
+                                if let err = err {
+                                    print("Error updating document: \(err)")
+                                } else{
+                                    self.changeButton(self.selectedTarget)
+                                    self.closePopUp()
+                                }
+                            }
+                        } else{
+                            if let mainView = self.mainView{
+                                self.smallNotification.smallNotification(view: mainView, notificationText: "Insufficient Balance")
+                                self.closePopUp()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private func closePopUp(){
         UIView.animate(withDuration: 0.5, animations: {
             self.selectGenderView.transform = CGAffineTransform(translationX: 0, y: 350)
         }){ _ in

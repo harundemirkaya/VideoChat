@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class BusyNotification{
+class SmallNotification{
     
     // MARK: Define
     private let notificationView: UIView = {
@@ -22,7 +22,6 @@ class BusyNotification{
     private let lblDescription: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "User Busy"
         label.textColor = .white
         return label
     }()
@@ -38,8 +37,9 @@ class BusyNotification{
         return btn
     }()
     
-    public func busyNotification(view: UIView?){
+    public func smallNotification(view: UIView?, notificationText: String){
         if let view = view{
+            lblDescription.text = notificationText
             notificationView.notificationViewConstraints(view)
             lblDescription.lblDescriptionConstraints(notificationView)
             btnOkey.btnOkeyConstraints(notificationView, lblDescription: lblDescription)
