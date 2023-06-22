@@ -102,7 +102,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.setImage(UIImage(systemName: "person.crop.circle.dashed"), for: .normal)
         btn.tintColor  = .primary()
-        btn.setTitle("  Female  ", for: .normal)
+        btn.setTitle("    ", for: .normal)
         btn.backgroundColor = .black.withAlphaComponent(0.8)
         btn.layer.cornerRadius = 15
         btn.addTarget(self, action: #selector(btnGenderTarget), for: .touchUpInside)
@@ -210,8 +210,6 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     
     private let selectGenderPopUp = SelectGenderPopUp()
     
-    private lazy var target = "both"
-    
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -229,10 +227,6 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
         panGestureRecognizer.delegate = self
         localView.addGestureRecognizer(panGestureRecognizer)
-        
-        matchHomeViewModel.getTarget { target in
-            self.target = target
-        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -263,6 +257,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         btnLeave.addTarget(self, action: #selector(leaveChannel), for: .touchUpInside)
         btnAddFriend.btnAddFriendConstraints(remoteView)
         btnAddFriend.addTarget(self, action: #selector(btnAddFriendTarget), for: .touchUpInside)
+        
+        matchHomeViewModel.getTarget { target in
+            self.btnGender.setTitle("  \(target)  ", for: .normal)
+        }
     }
     
     @objc func handleCustomCallNotification(_ notification: Notification) {
@@ -483,7 +481,9 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     }
     
     @objc func btnGenderTarget(){
-        self.selectGenderPopUp.selectGenderPopUpOpen(view: self.view, target: target)
+        matchHomeViewModel.getTarget { target in
+            self.selectGenderPopUp.selectGenderPopUpOpen(view: self.view, target: target, vc: self)
+        }
     }
     
     func friendRequestViewTarget(remoteUserID: String){
@@ -545,6 +545,10 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
         leaveChannel()
         removeAllVariable()
+    }
+    
+    public func setGenderButtonTitle(_ title: String){
+        btnGender.setTitle("  \(title)  ", for: .normal)
     }
     
     // MARK: -Show Message

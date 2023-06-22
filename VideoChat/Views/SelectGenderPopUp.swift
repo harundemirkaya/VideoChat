@@ -192,16 +192,19 @@ class SelectGenderPopUp{
         return btn
     }()
     
-    private lazy var selectedTarget = "both"
+    private lazy var selectedTarget = "Both"
     
     private lazy var smallNotification = SmallNotification()
     
     private var mainView: UIView?
     
+    private lazy var updateVC = UIViewController()
+    
     // MARK: -Functions
-    public func selectGenderPopUpOpen(view: UIView?, target: String){
+    public func selectGenderPopUpOpen(view: UIView?, target: String, vc: UIViewController){
         if let view = view{
             self.mainView = view
+            self.updateVC = vc
             
             selectGenderView.selectGenderViewConstraints(view)
             btnFemale.btnFemaleConstraints(selectGenderView)
@@ -222,11 +225,11 @@ class SelectGenderPopUp{
     
     private func changeButton(_ target: String){
         switch target{
-        case "both":
+        case "Both":
             btnGenderTarget(btnBoth)
-        case "female":
+        case "Female":
             btnGenderTarget(btnFemale)
-        case "male":
+        case "Male":
             btnGenderTarget(btnMale)
         default:
             break
@@ -237,7 +240,7 @@ class SelectGenderPopUp{
         if sender == btnFemale{
             btnFemale.layer.borderWidth = 3
             btnFemale.layer.borderColor = UIColor.primary().cgColor
-            selectedTarget = "female"
+            selectedTarget = "Female"
             
             btnMale.layer.borderWidth = 1
             btnMale.layer.borderColor = UIColor.black.cgColor
@@ -246,7 +249,7 @@ class SelectGenderPopUp{
         } else if sender == btnMale{
             btnMale.layer.borderWidth = 3
             btnMale.layer.borderColor = UIColor.primary().cgColor
-            selectedTarget = "male"
+            selectedTarget = "Male"
             
             btnFemale.layer.borderWidth = 1
             btnFemale.layer.borderColor = UIColor.black.cgColor
@@ -255,7 +258,7 @@ class SelectGenderPopUp{
         } else{
             btnBoth.layer.borderWidth = 3
             btnBoth.layer.borderColor = UIColor.primary().cgColor
-            selectedTarget = "both"
+            selectedTarget = "Both"
             
             btnFemale.layer.borderWidth = 1
             btnFemale.layer.borderColor = UIColor.black.cgColor
@@ -270,7 +273,7 @@ class SelectGenderPopUp{
             userCollection.getDocument { userDocument, userError in
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
-                    var userCoin = userData?["coin"] as? Int ?? 0
+                    let userCoin = userData?["coin"] as? Int ?? 0
                     if let price = Int(self.lblFemalePrice.text ?? "0"){
                         if userCoin >= price{
                             userCollection.updateData([
@@ -281,11 +284,25 @@ class SelectGenderPopUp{
                                 } else{
                                     self.changeButton(self.selectedTarget)
                                     self.closePopUp()
+                                    self.updateButtonTitle(self.selectedTarget)
                                 }
                             }
                         } else{
                             if let mainView = self.mainView{
-                                self.smallNotification.smallNotification(view: mainView, notificationText: "Insufficient Balance")
+                                userCollection.updateData([
+                                    "target": "Both"
+                                ]) { err in
+                                    if let err = err {
+                                        print("Error    updating document: \(err)")
+                                    } else{
+                                        self.changeButton("Both")
+                                        self.closePopUp()
+                                        self.updateButtonTitle("Both")
+                                    }
+                                }
+                                if self.selectedTarget != "Both"{
+                                    self.smallNotification.smallNotification(view: mainView, notificationText: "Insufficient Balance")
+                                }
                                 self.closePopUp()
                             }
                         }
@@ -301,6 +318,11 @@ class SelectGenderPopUp{
         }){ _ in
             self.selectGenderView.removeFromSuperview()
         }
+    }
+    
+    private func updateButtonTitle(_ title: String){
+        guard let vc = updateVC as? MatchHomeViewController else { return }
+        vc.setGenderButtonTitle(title)
     }
 }
 
