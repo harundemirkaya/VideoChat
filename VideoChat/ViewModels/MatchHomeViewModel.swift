@@ -121,6 +121,7 @@ class MatchHomeViewModel{
                     let data = document.data()
                     let userID = data!["id"] as? UInt ?? 0
                     let userTarget = data!["target"] as? String ?? "Both"
+                    let userGender = data!["gender"] as? String ?? "Male"
                     matchHomeVC.userIDforChannel = userID
                     let isEmptyChannelDB = self.db.collection("channels")
                     isEmptyChannelDB.getDocuments { (querySnapshot, error) in
@@ -131,7 +132,7 @@ class MatchHomeViewModel{
                             if numberOfDocuments == 0 {
                                 self.getTokenPublisher(userID)
                             } else{
-                                self.listenerFilters(userID, userRemoteTarget: userTarget)
+                                self.listenerFilters(userID, userRemoteTarget: userTarget, currentUserGender: userGender)
                             }
                         }
                     }
@@ -157,12 +158,14 @@ class MatchHomeViewModel{
         }
         getCurrentUser.getDocument { (document, error) in
             if let document = document, document.exists {
-                currentUserGender = document.data()?["gender"] as! String
+                currentUserGender = document.data()?["gender"] as? String ?? "Male"
+                let userTarget = document.data()?["target"] as? String ?? "Both"
                 let data: [String: Any] = [
                     "channelName": channelName,
                     "publisherToken": matchHomeVC.publisherToken ?? "",
                     "publisherUID": Auth.auth().currentUser!.uid as String,
                     "gender": currentUserGender,
+                    "target": userTarget,
                     "listenerToken": ""
                 ]
                 let docRefChannel = channelsCollection.document(channelName)
@@ -194,7 +197,7 @@ class MatchHomeViewModel{
         }
     }
     
-    func listenerFilters(_ userID: UInt, isCustomChannel: Bool = false, customChannelName: String = "", userRemoteTarget: String = "Both"){
+    func listenerFilters(_ userID: UInt, isCustomChannel: Bool = false, customChannelName: String = "", userRemoteTarget: String = "Both", currentUserGender: String = "both"){
         guard let matchHomeVC = matchHomeVC else { return }
         if isCustomChannel{
             matchHomeVC.filteredChannelName = customChannelName
@@ -209,10 +212,11 @@ class MatchHomeViewModel{
                 } else {
                     guard let documents = snapshot?.documents else { return }
                     for document in documents {
-                        let gender = document.data()["gender"] as? String ?? ""
+                        let gender = document.data()["gender"] as? String ?? "Male"
                         let isFull = document.data()["isFull"] as? Bool ?? false
-                        let selectedGender = (userRemoteTarget == "Both" || userRemoteTarget == "Male") ? "male" : "female"
-                        if gender == selectedGender, !isFull{
+                        let target = document.data()["target"] as? String ?? "Bpth"
+                        let selectedGender = (userRemoteTarget == "Both" || userRemoteTarget == "Male") ? "Male" : "Female"
+                        if gender == selectedGender, !isFull, target == currentUserGender{
                             let data = document.data()
                             matchHomeVC.filteredChannelName = data["channelName"] as? String
                             self.getTokenListener(userID, channelName: matchHomeVC.filteredChannelName ?? "")
@@ -517,7 +521,7 @@ class MatchHomeViewModel{
             userCollection.getDocument { userDocument, userError in
                 if let userDocument = userDocument, userDocument.exists{
                     let userData = userDocument.data()
-                    var userTarget = userData?["target"] as? String ?? "both"
+                    let userTarget = userData?["target"] as? String ?? "Both"
                     completion(userTarget)
                 }
             }

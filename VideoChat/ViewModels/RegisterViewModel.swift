@@ -35,9 +35,9 @@ class RegisterViewModel{
                                     "id": id,
                                     "name": name,
                                     "email": email,
-                                    "gender": "male",
+                                    "gender": "Male",
                                     "coin": 0,
-                                    "target": "both"
+                                    "target": "Both"
                                 ]) { error in
                                     if let error = error {
                                         registerVC.alertMessage(title: "Error", description: error.localizedDescription)

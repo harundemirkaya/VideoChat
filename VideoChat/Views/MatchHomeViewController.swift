@@ -195,13 +195,13 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                 var maleCount = 0
                 var femaleCount = 0
                 for genderPredict in genderPrediction{
-                    if genderPredict == "male"{
+                    if genderPredict == "Male"{
                         maleCount += 1
-                    } else if genderPredict == "female"{
+                    } else if genderPredict == "Female"{
                         femaleCount += 1
                     }
                 }
-                matchHomeViewModel.setUserGender((femaleCount > maleCount) ? "female" : "male")
+                matchHomeViewModel.setUserGender((femaleCount > maleCount) ? "Female" : "Male")
             }
         }
     }
