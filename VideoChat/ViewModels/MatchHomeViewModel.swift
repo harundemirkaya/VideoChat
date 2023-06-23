@@ -119,7 +119,8 @@ class MatchHomeViewModel{
             docRef.getDocument { (document, error) in
                 if let document = document, document.exists {
                     let data = document.data()
-                    let userID = data!["id"] as! UInt
+                    let userID = data!["id"] as? UInt ?? 0
+                    let userTarget = data!["target"] as? String ?? "Both"
                     matchHomeVC.userIDforChannel = userID
                     let isEmptyChannelDB = self.db.collection("channels")
                     isEmptyChannelDB.getDocuments { (querySnapshot, error) in
@@ -130,7 +131,7 @@ class MatchHomeViewModel{
                             if numberOfDocuments == 0 {
                                 self.getTokenPublisher(userID)
                             } else{
-                                self.listenerFilters(userID)
+                                self.listenerFilters(userID, userRemoteTarget: userTarget)
                             }
                         }
                     }
@@ -193,7 +194,7 @@ class MatchHomeViewModel{
         }
     }
     
-    func listenerFilters(_ userID: UInt, isCustomChannel: Bool = false, customChannelName: String = ""){
+    func listenerFilters(_ userID: UInt, isCustomChannel: Bool = false, customChannelName: String = "", userRemoteTarget: String = "Both"){
         guard let matchHomeVC = matchHomeVC else { return }
         if isCustomChannel{
             matchHomeVC.filteredChannelName = customChannelName
@@ -210,7 +211,8 @@ class MatchHomeViewModel{
                     for document in documents {
                         let gender = document.data()["gender"] as? String ?? ""
                         let isFull = document.data()["isFull"] as? Bool ?? false
-                        if gender == "female", !isFull{
+                        let selectedGender = (userRemoteTarget == "Both" || userRemoteTarget == "Male") ? "male" : "female"
+                        if gender == selectedGender, !isFull{
                             let data = document.data()
                             matchHomeVC.filteredChannelName = data["channelName"] as? String
                             self.getTokenListener(userID, channelName: matchHomeVC.filteredChannelName ?? "")
