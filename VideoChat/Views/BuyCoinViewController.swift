@@ -41,7 +41,7 @@ class BuyCoinViewController: UIViewController {
     // MARK: -Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         setupViews()
     }
     
