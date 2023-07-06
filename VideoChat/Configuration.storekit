@@ -1,0 +1,33 @@
+{
+  "identifier" : "BE359BFE",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "048F7961",
+      "localizations" : [
+        {
+          "description" : "100 Coin Lite Deneme Paketi",
+          "displayName" : "Lite Paket",
+          "locale" : "tr"
+        }
+      ],
+      "productID" : "litepackage1",
+      "referenceName" : "firstdatelitepackage",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 2,
+    "minor" : 0
+  }
+}

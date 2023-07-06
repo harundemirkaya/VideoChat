@@ -94,6 +94,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         btn.setTitle("  0 Coin  ", for: .normal)
         btn.backgroundColor = .black.withAlphaComponent(0.8)
         btn.layer.cornerRadius = 15
+        btn.addTarget(self, action: #selector(btnTarget(_:)), for: .touchUpInside)
         return btn
     }()
     
@@ -105,7 +106,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         btn.setTitle("    ", for: .normal)
         btn.backgroundColor = .black.withAlphaComponent(0.8)
         btn.layer.cornerRadius = 15
-        btn.addTarget(self, action: #selector(btnGenderTarget), for: .touchUpInside)
+        btn.addTarget(self, action: #selector(btnTarget(_:)), for: .touchUpInside)
         return btn
     }()
     
@@ -480,9 +481,14 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         matchHomeViewModel.addFriends()
     }
     
-    @objc func btnGenderTarget(){
-        matchHomeViewModel.getTarget { target in
-            self.selectGenderPopUp.selectGenderPopUpOpen(view: self.view, target: target, vc: self)
+    @objc func btnTarget(_ sender: UIButton){
+        if sender == btnGender{
+            matchHomeViewModel.getTarget { target in
+                self.selectGenderPopUp.selectGenderPopUpOpen(view: self.view, target: target, vc: self)
+            }
+        } else if sender == btnPremium{
+            let vc = BuyCoinViewController()
+            present(vc, animated: true)
         }
     }
     

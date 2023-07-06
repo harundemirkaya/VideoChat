@@ -9,9 +9,14 @@
 /* Begin PBXBuildFile section */
 		48BA038A644C2862DB0E9708 /* Pods_VideoChat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05C4EB91BE85C1D8D4B38FFE /* Pods_VideoChat.framework */; };
 		4F05C8CE29EAC1C600D4420A /* MatchNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F05C8CD29EAC1C600D4420A /* MatchNotification.swift */; };
+		4F09AE712A472A980028C810 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F09AE702A472A980028C810 /* StoreKit.framework */; };
+		4F3A37CB2A559D8C0019DF62 /* IAPManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F3A37CA2A559D8C0019DF62 /* IAPManager.swift */; };
+		4F3A37CD2A55A5CA0019DF62 /* Configuration.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 4F3A37CC2A55A3740019DF62 /* Configuration.storekit */; };
 		4F404CB729D4914500164DBF /* MessageChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F404CB629D4914500164DBF /* MessageChatTableViewCell.swift */; };
 		4F40F1932A02E23100E8C1BC /* SmallNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F40F1922A02E23100E8C1BC /* SmallNotification.swift */; };
 		4F4691572A14CDD600EF3F56 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F4691562A14CDD600EF3F56 /* ImageCache.swift */; };
+		4F515EFA2A45BACE0017D5D2 /* BuyCoinViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F515EF92A45BACE0017D5D2 /* BuyCoinViewController.swift */; };
+		4F515EFC2A45C1E60017D5D2 /* PackageButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F515EFB2A45C1E60017D5D2 /* PackageButton.swift */; };
 		4F5393662A1D0B360079175F /* GenderClass 1.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 4F5393652A1D0B360079175F /* GenderClass 1.mlmodel */; };
 		4F6766EA29B0EC2000DC3BD6 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */; };
 		4F6766EC29B0F02E00DC3BD6 /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6766EB29B0F02E00DC3BD6 /* RegisterViewController.swift */; };
@@ -54,9 +59,14 @@
 		05C4EB91BE85C1D8D4B38FFE /* Pods_VideoChat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VideoChat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		47E83595787715E0B70923CD /* Pods-VideoChat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoChat.release.xcconfig"; path = "Target Support Files/Pods-VideoChat/Pods-VideoChat.release.xcconfig"; sourceTree = "<group>"; };
 		4F05C8CD29EAC1C600D4420A /* MatchNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchNotification.swift; sourceTree = "<group>"; };
+		4F09AE702A472A980028C810 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		4F3A37CA2A559D8C0019DF62 /* IAPManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPManager.swift; sourceTree = "<group>"; };
+		4F3A37CC2A55A3740019DF62 /* Configuration.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Configuration.storekit; sourceTree = "<group>"; };
 		4F404CB629D4914500164DBF /* MessageChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageChatTableViewCell.swift; sourceTree = "<group>"; };
 		4F40F1922A02E23100E8C1BC /* SmallNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallNotification.swift; sourceTree = "<group>"; };
 		4F4691562A14CDD600EF3F56 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
+		4F515EF92A45BACE0017D5D2 /* BuyCoinViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyCoinViewController.swift; sourceTree = "<group>"; };
+		4F515EFB2A45C1E60017D5D2 /* PackageButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageButton.swift; sourceTree = "<group>"; };
 		4F5393652A1D0B360079175F /* GenderClass 1.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = "GenderClass 1.mlmodel"; sourceTree = "<group>"; };
 		4F6766E929B0EC2000DC3BD6 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		4F6766EB29B0F02E00DC3BD6 /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
@@ -104,6 +114,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				48BA038A644C2862DB0E9708 /* Pods_VideoChat.framework in Frameworks */,
+				4F09AE712A472A980028C810 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -124,6 +135,7 @@
 			children = (
 				4FCEF3AA2A373FF600E31378 /* Extensions */,
 				4F4691562A14CDD600EF3F56 /* ImageCache.swift */,
+				4F3A37CA2A559D8C0019DF62 /* IAPManager.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -170,6 +182,7 @@
 				4F680C6429B0CD4800081B51 /* Info.plist */,
 				4F680C6B29B0CF5500081B51 /* GoogleService-Info.plist */,
 				4FDB18AA29D0894A009E246E /* Messages.xcdatamodeld */,
+				4F3A37CC2A55A3740019DF62 /* Configuration.storekit */,
 			);
 			path = VideoChat;
 			sourceTree = "<group>";
@@ -191,6 +204,8 @@
 				4F05C8CD29EAC1C600D4420A /* MatchNotification.swift */,
 				4F40F1922A02E23100E8C1BC /* SmallNotification.swift */,
 				4F8250642A44304B0084CEDC /* SelectGenderPopUp.swift */,
+				4F515EF92A45BACE0017D5D2 /* BuyCoinViewController.swift */,
+				4F515EFB2A45C1E60017D5D2 /* PackageButton.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -260,6 +275,7 @@
 		5300D41ABFE6A96BBD39671F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4F09AE702A472A980028C810 /* StoreKit.framework */,
 				05C4EB91BE85C1D8D4B38FFE /* Pods_VideoChat.framework */,
 			);
 			name = Frameworks;
@@ -326,6 +342,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F680C6329B0CD4800081B51 /* LaunchScreen.storyboard in Resources */,
+				4F3A37CD2A55A5CA0019DF62 /* Configuration.storekit in Resources */,
 				4F680C6029B0CD4800081B51 /* Assets.xcassets in Resources */,
 				4F680C6C29B0CF5600081B51 /* GoogleService-Info.plist in Resources */,
 			);
@@ -383,6 +400,7 @@
 				4F4691572A14CDD600EF3F56 /* ImageCache.swift in Sources */,
 				4FF30B2D29E315E9006AA02C /* FriendRequestsViewModel.swift in Sources */,
 				4F6766EA29B0EC2000DC3BD6 /* LoginViewController.swift in Sources */,
+				4F515EFC2A45C1E60017D5D2 /* PackageButton.swift in Sources */,
 				4F944E6329B35D3500B7AC14 /* MatchHomeViewController.swift in Sources */,
 				4F6766EC29B0F02E00DC3BD6 /* RegisterViewController.swift in Sources */,
 				4FCA50BF29C616B000E0DC8E /* FriendsTableViewCell.swift in Sources */,
@@ -395,6 +413,7 @@
 				4FDB18AC29D0894A009E246E /* Messages.xcdatamodeld in Sources */,
 				4FF30B2B29E3137D006AA02C /* MessageChatViewModel.swift in Sources */,
 				4FCA50BD29C6159B00E0DC8E /* FriendsViewController.swift in Sources */,
+				4F3A37CB2A559D8C0019DF62 /* IAPManager.swift in Sources */,
 				4F680C5B29B0CD4600081B51 /* ViewController.swift in Sources */,
 				4FC6250929BD185C00698116 /* MatchHomeViewModel.swift in Sources */,
 				4FA2967A29C5D5C000398BFE /* MessagesViewController.swift in Sources */,
@@ -402,6 +421,7 @@
 				4FA2967829C5D5B100398BFE /* ProfileViewController.swift in Sources */,
 				4FA6348929BD481E00F7C75E /* RTCTokenModel.swift in Sources */,
 				4F404CB729D4914500164DBF /* MessageChatTableViewCell.swift in Sources */,
+				4F515EFA2A45BACE0017D5D2 /* BuyCoinViewController.swift in Sources */,
 				4FF30B2729E31127006AA02C /* MessagesViewModel.swift in Sources */,
 				4F680C5729B0CD4600081B51 /* AppDelegate.swift in Sources */,
 				4FFED1112A13AED100A43FC0 /* MatchNotificationViewModel.swift in Sources */,
@@ -541,6 +561,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
