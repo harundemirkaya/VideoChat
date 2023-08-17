@@ -43,6 +43,30 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         return btn
     }()
     
+    private let AIImageView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(systemName: "person.circle"))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.tintColor = .black
+        imageView.layer.cornerRadius = imageView.bounds.height / 2
+        imageView.layer.masksToBounds = true
+        imageView.contentMode = .scaleAspectFill
+        return imageView
+    }()
+
+    private let AINameLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont(name: "Futura", size: 16)
+        label.text = "AI"
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var aiView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     var recentlyChat = [User]()
     var recentlyChatCount = [String:Int]()
     
@@ -70,7 +94,10 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         lblTitle.lblTitleConstraints(view)
         btnNewChat.btnNewChatConstraints(view)
         btnFriendRequests.btnFriendsRequestsConstraints(view)
-        tableView.tableViewConstraints(view, lblTitle: lblTitle)
+        
+        setupAIView()
+        
+        tableView.tableViewConstraints(view, aiView: aiView)
         
         tableView.delegate = self
         tableView.dataSource = self
@@ -78,6 +105,23 @@ class MessagesViewController: UIViewController, UITableViewDelegate, UITableView
         
         btnNewChat.addTarget(self, action: #selector(btnNewChatTarget), for: .touchUpInside)
         btnFriendRequests.addTarget(self, action: #selector(btnFriendRequestsTarget), for: .touchUpInside)
+    }
+    
+    private func setupAIView(){
+        aiView.aiViewConstraints(view, lblTitle: lblTitle)
+        AIImageView.AIImageViewConstraints(aiView)
+        AINameLabel.AINameLabelConstraints(aiView, aiImageView: AIImageView)
+        let aiClick = UITapGestureRecognizer(target: self, action: #selector(aiViewTarget))
+        aiView.addGestureRecognizer(aiClick)
+    }
+    
+    @objc private func aiViewTarget(){
+        let messageChatVC = MessageChatViewController()
+        messageChatVC.modalPresentationStyle = .fullScreen
+        messageChatVC.remoteUser.userName = "My AI"
+        messageChatVC.remoteUser.uid = "ai"
+        messageChatVC.remoteUser.userPhoto = ""
+        present(messageChatVC, animated: true)
     }
     
     @objc private func btnNewChatTarget(){
@@ -190,11 +234,35 @@ private extension UIView{
         leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
     }
     
-    func tableViewConstraints(_ view: UIView, lblTitle: UILabel){
+    func tableViewConstraints(_ view: UIView, aiView: UIView){
+        view.addSubview(self)
+        topAnchor.constraint(equalTo: aiView.bottomAnchor).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+    }
+    
+    func aiViewConstraints(_ view: UIView, lblTitle: UILabel){
         view.addSubview(self)
         topAnchor.constraint(equalTo: lblTitle.bottomAnchor, constant: 10).isActive = true
         leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        heightAnchor.constraint(equalToConstant: 70).isActive = true
+    }
+    
+    func AIImageViewConstraints(_ view: UIView){
+        view.addSubview(self)
+        topAnchor.constraint(equalTo: view.topAnchor, constant: 10).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
+        bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10).isActive = true
+        widthAnchor.constraint(lessThanOrEqualToConstant: 50).isActive = true
+        heightAnchor.constraint(lessThanOrEqualToConstant: 50).isActive = true
+    }
+    
+    func AINameLabelConstraints(_ view: UIView, aiImageView: UIImageView){
+        view.addSubview(self)
+        centerYAnchor.constraint(equalTo: aiImageView.centerYAnchor).isActive = true
+        leadingAnchor.constraint(equalTo: aiImageView.trailingAnchor, constant: 10).isActive = true
+        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
     }
 }

@@ -90,22 +90,36 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.setImage(UIImage(systemName: "bitcoinsign.circle.fill"), for: .normal)
-        btn.tintColor = .primary()
+        btn.tintColor = .systemYellow
         btn.setTitle("  0 Coin  ", for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 14)
         btn.backgroundColor = .black.withAlphaComponent(0.8)
-        btn.layer.cornerRadius = 15
+        btn.layer.cornerRadius = 10
         btn.addTarget(self, action: #selector(btnTarget(_:)), for: .touchUpInside)
+        return btn
+    }()
+    
+    var btnHistory: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setImage(UIImage(named: "btnHistoryIcon"), for: .normal)
+        btn.tintColor = .white
+        btn.setTitle("History", for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 14)
+        btn.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        ///btn.addTarget(self, action: #selector(btnTarget(_:)), for: .touchUpInside) TO DO
         return btn
     }()
     
     var btnGender: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setImage(UIImage(systemName: "person.crop.circle.dashed"), for: .normal)
-        btn.tintColor  = .primary()
-        btn.setTitle("    ", for: .normal)
-        btn.backgroundColor = .black.withAlphaComponent(0.8)
-        btn.layer.cornerRadius = 15
+        btn.setImage(UIImage(named: "btnGenderIcon"), for: .normal)
+        
+        btn.tintColor  = .white
+        btn.setTitle("  ", for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 14)
+        btn.widthAnchor.constraint(equalToConstant: 100).isActive = true
         btn.addTarget(self, action: #selector(btnTarget(_:)), for: .touchUpInside)
         return btn
     }()
@@ -114,7 +128,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.setImage(UIImage(systemName: "person.fill.badge.plus"), for: .normal)
-        btn.tintColor = .primary()
+        btn.tintColor = .white
         btn.setTitle("  Add Friend ", for: .normal)
         btn.backgroundColor = .black.withAlphaComponent(0.8)
         btn.layer.cornerRadius = 15
@@ -132,7 +146,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         return btn
     }()
     
-    private var btnFriendRequestConfirm = {
+    private var btnFriendRequestConfirm: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.setTitle("Confirm", for: .normal)
@@ -141,6 +155,19 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         btn.layer.borderWidth = 0.2
         btn.layer.cornerRadius = 16
         return btn
+    }()
+    
+    private lazy var genderAndHistoryStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .horizontal
+        stackView.spacing = 5
+        stackView.backgroundColor = .black.withAlphaComponent(0.8)
+        stackView.layer.cornerRadius = 16
+        let spacer = UIView()
+        spacer.widthAnchor.constraint(equalToConstant: 2).isActive = true
+        stackView.addArrangedSubview(spacer)
+        return stackView
     }()
     
     var joined: Bool = false
@@ -202,7 +229,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
                         femaleCount += 1
                     }
                 }
-                matchHomeViewModel.setUserGender((femaleCount > maleCount) ? "Female" : "Male")
+                matchHomeViewModel.setUserGender((femaleCount > maleCount) ? "Fe    male" : "Male")
             }
         }
     }
@@ -247,8 +274,15 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
         localViewVideo.viewsConstraints(localView)
         smallLocalViewVideo.smallLocalViewVideoConstraints(remoteView)
         
+        
+        genderAndHistoryStackView.addArrangedSubview(btnGender)
+        genderAndHistoryStackView.addArrangedSubview(btnHistory)
+        genderAndHistoryStackView.genderAndHistoryStackViewConstraints(localView)
+        let spacer = UIView()
+        spacer.widthAnchor.constraint(equalToConstant: 2).isActive = true
+        genderAndHistoryStackView.addArrangedSubview(spacer)
         btnPremium.btnPremiumConstraints(localView)
-        btnGender.btnGenderConstraints(localView)
+        
         remoteViewVideo.viewsConstraints(remoteView)
         remoteViewVideo.viewsConstraints(remoteView)
         initializeAgoraEngine()
@@ -554,7 +588,7 @@ class MatchHomeViewController: UIViewController, AgoraRtcEngineDelegate, AVCaptu
     }
     
     public func setGenderButtonTitle(_ title: String){
-        btnGender.setTitle("  \(title)  ", for: .normal)
+        btnGender.setTitle("\(title)", for: .normal)
     }
     
     // MARK: -Show Message
@@ -713,6 +747,14 @@ private extension UIView{
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 60).isActive = true
         widthAnchor.constraint(equalToConstant: 150).isActive = true
         heightAnchor.constraint(equalToConstant: 250).isActive = true
+    }
+    
+    func genderAndHistoryStackViewConstraints(_ view: UIView){
+        view.addSubview(self)
+        centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100).isActive = true
+        heightAnchor.constraint(equalToConstant: 50).isActive = true
+        widthAnchor.constraint(equalToConstant: 220).isActive = true
     }
 }
 

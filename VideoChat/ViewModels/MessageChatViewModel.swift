@@ -14,6 +14,9 @@ class MessageChatViewModel{
     // MARK: MessageChatVC Defined
     var messageChatVC: MessageChatViewController?
     
+    // MARK: Network Manager Defined
+    let networkManager = NetworkManager()
+    
     private let db = Firestore.firestore()
     
     var messagesListener: ListenerRegistration? = nil
@@ -51,6 +54,18 @@ class MessageChatViewModel{
     func removeMessagesListener(){
         guard let messagesListener = self.messagesListener else { return }
         messagesListener.remove()
+    }
+    
+    func sendMessageForAI(_ message: String?){
+        guard let messageChatVC = messageChatVC else { return }
+        guard let message = message else { return }
+        messageChatVC.saveData()
+        messageChatVC.txtFieldMessage.text = ""
+        if message != ""{
+            networkManager.postMessage(message: message, remoteUserID: Auth.auth().currentUser!.uid) { result in
+                print(result)
+            }
+        }
     }
     
     func sendMessage(){

@@ -31,18 +31,15 @@ class AppTabBarController: UITabBarController {
         let profileVC = ProfileViewController()
         profileVC.tabBarItem = UITabBarItem.init(title: "Profile", image: UIImage(systemName: "person.fill"), tag: 0)
         
-        let mapVC = MapViewController()
-        mapVC.tabBarItem = UITabBarItem.init(title: "Map", image: UIImage(systemName: "mappin.and.ellipse"), tag: 0)
-        
         let matchVC = MatchHomeViewController()
         matchVC.tabBarItem = UITabBarItem.init(title: "Match", image: UIImage(systemName: "video.fill"), tag: 1)
         
         let messagesVC = MessagesViewController()
         messagesVC.tabBarItem = UITabBarItem.init(title: "Messages", image: UIImage(systemName: "message.fill"), tag: 2)
         
-        views = [profileVC, mapVC, matchVC, messagesVC]
+        views = [profileVC, matchVC, messagesVC]
 
         self.viewControllers = views
-        selectedIndex = 2
+        selectedIndex = 1
     }
 }

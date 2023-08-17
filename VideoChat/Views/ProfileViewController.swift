@@ -9,239 +9,107 @@ import UIKit
 import FirebaseStorage
 
 class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
     // MARK: -Define
+    private lazy var contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 50
+        return view
+    }()
     
-    let imgProfilePhoto: UIImageView = {
-        let imgView = UIImageView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+    private lazy var labelTitle: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Settings"
+        label.textColor = .black
+        label.font = UIFont.boldSystemFont(ofSize: 20)
+        return label
+    }()
+    
+    private lazy var userProfilePhoto: UIImageView = {
+        let imgView = UIImageView(image: UIImage(named: "root-bg"))
         imgView.translatesAutoresizingMaskIntoConstraints = false
-        imgView.layer.cornerRadius = imgView.frame.size.width / 2
         imgView.clipsToBounds = true
-        imgView.contentMode = .scaleAspectFit
+        imgView.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        imgView.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        imgView.layer.cornerRadius = 30
         return imgView
     }()
     
-    private let lblUsername: UILabel = {
-        let lbl = UILabel()
-        lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.text = "Edit Profile"
-        lbl.font = UIFont(name: "Futura", size: 16)
-        return lbl
+    private lazy var labelUsername: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Harun DEMİRKAYA"
+        label.textColor = .black
+        label.font = UIFont.boldSystemFont(ofSize: 20)
+        return label
     }()
     
-    let txtFieldName: UITextField = {
-        let txtField = RightAlignedTextField()
-        txtField.translatesAutoresizingMaskIntoConstraints = false
-        txtField.attributedPlaceholder = NSAttributedString(string: "Name Surname", attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
-        txtField.tintColor = .black
-        txtField.textColor = .black
-        txtField.backgroundColor = UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1.00)
-        txtField.layer.cornerRadius = 5
-        txtField.layer.borderColor = UIColor.white.withAlphaComponent(0.6).cgColor
-        txtField.layer.borderWidth = 1
-        return txtField
+    private lazy var buttonLogout: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.backgroundColor = .systemRed
+        button.setTitle("Log Out", for: .normal)
+        button.layer.cornerRadius = 10
+        return button
     }()
     
-    let txtFieldEmail: UITextField = {
-        let txtField = RightAlignedTextField()
-        txtField.translatesAutoresizingMaskIntoConstraints = false
-        txtField.attributedPlaceholder = NSAttributedString(string: "E-mail", attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
-        txtField.tintColor = .black
-        txtField.textColor = .black
-        txtField.backgroundColor = UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1.00)
-        txtField.layer.cornerRadius = 5
-        txtField.layer.borderColor = UIColor.white.withAlphaComponent(0.6).cgColor
-        txtField.layer.borderWidth = 1
-        return txtField
+    private lazy var divider: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor(red: 0.18, green: 0.18, blue: 0.18, alpha: 1.00)
+        return view
     }()
     
-    private let btnUpdateNameOrEmail: UIButton = {
-        let btn = UIButton()
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.backgroundColor = UIColor(red: 0.13, green: 0.63, blue: 0.56, alpha: 1.00)
-        btn.setTitle("Update My Info", for: .normal)
-        btn.layer.cornerRadius = 10
-        return btn
-    }()
+    private var accountEditView = ProfileRow(iconImageName: "account-icon", labelNameText: "Account", labelDescriptionText: "Privacy, security, change number")
     
-    private let lblChangePassword: UILabel = {
-        let lbl = UILabel()
-        lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.text = "Change Password"
-        lbl.font = UIFont(name: "Futura", size: 16)
-        return lbl
-    }()
+    private var chatEditView = ProfileRow(iconImageName: "chat-icon", labelNameText: "Chat", labelDescriptionText: "Chat history,theme,wallpapers")
     
-    let txtFieldOldPassword: UITextField = {
-        let txtField = RightAlignedTextField()
-        txtField.translatesAutoresizingMaskIntoConstraints = false
-        txtField.attributedPlaceholder = NSAttributedString(string: "Old Password", attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
-        txtField.tintColor = .black
-        txtField.textColor = .black
-        txtField.backgroundColor = UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1.00)
-        txtField.layer.cornerRadius = 5
-        txtField.layer.borderColor = UIColor.white.withAlphaComponent(0.6).cgColor
-        txtField.layer.borderWidth = 1
-        txtField.isSecureTextEntry = true
-        return txtField
-    }()
+    private var notificationEditView = ProfileRow(iconImageName: "notification-icon", labelNameText: "Notifications", labelDescriptionText: "Messages, group and others")
     
-    let txtFieldNewPassword: UITextField = {
-        let txtField = RightAlignedTextField()
-        txtField.translatesAutoresizingMaskIntoConstraints = false
-        txtField.attributedPlaceholder = NSAttributedString(string: "New Password", attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
-        txtField.tintColor = .black
-        txtField.textColor = .black
-        txtField.backgroundColor = UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1.00)
-        txtField.layer.cornerRadius = 5
-        txtField.layer.borderColor = UIColor.white.withAlphaComponent(0.6).cgColor
-        txtField.layer.borderWidth = 1
-        txtField.isSecureTextEntry = true
-        return txtField
-    }()
+    private var helpEditView = ProfileRow(iconImageName: "help-icon", labelNameText: "Help", labelDescriptionText: "Help center,contact us, privacy policy")
     
-    let txtFieldNewPasswordAgain: UITextField = {
-        let txtField = RightAlignedTextField()
-        txtField.translatesAutoresizingMaskIntoConstraints = false
-        txtField.attributedPlaceholder = NSAttributedString(string: "New Password Again", attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
-        txtField.tintColor = .black
-        txtField.textColor = .black
-        txtField.backgroundColor = UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1.00)
-        txtField.layer.cornerRadius = 5
-        txtField.layer.borderColor = UIColor.white.withAlphaComponent(0.6).cgColor
-        txtField.layer.borderWidth = 1
-        txtField.isSecureTextEntry = true
-        return txtField
-    }()
+    private var storageEditView = ProfileRow(iconImageName: "storage-icon", labelNameText: "Storage and data", labelDescriptionText: "Network usage, stogare usage")
     
-    private let btnUpdatePassword: UIButton = {
-        let btn = UIButton()
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.backgroundColor = UIColor(red: 0.13, green: 0.63, blue: 0.56, alpha: 1.00)
-        btn.setTitle("Update Password", for: .normal)
-        btn.layer.cornerRadius = 10
-        return btn
-    }()
-    
-    private let btnLogout: UIButton = {
-        let btn = UIButton()
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.backgroundColor = UIColor(red: 0.92, green: 0.22, blue: 0.21, alpha: 1.00)
-        btn.setTitle("Logout", for: .normal)
-        btn.layer.cornerRadius = 10
-        return btn
-    }()
-    
-    private let profileViewModel = ProfileViewModel()
+    private var inviteEditView = ProfileRow(iconImageName: "invite-icon", labelNameText: "Invite a friend", labelDescriptionText: "Invite your friends to The First Date")
     
     // MARK: -LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        profileViewModel.profileVC = self
         
-        profileViewModel.fetchData()
         setupViews()
     }
     
     
     func setupViews(){
-        imgProfilePhoto.imgProfilePhotoConstraints(view)
-        lblUsername.lblUsernameConstraints(view, imgProfilePhoto: imgProfilePhoto)
-        txtFieldName.txtFieldNameConstraints(view, lblUsername: lblUsername)
-        txtFieldEmail.txtFieldEmailConstraints(view, txtFieldName: txtFieldName)
-        btnUpdateNameOrEmail.btnUpdateNameOrEmailConstraints(view, txtFieldEmail: txtFieldEmail)
-        lblChangePassword.lblChangePasswordConstraints(view, btnUpdateNameOrEmail: btnUpdateNameOrEmail)
-        txtFieldOldPassword.txtFieldOldPasswordConstraints(view, lblChangePassword: lblChangePassword)
-        txtFieldNewPassword.txtFieldNewPasswordConstraints(view, txtFieldOldPassword: txtFieldOldPassword)
-        txtFieldNewPasswordAgain.txtFieldNewPasswordAgainConstraints(view, txtFieldNewPassword: txtFieldNewPassword)
-        btnUpdatePassword.btnUpdatePasswordConstraints(view, txtFieldNewPasswordAgain: txtFieldNewPasswordAgain)
-        btnLogout.btnLogoutConstraints(view, btnUpdatePassword: btnUpdatePassword)
-        
-        btnUpdateNameOrEmail.addTarget(self, action: #selector(btnUpdateNameOrEmailTarget), for: .touchUpInside)
-        btnUpdatePassword.addTarget(self, action: #selector(btnUpdatePasswordTarget), for: .touchUpInside)
-        btnLogout.addTarget(self, action: #selector(btnLogoutTarget), for: .touchUpInside)
-        
-        imgProfilePhoto.isUserInteractionEnabled = true
-        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(selectPhoto))
-        imgProfilePhoto.addGestureRecognizer(gestureRecognizer)
+        let imageView = UIImageView(image: UIImage(named: "profile-bg"))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(imageView)
+        NSLayoutConstraint.activate([
+            imageView.topAnchor.constraint(equalTo: view.topAnchor),
+            imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
         
         let endEditing = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(endEditing)
-    }
-    
-    @objc func btnLogoutTarget(){
-        profileViewModel.logout()
-    }
-    
-    @objc func selectPhoto(){
-        let picker = UIImagePickerController()
-        picker.delegate = self
-        picker.sourceType = .photoLibrary
-        picker.allowsEditing = true
-        present(picker, animated: true)
-    }
-    
-    @objc func btnUpdatePasswordTarget(){
-        if txtFieldOldPassword.text != "", txtFieldNewPassword.text != "", txtFieldNewPasswordAgain.text != ""{
-            if txtFieldNewPassword.text == txtFieldNewPasswordAgain.text{
-                profileViewModel.updatePassword()
-            }
-        }
-    }
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        guard var image = info[.editedImage] as? UIImage else { return }
-        image = cropImageToCircle(image)
-        imgProfilePhoto.image = image
-        let storage = Storage.storage()
-        let storageReference = storage.reference()
         
-        let mediaFolder = storageReference.child("media")
-        
-        let id = UUID().uuidString
-        
-        if let data = image.jpegData(compressionQuality: 0.5){
-            let imageReference = mediaFolder.child("\(id).jpg")
-            imageReference.putData(data) { StorageMetadata, error in
-                if error != nil{
-                    print(error?.localizedDescription as Any)
-                } else{
-                    imageReference.downloadURL { url, error in
-                        if error == nil{
-                            let imageUrl = url?.absoluteString  
-                            if let imageUrl = imageUrl{
-                                self.profileViewModel.getUserProfilePhotoURL { oldPhotoURL in
-                                    self.profileViewModel.updateProfilePhoto(imageUrl, oldImageURL: oldPhotoURL)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        picker.dismiss(animated: true)
+        contentView.contentViewConstraints(view)
+        labelTitle.labelTitleConstraints(view)
+        userProfilePhoto.userProfilePhotoConstraints(contentView)
+        labelUsername.labelUsernameConstraints(contentView, userProfilePhoto: userProfilePhoto)
+        buttonLogout.buttonLogoutConstraints(contentView, labelUsername: labelUsername)
+        divider.dividerConstraints(contentView, buttonLogout: buttonLogout)
+        accountEditView.accountEditViewConstraints(contentView, divider: divider)
+        chatEditView.otherEditViewConstraints(contentView, otherEditView: accountEditView)
+        notificationEditView.otherEditViewConstraints(contentView, otherEditView: chatEditView)
+        helpEditView.otherEditViewConstraints(contentView, otherEditView: notificationEditView)
+        storageEditView.otherEditViewConstraints(contentView, otherEditView: helpEditView)
+        inviteEditView.otherEditViewConstraints(contentView, otherEditView: storageEditView)
     }
     
-    func cropImageToCircle(_ image: UIImage) -> UIImage {
-        let imageView = UIImageView(image: image)
-        imageView.frame = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = image.size.width / 2.0
-        
-        UIGraphicsBeginImageContextWithOptions(image.size, false, 0.0)
-        let context = UIGraphicsGetCurrentContext()!
-        imageView.layer.render(in: context)
-        let croppedImage = UIGraphicsGetImageFromCurrentImageContext()!
-        UIGraphicsEndImageContext()
-        
-        return croppedImage
-    }
-    
-    @objc func btnUpdateNameOrEmailTarget(){
-        profileViewModel.updateNameOrEmail()
-    }
     
     @objc func dismissKeyboard() {
         view.endEditing(true)
@@ -249,103 +117,55 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
 }
 
 private extension UIView{
-    func imgProfilePhotoConstraints(_ view: UIView){
+    func contentViewConstraints(_ view: UIView){
         view.addSubview(self)
-        topAnchor.constraint(equalTo: view.topAnchor, constant: 100).isActive = true
+        heightAnchor.constraint(equalToConstant: view.frame.size.height * 0.85).isActive = true
+        widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width).isActive = true
+        bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 20).isActive = true
+    }
+    
+    func labelTitleConstraints(_ view: UIView){
+        view.addSubview(self)
+        topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30).isActive = true
         centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        widthAnchor.constraint(equalToConstant: 150).isActive = true
-        heightAnchor.constraint(equalToConstant: 150).isActive = true
     }
     
-    func lblUsernameConstraints(_ view: UIView, imgProfilePhoto: UIImageView){
+    func userProfilePhotoConstraints(_ view: UIView){
         view.addSubview(self)
-        centerXAnchor.constraint(equalTo: imgProfilePhoto.centerXAnchor).isActive = true
-        topAnchor.constraint(equalTo: imgProfilePhoto.bottomAnchor, constant: 20).isActive = true
+        topAnchor.constraint(equalTo: view.topAnchor, constant: 40).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25).isActive = true
     }
     
-    func txtFieldNameConstraints(_ view: UIView, lblUsername: UILabel){
+    func labelUsernameConstraints(_ view: UIView, userProfilePhoto: UIImageView){
         view.addSubview(self)
-        topAnchor.constraint(equalTo: lblUsername.bottomAnchor, constant: 20).isActive = true
-        centerXAnchor.constraint(equalTo: lblUsername.centerXAnchor).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
-        heightAnchor.constraint(equalToConstant: 35).isActive = true
+        centerYAnchor.constraint(equalTo: userProfilePhoto.centerYAnchor).isActive = true
+        leadingAnchor.constraint(equalTo: userProfilePhoto.trailingAnchor, constant: 12).isActive = true
     }
     
-    func txtFieldEmailConstraints(_ view: UIView, txtFieldName: UITextField){
+    func buttonLogoutConstraints(_ view: UIView, labelUsername: UILabel){
         view.addSubview(self)
-        topAnchor.constraint(equalTo: txtFieldName.bottomAnchor, constant: 10).isActive = true
-        centerXAnchor.constraint(equalTo: txtFieldName.centerXAnchor).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
-        heightAnchor.constraint(equalToConstant: 35).isActive = true
+        leadingAnchor.constraint(equalTo: labelUsername.trailingAnchor, constant: 20).isActive = true
+        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25).isActive = true
+        centerYAnchor.constraint(equalTo: labelUsername.centerYAnchor).isActive = true
     }
     
-    func btnUpdateNameOrEmailConstraints(_ view: UIView, txtFieldEmail: UITextField){
+    func dividerConstraints(_ view: UIView, buttonLogout: UIButton){
         view.addSubview(self)
-        centerXAnchor.constraint(equalTo: txtFieldEmail.centerXAnchor).isActive = true
-        topAnchor.constraint(equalTo: txtFieldEmail.bottomAnchor, constant: 10).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        heightAnchor.constraint(equalToConstant: 1).isActive = true
+        topAnchor.constraint(equalTo: buttonLogout.bottomAnchor, constant: 30).isActive = true
     }
     
-    func lblChangePasswordConstraints(_ view: UIView, btnUpdateNameOrEmail: UIButton){
+    func accountEditViewConstraints(_ view: UIView, divider: UIView){
         view.addSubview(self)
-        centerXAnchor.constraint(equalTo: btnUpdateNameOrEmail.centerXAnchor).isActive = true
-        topAnchor.constraint(equalTo: btnUpdateNameOrEmail.bottomAnchor, constant: 15).isActive = true
+        topAnchor.constraint(equalTo: divider.bottomAnchor, constant: 30).isActive = true
+        centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
     }
     
-    func txtFieldOldPasswordConstraints(_ view: UIView, lblChangePassword: UILabel){
+    func otherEditViewConstraints(_ view: UIView, otherEditView: UIView){
         view.addSubview(self)
-        centerXAnchor.constraint(equalTo: lblChangePassword.centerXAnchor).isActive = true
-        topAnchor.constraint(equalTo: lblChangePassword.bottomAnchor, constant: 10).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
-        heightAnchor.constraint(equalToConstant: 35).isActive = true
-    }
-    
-    func txtFieldNewPasswordConstraints(_ view: UIView, txtFieldOldPassword: UITextField){
-        view.addSubview(self)
-        topAnchor.constraint(equalTo: txtFieldOldPassword.bottomAnchor, constant: 10).isActive = true
-        centerXAnchor.constraint(equalTo: txtFieldOldPassword.centerXAnchor).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
-        heightAnchor.constraint(equalToConstant: 35).isActive = true
-    }
-    
-    func txtFieldNewPasswordAgainConstraints(_ view: UIView, txtFieldNewPassword: UITextField){
-        view.addSubview(self)
-        topAnchor.constraint(equalTo: txtFieldNewPassword.bottomAnchor, constant: 10).isActive = true
-        centerXAnchor.constraint(equalTo: txtFieldNewPassword.centerXAnchor).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
-        heightAnchor.constraint(equalToConstant: 35).isActive = true
-    }
-    
-    func btnUpdatePasswordConstraints(_ view: UIView, txtFieldNewPasswordAgain: UITextField){
-        view.addSubview(self)
-        centerXAnchor.constraint(equalTo: txtFieldNewPasswordAgain.centerXAnchor).isActive = true
-        topAnchor.constraint(equalTo: txtFieldNewPasswordAgain.bottomAnchor, constant: 10).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
-    }
-    
-    func btnLogoutConstraints(_ view: UIView, btnUpdatePassword: UIButton){
-        view.addSubview(self)
-        topAnchor.constraint(equalTo: btnUpdatePassword.bottomAnchor, constant: 10).isActive = true
-        centerXAnchor.constraint(equalTo: btnUpdatePassword.centerXAnchor).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-        trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
-    }
-}
-
-// MARK: -TextField Padding Placeholder
-private class RightAlignedTextField: UITextField {
-    override func textRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.insetBy(dx: 20, dy: 0)
-    }
-
-    override func editingRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.insetBy(dx: 20, dy: 0)
+        topAnchor.constraint(equalTo: otherEditView.bottomAnchor, constant: 30).isActive = true
+        centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
     }
 }

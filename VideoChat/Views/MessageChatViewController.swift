@@ -74,6 +74,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         imageView.contentMode = .scaleAspectFit
         imageView.layer.cornerRadius = 25
         imageView.clipsToBounds = true
+        imageView.tintColor = .black
         return imageView
     }()
     
@@ -120,7 +121,7 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     var currentUserUID = UInt()
     
     let messageChatViewModel = MessageChatViewModel()
-    
+     
     private let smallNotification = SmallNotification()
     
     // MARK: -LifeCycle
@@ -169,8 +170,8 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
         stackViewBottomAnchor.isActive = true
         
         
-        imgViewUserPhoto.imgViewUserPhotoConstraints(userInfoView)
-        btnBack.btnBackConstraints(userInfoView, imgViewUserPhoto: imgViewUserPhoto)
+        btnBack.btnBackConstraints(userInfoView)
+        imgViewUserPhoto.imgViewUserPhotoConstraints(userInfoView, btnBack: btnBack)
         lblUsername.lblUsernameConstraints(userInfoView, imgViewUserPhoto: imgViewUserPhoto)
         btnVideoCall.btnVideoCallConstraints(userInfoView, btnBack: btnBack)
         
@@ -197,9 +198,15 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     private func profilePhotoCheck(){
-        messageChatViewModel.getProfileImage(withURL: remoteUser.userPhoto) { image in
+        if(remoteUser.userPhoto == ""){
             DispatchQueue.main.async {
-                self.imgViewUserPhoto.image = image
+                self.imgViewUserPhoto.image = UIImage(systemName: "person.circle")
+            }
+        } else{
+            messageChatViewModel.getProfileImage(withURL: remoteUser.userPhoto) { image in
+                DispatchQueue.main.async {
+                    self.imgViewUserPhoto.image = image
+                }
             }
         }
     }
@@ -230,7 +237,11 @@ class MessageChatViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     @objc private func btnSendTarget(){
-        messageChatViewModel.sendMessage()
+        if(remoteUser.uid != "ai"){
+            messageChatViewModel.sendMessage()
+        } else{
+            messageChatViewModel.sendMessageForAI(txtFieldMessage.text)
+        }
     }
     
     private func scrollToBottomMessage() {
@@ -341,19 +352,19 @@ private extension UIView{
         heightAnchor.constraint(equalToConstant: 60).isActive = true
     }
 
-    func imgViewUserPhotoConstraints(_ view: UIView){
+    func imgViewUserPhotoConstraints(_ view: UIView, btnBack: UIButton){
         view.addSubview(self)
         topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
-        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 45).isActive = true
-        bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10).isActive = true
+        leadingAnchor.constraint(equalTo: btnBack.trailingAnchor, constant: 10).isActive = true
+        centerYAnchor.constraint(equalTo: btnBack.centerYAnchor).isActive = true
         widthAnchor.constraint(equalToConstant: 50).isActive = true
         heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
     
-    func btnBackConstraints(_ view: UIView, imgViewUserPhoto: UIImageView){
+    func btnBackConstraints(_ view: UIView){
         view.addSubview(self)
-        centerYAnchor.constraint(equalTo: imgViewUserPhoto.centerYAnchor).isActive = true
-        leadingAnchor.constraint(equalTo: imgViewUserPhoto.leadingAnchor, constant: -30).isActive = true
+        bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10).isActive = true
+        leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
         widthAnchor.constraint(equalToConstant: 44).isActive = true
         heightAnchor.constraint(equalToConstant: 44).isActive = true
     }

@@ -17,4 +17,18 @@ class NetworkManager{
             completion(response)
         }
     }
+    
+    public func postMessage(message: String, remoteUserID: String, completion: @escaping (_ result: DataResponse<Any, AFError>) -> Void) {
+        let parameters: [String: Any] = [
+            "message": message,
+            "remoteUserID": remoteUserID
+        ]
+
+        let url = "http://213.238.190.162:5001/process"
+
+        AF.request(url, method: .post, parameters: parameters, encoding: JSONEncoding.default)
+            .responseJSON { response in
+                completion(response)
+            }
+    }
 }

@@ -27,6 +27,7 @@
 		4F680C6329B0CD4800081B51 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C6129B0CD4800081B51 /* LaunchScreen.storyboard */; };
 		4F680C6C29B0CF5600081B51 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4F680C6B29B0CF5500081B51 /* GoogleService-Info.plist */; };
 		4F6EB2F92A56D2080075BFD1 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6EB2F82A56D2080075BFD1 /* MapViewController.swift */; };
+		4F7076042A67E40200D83597 /* ProfileRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F7076032A67E40200D83597 /* ProfileRow.swift */; };
 		4F8250652A44304B0084CEDC /* SelectGenderPopUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8250642A44304B0084CEDC /* SelectGenderPopUp.swift */; };
 		4F87C10929C73B100059EC6F /* MessageChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F87C10829C73B100059EC6F /* MessageChatViewController.swift */; };
 		4F944E6329B35D3500B7AC14 /* MatchHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F944E6229B35D3500B7AC14 /* MatchHomeViewController.swift */; };
@@ -80,6 +81,7 @@
 		4F680C6429B0CD4800081B51 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4F680C6B29B0CF5500081B51 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		4F6EB2F82A56D2080075BFD1 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
+		4F7076032A67E40200D83597 /* ProfileRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileRow.swift; sourceTree = "<group>"; };
 		4F8250642A44304B0084CEDC /* SelectGenderPopUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectGenderPopUp.swift; sourceTree = "<group>"; };
 		4F87C10829C73B100059EC6F /* MessageChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageChatViewController.swift; sourceTree = "<group>"; };
 		4F944E6229B35D3500B7AC14 /* MatchHomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchHomeViewController.swift; sourceTree = "<group>"; };
@@ -209,6 +211,7 @@
 				4F515EF92A45BACE0017D5D2 /* BuyCoinViewController.swift */,
 				4F515EFB2A45C1E60017D5D2 /* PackageButton.swift */,
 				4F6EB2F82A56D2080075BFD1 /* MapViewController.swift */,
+				4F7076032A67E40200D83597 /* ProfileRow.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -420,6 +423,7 @@
 				4F680C5B29B0CD4600081B51 /* ViewController.swift in Sources */,
 				4FC6250929BD185C00698116 /* MatchHomeViewModel.swift in Sources */,
 				4FA2967A29C5D5C000398BFE /* MessagesViewController.swift in Sources */,
+				4F7076042A67E40200D83597 /* ProfileRow.swift in Sources */,
 				4FCA50B129C5F0A300E0DC8E /* MessageTableViewCell.swift in Sources */,
 				4FA2967829C5D5B100398BFE /* ProfileViewController.swift in Sources */,
 				4FA6348929BD481E00F7C75E /* RTCTokenModel.swift in Sources */,
